@@ -1,69 +1,64 @@
 import { Link } from "react-router-dom";
+import AxonLogo from "./AxonLogo";
 
 function Navbar() {
+  const navItems = ["Features", "Workflow", "About", "Contact"];
+
   return (
-    <header className="fixed top-0 left-0 w-full z-50 border-b border-[#30363d]/60 bg-[#0d1117]/80 backdrop-blur-xl">
-      <div className="max-w-7xl mx-auto px-6 lg:px-10">
+    <header className="fixed top-0 left-0 w-full z-50 border-b border-[#30363d]/60 bg-[#0d1117]/90 backdrop-blur-xl">
+      <div className="w-full px-6 lg:px-10">
         <div className="h-20 flex items-center justify-between">
-          {/* LEFT */}
-          <div className="flex items-center gap-3">
-            {/* Logo */}
-            <div className="w-10 h-10 rounded-xl bg-[#2f81f7] flex items-center justify-center shadow-lg shadow-blue-500/20">
-              <span className="text-white font-semibold text-lg">A</span>
-            </div>
-
-            {/* App Name */}
-            <div className="flex items-center gap-3">
-              <h1 className="text-[#c9d1d9] text-xl font-semibold tracking-tight">
-                Axon
-              </h1>
-
-              <span className="text-xs text-[#8b949e] border border-[#30363d] px-2 py-1 rounded-full">
-                v1.0
-              </span>
-            </div>
-          </div>
-
-          {/* CENTER NAVIGATION */}
-          <nav className="hidden md:flex items-center gap-10">
-            <a
-              href="#features"
-              className="text-[#8b949e] hover:text-[#c9d1d9] transition-colors duration-200 text-sm font-medium"
-            >
-              Features
-            </a>
-
-            <a
-              href="#workflow"
-              className="text-[#8b949e] hover:text-[#c9d1d9] transition-colors duration-200 text-sm font-medium"
-            >
-              Workflow
-            </a>
-
-            <a
-              href="#about"
-              className="text-[#8b949e] hover:text-[#c9d1d9] transition-colors duration-200 text-sm font-medium"
-            >
-              About
-            </a>
-
-            <a
-              href="#contact"
-              className="text-[#8b949e] hover:text-[#c9d1d9] transition-colors duration-200 text-sm font-medium"
-            >
-              Contact
-            </a>
-          </nav>
-
-          {/* RIGHT */}
+          {/* LEFT SECTION */}
           <div className="flex items-center">
-            <Link
-              to="/auth"
-              className="border border-[#30363d] bg-[#161b22] hover:bg-[#21262d] px-5 py-2.5 rounded-xl text-[#c9d1d9] hover:text-white transition-all duration-200 text-sm font-medium"
-            >
-              Sign In
+            <Link to="/" className="flex items-center gap-3.5 group">
+              <div className="transition-transform duration-500 group-hover:scale-105">
+                <AxonLogo />
+              </div>
+              {/* Logo name */}
+              <div className="flex items-baseline gap-2.5">
+                <span
+                  className="text-[22px] font-semibold tracking-tight"
+                  style={{
+                    fontFamily: "'Outfit', sans-serif",
+                    background: "linear-gradient(135deg, #e2e8f0, #94a3b8)",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                  }}
+                >
+                  Axon
+                </span>
+              </div>
             </Link>
+
+            {/* Navigation */}
+            <nav
+              className="hidden md:flex items-center gap-9 ml-16"
+              style={{
+                fontFamily: "'Space Grotesk', sans-serif",
+              }}
+            >
+              {navItems.map((item) => (
+                <a
+                  key={item}
+                  href={`#${item.toLowerCase()}`}
+                  className="text-[13px] font-medium text-[#6b7280] hover:text-[#c9d1d9] tracking-[0.2px] transition-colors duration-200"
+                >
+                  {item}
+                </a>
+              ))}
+            </nav>
           </div>
+
+          {/* RIGHT SECTION */}
+          <Link
+            to="/auth"
+            className="text-[13px] font-medium text-[#c9d1d9] hover:text-white border border-[#30363d] hover:border-[#4b5563] hover:bg-[#161b22] px-5 py-2 rounded-[10px] tracking-[0.3px] transition-all duration-200"
+            style={{
+              fontFamily: "'Space Grotesk', sans-serif",
+            }}
+          >
+            Sign In
+          </Link>
         </div>
       </div>
     </header>

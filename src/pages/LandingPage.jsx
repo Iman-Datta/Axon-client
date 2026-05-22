@@ -2,7 +2,7 @@ import { ArrowRight } from "lucide-react";
 
 function LandingPage() {
   return (
-    <main className="min-h-screen bg-[#0d1117] text-[#c9d1d9] overflow-hidden">
+    <main className="overflow-hidden">
       {/* HERO SECTION */}
       <section className="relative pt-40 pb-28 px-6">
         {/* Background Glow */}
