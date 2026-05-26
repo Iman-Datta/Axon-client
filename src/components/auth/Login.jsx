@@ -9,7 +9,7 @@ const GitHubIcon = () => (
 );
 
 function Login({ onRegister, onForgot }) {
-  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [formData, setFormData] = useState({ identifier: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => {
@@ -21,12 +21,17 @@ function Login({ onRegister, onForgot }) {
     // no api call — UI only
   };
 
+  // Detect whether user is typing an email or username
+  const isEmail = formData.identifier.includes("@");
+
   return (
     <div className="space-y-5">
       {/* HEADER */}
       <div>
         <h2 className="text-2xl font-bold text-[#c9d1d9]">Welcome back</h2>
-        <p className="mt-1 text-xs text-[#8b949e]">Sign in to continue to Axon</p>
+        <p className="mt-1 text-xs text-[#8b949e]">
+          Sign in to continue to Axon
+        </p>
       </div>
 
       {/* OAUTH BUTTONS */}
@@ -71,17 +76,27 @@ function Login({ onRegister, onForgot }) {
 
       {/* FORM */}
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* EMAIL */}
+        {/* EMAIL OR USERNAME */}
         <div>
-          <label className="block mb-1.5 text-xs text-[#c9d1d9]">Email</label>
+          <div className="flex items-center justify-between mb-1.5">
+            <label className="text-xs text-[#c9d1d9]">
+              {isEmail ? "Email" : "Username or Email"}
+            </label>
+            {/* Subtle hint that fades in once user starts typing */}
+            {formData.identifier.length > 0 && (
+              <span className="text-xs text-[#484f58]">
+                {isEmail ? "signing in with email" : "signing in with username"}
+              </span>
+            )}
+          </div>
           <input
-            type="email"
-            name="email"
-            value={formData.email}
+            type="text"
+            name="identifier"
+            value={formData.identifier}
             onChange={handleChange}
-            placeholder="you@example.com"
+            placeholder="username or email"
             required
-            autoComplete="email"
+            autoComplete="username"
             className="
               w-full
               bg-[#0d1117] border border-[#30363d]
@@ -132,10 +147,11 @@ function Login({ onRegister, onForgot }) {
               aria-label={showPassword ? "Hide password" : "Show password"}
               className="absolute top-1/2 right-3 -translate-y-1/2 text-[#8b949e] hover:text-[#c9d1d9] transition"
             >
-              {showPassword
-                ? <AiOutlineEyeInvisible size={17} />
-                : <AiOutlineEye size={17} />
-              }
+              {showPassword ? (
+                <AiOutlineEyeInvisible size={17} />
+              ) : (
+                <AiOutlineEye size={17} />
+              )}
             </button>
           </div>
         </div>

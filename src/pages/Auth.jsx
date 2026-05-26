@@ -1,46 +1,73 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 
 import Login from "../components/auth/Login";
 import Register from "../components/auth/Register";
 import ForgotPassword from "../components/auth/ForgotPassword";
 import AxonLogo from "../components/shared/AxonLogo";
+import { setAccessToken, setUser } from "../redux/slices/authSlice";
+
+const API = import.meta.env.VITE_API_URL;
 
 function Auth() {
   const [view, setView] = useState("login");
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.auth.user);
+
+  useEffect(() => {
+    if (user) {
+      navigate("/dashboard");
+    }
+  }, [user, navigate]);
+
+  const loginUser = async (email, password) => {
+    try {
+      const res = await fetch(`${API}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+        credentials: "include",
+      });
+
+      if (!res.ok && res.status === 403) {
+        navigate("/checkEmail", { state: { email } });
+        return;
+      }
+
+      const data = await res.json();
+      const token = data.accessToken;
+
+      if (!token) throw new Error(data.message || "Failed to login");
+
+      dispatch(setAccessToken(token));
+
+      const me = await fetch(`${API}/auth/me`, {
+        headers: { Authorization: `Bearer ${token}` },
+        credentials: "include",
+      });
+
+      const userData = await me.json();
+      dispatch(setUser(userData.user));
+
+      navigate("/task");
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-10 bg-[#0d1117]">
       <div
         className="
-          w-full
-          max-w-4xl
-          rounded-2xl
-          overflow-hidden
-          border
-          border-[#30363d]
-          shadow-2xl
-          shadow-black/50
-          grid
-          grid-cols-1
-          md:grid-cols-2
-        "
+          w-full max-w-4xl rounded-2xl overflow-hidden border border-[#30363d] shadow-2xl shadow-black/50 grid grid-cols-1 md:grid-cols-2"
       >
         {/* LEFT PANEL */}
         <div
           className="
-            hidden
-            md:flex
-            flex-col
-            justify-center
-            bg-[#0d1117]
-            border-r
-            border-[#30363d]
-            px-10
-            py-12
-          "
+            hidden md:flex flex-col justify-center bg-[#0d1117] border-r border-[#30363d] px-10 py-12"
         >
           <div className="space-y-10">
             {/* LOGO */}
@@ -75,7 +102,7 @@ function Auth() {
 
         {/* RIGHT PANEL */}
         <div className="relative flex items-start justify-center p-7 md:p-10 bg-[#161b22]">
-          {/* CLOSE */}
+          {/* CLOSE and go back to root*/}
           <button
             onClick={() => navigate("/")}
             className="absolute top-5 right-5 text-[#8b949e] hover:text-[#c9d1d9] transition z-10"
@@ -86,6 +113,7 @@ function Auth() {
           <div className="w-full max-w-sm">
             {view === "login" && (
               <Login
+                onLogin={loginUser}
                 onRegister={() => setView("register")}
                 onForgot={() => setView("forgot")}
               />
