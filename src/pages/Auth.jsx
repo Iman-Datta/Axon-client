@@ -25,7 +25,7 @@ function Auth() {
 
   const loginUser = async (identifier, password) => {
     try {
-      const res = await fetch(`${API}/auth/login`, {
+      const res = await fetch(`${API}/auth/login/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -57,6 +57,58 @@ function Auth() {
       console.error(err);
 
       throw err;
+    }
+  };
+
+  const registerUser = async (username, email, password) => {
+    try {
+      const res = await fetch(`${API}/auth/register/`, {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json",
+        },
+
+        credentials: "include",
+
+        body: JSON.stringify({
+          username: username.trim(),
+          email: email.trim().toLowerCase(),
+          password,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        let errorMessage = "Registration failed";
+
+        // Backend normal message
+        if (data.message) {
+          errorMessage = data.message;
+        }
+
+        // DRF serializer error handling
+        else if (data.username) {
+          errorMessage = data.username[0];
+        } else if (data.email) {
+          errorMessage = data.email[0];
+        } else if (data.password) {
+          errorMessage = data.password[0];
+        }
+
+        throw new Error(errorMessage);
+      }
+
+      navigate("/checkEmail", {
+        state: {
+          email,
+        },
+      });
+    } catch (error) {
+      console.error(error);
+
+      throw error;
     }
   };
 
@@ -121,7 +173,10 @@ function Auth() {
               />
             )}
             {view === "register" && (
-              <Register onLogin={() => setView("login")} />
+              <Register
+                onLogin={() => setView("login")}
+                onRegister={registerUser}
+              />
             )}
             {view === "forgot" && (
               <ForgotPassword onBack={() => setView("login")} />
