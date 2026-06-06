@@ -23,38 +23,40 @@ function Auth() {
     }
   }, [user, navigate]);
 
-  const loginUser = async (email, password) => {
+  const loginUser = async (identifier, password) => {
     try {
       const res = await fetch(`${API}/auth/login`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        headers: {
+          "Content-Type": "application/json",
+        },
         credentials: "include",
+        body: JSON.stringify({
+          identifier,
+          password,
+        }),
       });
-
-      if (!res.ok && res.status === 403) {
-        navigate("/checkEmail", { state: { email } });
-        return;
-      }
 
       const data = await res.json();
-      const token = data.accessToken;
+      if (!res.ok) {
+        if (res.status === 403) {
+          navigate("/checkEmail", {
+            state: { identifier },
+          });
 
-      if (!token) throw new Error(data.message || "Failed to login");
+          return;
+        }
 
-      dispatch(setAccessToken(token));
+        throw new Error(data.message || "Login failed");
+      }
 
-      const me = await fetch(`${API}/auth/me`, {
-        headers: { Authorization: `Bearer ${token}` },
-        credentials: "include",
-      });
+      dispatch(setAccessToken(data.access_token));
 
-      const userData = await me.json();
-      dispatch(setUser(userData.user));
-
-      navigate("/task");
+      dispatch(setUser(data.user));
     } catch (err) {
       console.error(err);
+
+      throw err;
     }
   };
 

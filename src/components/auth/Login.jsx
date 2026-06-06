@@ -8,17 +8,28 @@ const GitHubIcon = () => (
   </svg>
 );
 
-function Login({ onRegister, onForgot }) {
+function Login({ onLogin, onRegister, onForgot }) {
   const [formData, setFormData] = useState({ identifier: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // no api call — UI only
+    setError("");
+    setLoading(true);
+
+    try {
+      await onLogin(formData.identifier, formData.password);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Detect whether user is typing an email or username
@@ -33,6 +44,12 @@ function Login({ onRegister, onForgot }) {
           Sign in to continue to Axon
         </p>
       </div>
+
+      {error && (
+        <div className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900 px-3 py-2 rounded-lg">
+          {error}
+        </div>
+      )}
 
       {/* OAUTH BUTTONS */}
       <div className="grid grid-cols-2 gap-2">
@@ -79,9 +96,7 @@ function Login({ onRegister, onForgot }) {
         {/* EMAIL OR USERNAME */}
         <div>
           <div className="flex items-center justify-between mb-1.5">
-            <label className="text-xs text-[#c9d1d9]">
-              {isEmail ? "Email" : "Username or Email"}
-            </label>
+            <label>Email or username</label>
             {/* Subtle hint that fades in once user starts typing */}
             {formData.identifier.length > 0 && (
               <span className="text-xs text-[#484f58]">
@@ -159,16 +174,20 @@ function Login({ onRegister, onForgot }) {
         {/* SUBMIT */}
         <button
           type="submit"
+          disabled={loading}
           className="
-            w-full bg-[#2f81f7] hover:bg-[#1f6feb]
-            text-white rounded-xl py-2.5
-            text-sm font-medium
-            transition-all duration-200
-            shadow-md shadow-blue-500/20
-            mt-1
-          "
+    w-full bg-[#2f81f7] hover:bg-[#1f6feb]
+    disabled:opacity-60
+    disabled:cursor-not-allowed
+    disabled:hover:bg-[#2f81f7]
+    text-white rounded-xl py-2.5
+    text-sm font-medium
+    transition-all duration-200
+    shadow-md shadow-blue-500/20
+    mt-1
+  "
         >
-          Sign In
+          {loading ? "Signing in..." : "Sign In"}
         </button>
       </form>
 
