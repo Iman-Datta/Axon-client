@@ -1,4 +1,6 @@
 import { Routes, Route, useLocation } from "react-router-dom";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 import Navbar from "./components/shared/Navbar";
 
@@ -8,8 +10,50 @@ import Dashboard from "./pages/Dashboard";
 import CheckEmail from "./pages/CheckEmail";
 import EmailCallback from "./pages/EmailCallback";
 
+import { setUser, setAuthLoading, clearUser } from "./redux/slices/authSlice";
+
+import { fetchWithAuth } from "./utils/fetchWithAuth";
+
+const API = import.meta.env.VITE_API_URL;
+
 function App() {
   const location = useLocation();
+  const dispatch = useDispatch();
+
+  const accessToken = useSelector((state) => state.auth.accessToken);
+  const isAuthLoading = useSelector((state) => state.auth.isAuthLoading);
+
+  useEffect(() => {
+    const restoreAuth = async () => {
+      try {
+        const res = await fetchWithAuth(
+          `${API}/auth/me/`,
+          {},
+          dispatch,
+          accessToken,
+        );
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error("Auth failed");
+        }
+
+        dispatch(setUser(data.user));
+      } catch (error) {
+        dispatch(clearUser());
+        console.log(error);
+      } finally {
+        dispatch(setAuthLoading(false));
+      }
+    };
+
+    restoreAuth();
+  }, [dispatch]);
+
+  if (isAuthLoading) {
+    return <div className="bg-[#0d1117] min-h-screen" />;
+  }
 
   return (
     <div className="bg-[#0d1117] text-[#c9d1d9] min-h-screen">

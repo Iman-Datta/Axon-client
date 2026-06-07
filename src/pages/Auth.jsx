@@ -43,15 +43,12 @@ function Auth() {
           navigate("/checkEmail", {
             state: { identifier },
           });
-
           return;
         }
 
         throw new Error(data.message || "Login failed");
       }
-
       dispatch(setAccessToken(data.access_token));
-
       dispatch(setUser(data.user));
     } catch (err) {
       console.error(err);
@@ -64,13 +61,10 @@ function Auth() {
     try {
       const res = await fetch(`${API}/auth/register/`, {
         method: "POST",
-
         headers: {
           "Content-Type": "application/json",
         },
-
         credentials: "include",
-
         body: JSON.stringify({
           username: username.trim(),
           email: email.trim().toLowerCase(),
@@ -83,7 +77,6 @@ function Auth() {
       if (!res.ok) {
         let errorMessage = "Registration failed";
 
-        // Backend normal message
         if (data.message) {
           errorMessage = data.message;
         }
@@ -99,15 +92,9 @@ function Auth() {
 
         throw new Error(errorMessage);
       }
-
-      navigate("/checkEmail", {
-        state: {
-          email,
-        },
-      });
+      navigate("/checkEmail", { state: { email } });
     } catch (error) {
       console.error(error);
-
       throw error;
     }
   };
