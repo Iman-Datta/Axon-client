@@ -6,7 +6,12 @@ const GitHubIcon = () => (
   </svg>
 );
 
+const API = import.meta.env.VITE_API_URL;
+
 function OAuth() {
+  const googleLogin = () => {
+    window.location.href = `${API}/auth/google/`;
+  };
   return (
     <div className="grid grid-cols-2 gap-2">
       <button
@@ -28,6 +33,7 @@ function OAuth() {
 
       <button
         type="button"
+        onClick={googleLogin}
         className="
           flex items-center justify-center gap-2
           border border-[#30363d]
