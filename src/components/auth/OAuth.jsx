@@ -12,10 +12,15 @@ function OAuth() {
   const googleLogin = () => {
     window.location.href = `${API}/auth/google/`;
   };
+
+  const githubLogin = () => {
+    window.location.href = `${API}/auth/github/`;
+  };
   return (
     <div className="grid grid-cols-2 gap-2">
       <button
         type="button"
+        onClick={githubLogin}
         className="
           flex items-center justify-center gap-2
           border border-[#30363d]
