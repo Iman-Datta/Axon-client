@@ -6,7 +6,11 @@ import { fetchWithAuth } from "../../utils/fetchWithAuth";
 
 const API = import.meta.env.VITE_API_URL;
 
-export default function GithubCard({ status = "pending" }) {
+export default function GithubCard({
+  status = "pending",
+  githubUsername = "",
+  githubAvatar = "",
+}) {
   const isDone = status === "done";
 
   const [connecting, setConnecting] = useState(false);
@@ -145,11 +149,24 @@ export default function GithubCard({ status = "pending" }) {
       )}
 
       {/* Done */}
+      {/* Done */}
       {isDone && (
-        <div className="mt-3 rounded-lg border border-[#30363d] bg-[#0d1117] px-3 py-2.5">
-          <span className="text-sm text-[#c9d1d9]">
-            GitHub connected successfully
-          </span>
+        <div className="mt-3 flex items-center gap-3 rounded-lg border border-[#30363d] bg-[#0d1117] px-3 py-2.5">
+          {githubAvatar && (
+            <img
+              src={githubAvatar}
+              alt="GitHub avatar"
+              className="h-7 w-7 rounded-full border border-[#30363d]"
+            />
+          )}
+
+          <div>
+            <p className="text-sm font-medium text-[#c9d1d9]">
+              @{githubUsername}
+            </p>
+
+            <p className="text-xs text-[#8b949e]">Connected successfully</p>
+          </div>
         </div>
       )}
     </div>

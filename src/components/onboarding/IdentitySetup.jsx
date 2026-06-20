@@ -4,7 +4,10 @@ import UsernameCard from "./UsernameCard";
 import EmailCard from "./EmailCard";
 import GithubCard from "./GithubCard";
 
-export default function IdentitySetup({ requirements, refresh }) {
+export default function IdentitySetup({ identity, refresh, nextStep }) {
+  const requirements = identity.requirements;
+  const data = identity.data;
+
   const needs = {
     // Convert completed requirements into missing requirements
     username: !requirements.username,
@@ -55,21 +58,27 @@ export default function IdentitySetup({ requirements, refresh }) {
       <div className="space-y-3">
         <UsernameCard
           status={needs.username ? "pending" : "done"}
+          usernameValue={data.username}
           refresh={refresh}
         />
 
         <EmailCard
           status={needs.email ? "pending" : "done"}
+          emailValue={data.email}
           refresh={refresh}
         />
 
-        <GithubCard status={needs.github ? "pending" : "done"} />
+        <GithubCard
+          status={needs.github ? "pending" : "done"}
+          githubUsername={data.github?.username}
+          githubAvatar={data.github?.avatar}
+        />
       </div>
 
       {/* Continue */}
       <div className="mt-8 space-y-2">
         <button
-          onClick={refresh}
+          onClick={nextStep}
           disabled={!allDone}
           className="
             w-full rounded-lg bg-[#238636] py-3 text-sm font-semibold text-white

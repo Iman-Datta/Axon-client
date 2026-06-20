@@ -5,15 +5,18 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchWithAuth } from "../../utils/fetchWithAuth";
 
 const API = import.meta.env.VITE_API_URL;
-
-export default function UsernameCard({ status = "pending", refresh }) {
+export default function UsernameCard({
+  status = "pending",
+  usernameValue = "",
+  refresh,
+}) {
   const dispatch = useDispatch();
   const accessToken = useSelector((state) => state.auth.accessToken);
 
   const isDone = status === "done";
   const isActive = status === "active";
 
-  const [username, setUsername] = useState("");
+  const [username, setUsername] = useState(usernameValue || "");
   const [available, setAvailable] = useState(null);
   const [checking, setChecking] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -42,9 +45,21 @@ export default function UsernameCard({ status = "pending", refresh }) {
         );
 
         const data = await res.json();
-        
+
         if (!res.ok) {
-          throw new Error("Username check failed");
+          setAvailable(false);
+
+          setError(
+            data.message || "Only letters, numbers and underscore allowed",
+          );
+
+          return;
+        }
+
+        setAvailable(data.available);
+
+        if (!data.available) {
+          setError("Username already taken");
         }
         setAvailable(data.available);
       } catch (err) {
@@ -198,10 +213,6 @@ export default function UsernameCard({ status = "pending", refresh }) {
             </p>
           )}
 
-          {available === false && (
-            <p className="mt-1 text-xs text-red-400">Username already taken</p>
-          )}
-
           {error && <p className="mt-1 text-xs text-red-400">{error}</p>}
         </div>
       )}
@@ -210,10 +221,7 @@ export default function UsernameCard({ status = "pending", refresh }) {
       {isDone && (
         <div className="mt-3 flex items-center gap-2 rounded-lg border border-[#30363d] bg-[#0d1117] px-3 py-2.5">
           <span className="text-sm text-[#8b949e]">@</span>
-          <span className="text-sm text-[#c9d1d9]">iman-datta</span>
-          <button className="ml-auto text-xs text-[#388bfd] hover:underline">
-            Change
-          </button>
+          <span className="text-sm text-[#c9d1d9]">{usernameValue}</span>
         </div>
       )}
     </div>

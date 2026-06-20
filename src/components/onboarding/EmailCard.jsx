@@ -6,12 +6,16 @@ import { fetchWithAuth } from "../../utils/fetchWithAuth";
 
 const API = import.meta.env.VITE_API_URL;
 
-export default function EmailCard({ status = "pending", refresh }) {
+export default function EmailCard({
+  status = "pending",
+  emailValue = "",
+  refresh,
+}) {
   const isDone = status === "done";
 
   const dispatch = useDispatch();
   const accessToken = useSelector((state) => state.auth.accessToken);
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(emailValue || "");
   const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [sending, setSending] = useState(false);
@@ -195,7 +199,7 @@ export default function EmailCard({ status = "pending", refresh }) {
         <div className="mt-4 space-y-3">
           <p className="text-xs text-[#8b949e]">
             Enter the 6-digit code sent to{" "}
-            <span className="font-medium text-[#c9d1d9]">{email}</span>
+            <span className="font-medium text-[#c9d1d9]">{emailValue}</span>
           </p>
           <div className="flex gap-2">
             <input
@@ -263,9 +267,6 @@ export default function EmailCard({ status = "pending", refresh }) {
             />
           </svg>
           <span className="font-medium text-[#c9d1d9]">{email}</span>
-          <button className="ml-auto text-xs text-[#388bfd] hover:underline">
-            Change
-          </button>
         </div>
       )}
     </div>

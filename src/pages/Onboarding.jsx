@@ -1,3 +1,6 @@
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 import IdentitySetup from "../components/onboarding/IdentitySetup";
 import CompleteProfile from "../components/onboarding/CompleteProfile";
 
@@ -10,16 +13,17 @@ const STEPS = [
 
 export default function Onboarding() {
   const { status, loading, refresh } = useOnboarding();
+  const navigate = useNavigate();
 
-  let step = null;
+  const [step, setStep] = useState(1);
 
-  if (status) {
-    if (!status.identity.status) {
-      step = 1;
-    } else if (!status.profile.status) {
-      step = 2;
+  useEffect(() => {
+    if (step === 3) {
+      navigate("/dashboard", {
+        replace: true,
+      });
     }
-  }
+  }, [step, navigate]);
 
   if (loading || step === null) {
     return <div className="min-h-screen bg-[#0d1117]" />;
@@ -109,12 +113,15 @@ export default function Onboarding() {
           <div>
             {step === 1 && (
               <IdentitySetup
-                requirements={status.identity.requirements}
+                identity={status.identity}
                 refresh={refresh}
+                nextStep={() => setStep(2)}
               />
             )}
 
-            {step === 2 && <CompleteProfile refresh={refresh} />}
+            {step === 2 && (
+              <CompleteProfile profile={status.profile} refresh={refresh} />
+            )}
           </div>
         </div>
       </main>
