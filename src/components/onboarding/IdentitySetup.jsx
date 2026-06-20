@@ -1,17 +1,15 @@
-// Pure step content — no header, no page wrapper.
-// Onboarding.jsx owns all layout chrome.
-// Wire up: fetch /onboarding/status/ → set `needs` → pass status props to cards.
+import { ArrowRight } from "lucide-react";
 
 import UsernameCard from "./UsernameCard";
 import EmailCard from "./EmailCard";
 import GithubCard from "./GithubCard";
 
-export default function IdentitySetup({ onNext }) {
-  // Mock — replace with real data from /onboarding/status/
+export default function IdentitySetup({ requirements, refresh }) {
   const needs = {
-    username: true,
-    email: false, // already has it (e.g. signed up with email/password)
-    github: true,
+    // Convert completed requirements into missing requirements
+    username: !requirements.username,
+    email: !requirements.email,
+    github: !requirements.github,
   };
 
   const pendingCount = Object.values(needs).filter(Boolean).length;
@@ -55,15 +53,23 @@ export default function IdentitySetup({ onNext }) {
 
       {/* Cards — always render all 3, status drives appearance */}
       <div className="space-y-3">
-        <UsernameCard status={needs.username ? "pending" : "done"} />
-        <EmailCard status={needs.email ? "pending" : "done"} />
+        <UsernameCard
+          status={needs.username ? "pending" : "done"}
+          refresh={refresh}
+        />
+
+        <EmailCard
+          status={needs.email ? "pending" : "done"}
+          refresh={refresh}
+        />
+
         <GithubCard status={needs.github ? "pending" : "done"} />
       </div>
 
       {/* Continue */}
       <div className="mt-8 space-y-2">
         <button
-          onClick={onNext}
+          onClick={refresh}
           disabled={!allDone}
           className="
             w-full rounded-lg bg-[#238636] py-3 text-sm font-semibold text-white
@@ -72,7 +78,10 @@ export default function IdentitySetup({ onNext }) {
             disabled:cursor-not-allowed disabled:opacity-40
           "
         >
-          Continue →
+          <span className="flex items-center justify-center gap-2">
+            Continue
+            <ArrowRight size={16} />
+          </span>
         </button>
 
         {!allDone && (

@@ -1,149 +1,252 @@
-// UI only – no logic. Wire up state/handlers in CompleteProfile.jsx
+import { useState } from "react";
+import { Loader2 } from "lucide-react";
 
-export default function ProfileForm() {
+import { useDispatch, useSelector } from "react-redux";
+import { fetchWithAuth } from "../../utils/fetchWithAuth";
+
+const API = import.meta.env.VITE_API_URL;
+
+export default function ProfileForm({ refresh }) {
+  const dispatch = useDispatch();
+  const accessToken = useSelector((state) => state.auth.accessToken);
+
+  const [form, setForm] = useState({
+    display_name: "",
+    bio: "",
+    role: "",
+    stack: "",
+    website: "",
+  });
+
+  const [avatar, setAvatar] = useState(null);
+
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  const updateField = (e) => {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value,
+    });
+
+    setError("");
+  };
+
+  const submitProfile = async () => {
+    if (!form.display_name.trim()) {
+      setError("Display name required");
+      return;
+    }
+
+    try {
+      setSaving(true);
+      setError("");
+
+      const body = new FormData();
+
+      body.append("display_name", form.display_name.trim());
+
+      body.append("bio", form.bio.trim());
+
+      body.append("role", form.role);
+
+      body.append("stack", form.stack.trim());
+
+      body.append("website", form.website.trim());
+
+      if (avatar) {
+        body.append("avatar", avatar);
+      }
+
+      const res = await fetchWithAuth(
+        `${API}/auth/profile/complete/`,
+        {
+          method: "PATCH",
+          body,
+        },
+        dispatch,
+        accessToken,
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Profile update failed");
+      }
+
+      refresh();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <div className="space-y-5">
-      {/* Avatar upload */}
+      {/* Avatar */}
       <div className="flex items-center gap-5">
-        <div className="relative">
-          <div className="h-20 w-20 rounded-full border-2 border-dashed border-[#30363d] bg-[#0d1117] flex items-center justify-center text-[#484f58] hover:border-[#388bfd]/50 hover:text-[#388bfd] transition-all cursor-pointer group">
-            <svg
-              className="h-7 w-7"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={1.5}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"
-              />
-            </svg>
-          </div>
-        </div>
+        <label
+          className="
+          h-20 w-20 rounded-full
+          border-2 border-dashed
+          border-[#30363d]
+          bg-[#0d1117]
+          flex items-center justify-center
+          cursor-pointer
+          overflow-hidden
+          "
+        >
+          {avatar ? (
+            <img
+              src={URL.createObjectURL(avatar)}
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <span className="text-xs text-[#8b949e]">Upload</span>
+          )}
+
+          <input
+            hidden
+            type="file"
+            accept="image/*"
+            onChange={(e) => setAvatar(e.target.files[0])}
+          />
+        </label>
+
         <div>
           <p className="text-sm font-medium text-[#c9d1d9]">Profile picture</p>
-          <p className="mt-0.5 text-xs text-[#8b949e]">PNG, JPG up to 2MB.</p>
-          <button className="mt-2 text-xs text-[#388bfd] hover:underline">
-            Upload photo
-          </button>
+
+          <p className="text-xs text-[#8b949e]">PNG, JPG up to 2MB.</p>
         </div>
       </div>
 
-      {/* Divider */}
       <div className="border-t border-[#21262d]" />
 
-      {/* Display name */}
-      <div className="space-y-1.5">
-        <label className="block text-sm font-medium text-[#c9d1d9]">
-          Display name
-        </label>
+      {/* Name */}
+
+      <div>
+        <label className="text-sm text-[#c9d1d9]">Display name</label>
+
         <input
-          type="text"
+          name="display_name"
+          value={form.display_name}
+          onChange={updateField}
           placeholder="Iman Datta"
           className="
-            w-full rounded-lg border border-[#30363d] bg-[#0d1117]
-            px-3 py-2.5 text-sm text-[#c9d1d9] placeholder-[#484f58]
-            outline-none transition-all
-            focus:border-[#388bfd] focus:ring-1 focus:ring-[#388bfd]/30
+          mt-1 w-full rounded-lg
+          border border-[#30363d]
+          bg-[#0d1117]
+          px-3 py-2.5
+          text-[#c9d1d9]
+          outline-none
           "
         />
-        <p className="text-[11px] text-[#484f58]">
-          This is shown on your public profile and in comments.
-        </p>
       </div>
 
       {/* Bio */}
-      <div className="space-y-1.5">
-        <label className="block text-sm font-medium text-[#c9d1d9]">
-          Bio
-          <span className="ml-2 text-xs font-normal text-[#484f58]">
-            optional
-          </span>
-        </label>
+
+      <div>
+        <label className="text-sm text-[#c9d1d9]">Bio</label>
+
         <textarea
+          name="bio"
+          maxLength={160}
+          value={form.bio}
+          onChange={updateField}
           rows={3}
-          placeholder="Tell the community a bit about yourself…"
+          placeholder="Tell the community about yourself"
           className="
-            w-full resize-none rounded-lg border border-[#30363d] bg-[#0d1117]
-            px-3 py-2.5 text-sm text-[#c9d1d9] placeholder-[#484f58]
-            outline-none transition-all
-            focus:border-[#388bfd] focus:ring-1 focus:ring-[#388bfd]/30
+          mt-1 w-full resize-none rounded-lg
+          border border-[#30363d]
+          bg-[#0d1117]
+          px-3 py-2.5
+          text-[#c9d1d9]
+          outline-none
           "
         />
-        <p className="text-right text-[11px] text-[#484f58]">0 / 160</p>
+
+        <p className="text-right text-xs text-[#484f58]">
+          {form.bio.length}/160
+        </p>
       </div>
 
-      {/* Role + Stack — 2-col */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-1.5">
-          <label className="block text-sm font-medium text-[#c9d1d9]">
-            Role
-            <span className="ml-2 text-xs font-normal text-[#484f58]">
-              optional
-            </span>
-          </label>
-          <select
-            className="
-              w-full rounded-lg border border-[#30363d] bg-[#0d1117]
-              px-3 py-2.5 text-sm text-[#c9d1d9]
-              outline-none transition-all appearance-none
-              focus:border-[#388bfd] focus:ring-1 focus:ring-[#388bfd]/30
-            "
-          >
-            <option value="" className="text-[#484f58]">
-              Select role
-            </option>
-            <option>Full-stack Developer</option>
-            <option>Frontend Developer</option>
-            <option>Backend Developer</option>
-            <option>DevOps Engineer</option>
-            <option>ML / AI Engineer</option>
-            <option>Student</option>
-            <option>Other</option>
-          </select>
-        </div>
+      {/* Role + Stack */}
 
-        <div className="space-y-1.5">
-          <label className="block text-sm font-medium text-[#c9d1d9]">
-            Primary stack
-            <span className="ml-2 text-xs font-normal text-[#484f58]">
-              optional
-            </span>
-          </label>
-          <input
-            type="text"
-            placeholder="React, Node, Python…"
-            className="
-              w-full rounded-lg border border-[#30363d] bg-[#0d1117]
-              px-3 py-2.5 text-sm text-[#c9d1d9] placeholder-[#484f58]
-              outline-none transition-all
-              focus:border-[#388bfd] focus:ring-1 focus:ring-[#388bfd]/30
-            "
-          />
-        </div>
+      <div className="grid grid-cols-2 gap-4">
+        <select
+          name="role"
+          value={form.role}
+          onChange={updateField}
+          className="
+          rounded-lg
+          border border-[#30363d]
+          bg-[#0d1117]
+          px-3 py-2.5
+          text-[#c9d1d9]
+          "
+        >
+          <option value="">Select role</option>
+
+          <option>Full-stack Developer</option>
+
+          <option>Frontend Developer</option>
+
+          <option>Backend Developer</option>
+
+          <option>Student</option>
+        </select>
+
+        <input
+          name="stack"
+          value={form.stack}
+          onChange={updateField}
+          placeholder="React, Django"
+          className="
+          rounded-lg
+          border border-[#30363d]
+          bg-[#0d1117]
+          px-3 py-2.5
+          text-[#c9d1d9]
+          "
+        />
       </div>
 
       {/* Website */}
-      <div className="space-y-1.5">
-        <label className="block text-sm font-medium text-[#c9d1d9]">
-          Website
-          <span className="ml-2 text-xs font-normal text-[#484f58]">
-            optional
-          </span>
-        </label>
-        <div className="flex items-center rounded-lg border border-[#30363d] bg-[#0d1117] focus-within:border-[#388bfd] focus-within:ring-1 focus-within:ring-[#388bfd]/30 transition-all">
-          <span className="select-none border-r border-[#30363d] px-3 py-2.5 text-sm text-[#484f58]">
-            https://
-          </span>
-          <input
-            type="text"
-            placeholder="yoursite.dev"
-            className="flex-1 bg-transparent px-3 py-2.5 text-sm text-[#c9d1d9] placeholder-[#484f58] outline-none"
-          />
-        </div>
-      </div>
+
+      <input
+        name="website"
+        value={form.website}
+        onChange={updateField}
+        placeholder="https://yoursite.dev"
+        className="
+        w-full rounded-lg
+        border border-[#30363d]
+        bg-[#0d1117]
+        px-3 py-2.5
+        text-[#c9d1d9]
+        "
+      />
+
+      {error && <p className="text-xs text-red-400">{error}</p>}
+
+      <button
+        onClick={submitProfile}
+        disabled={saving}
+        className="
+        w-full rounded-lg
+        bg-[#238636]
+        py-3
+        text-white
+        disabled:opacity-50
+        "
+      >
+        {saving ? (
+          <Loader2 className="mx-auto animate-spin" />
+        ) : (
+          "Complete Profile"
+        )}
+      </button>
     </div>
   );
 }

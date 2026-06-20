@@ -1,9 +1,88 @@
-// UI only – no logic. Wire up state/handlers in IdentitySetup.jsx
+import { useState } from "react";
+import { Loader2 } from "lucide-react";
 
-export default function EmailCard({ status = "pending" }) {
-  // status: "pending" | "otp-sent" | "done" | "skipped"
+import { useDispatch, useSelector } from "react-redux";
+import { fetchWithAuth } from "../../utils/fetchWithAuth";
+
+const API = import.meta.env.VITE_API_URL;
+
+export default function EmailCard({ status = "pending", refresh }) {
   const isDone = status === "done";
-  const otpSent = status === "otp-sent";
+
+  const dispatch = useDispatch();
+  const accessToken = useSelector((state) => state.auth.accessToken);
+  const [email, setEmail] = useState("");
+  const [otp, setOtp] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [verifying, setVerifying] = useState(false);
+  const [error, setError] = useState("");
+
+  const sendOtp = async () => {
+    try {
+      setSending(true);
+      setError("");
+
+      const res = await fetchWithAuth(
+        `${API}/auth/email/send-otp/`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: email.trim(),
+          }),
+        },
+        dispatch,
+        accessToken,
+      );
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.message || "OTP send failed");
+      }
+      setOtpSent(true);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const verifyOtp = async () => {
+    try {
+      setVerifying(true);
+      setError("");
+
+      const res = await fetchWithAuth(
+        `${API}/auth/email/verify-otp/`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            otp: otp.trim(),
+          }),
+        },
+        dispatch,
+        accessToken,
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "OTP verification failed");
+      }
+
+      refresh();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setVerifying(false);
+    }
+  };
 
   return (
     <div
@@ -80,6 +159,11 @@ export default function EmailCard({ status = "pending" }) {
           <input
             type="email"
             placeholder="you@example.com"
+            value={email}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              setError("");
+            }}
             className="
               flex-1 rounded-lg border border-[#30363d] bg-[#0d1117]
               px-3 py-2.5 text-sm text-[#c9d1d9] placeholder-[#484f58]
@@ -88,6 +172,8 @@ export default function EmailCard({ status = "pending" }) {
             "
           />
           <button
+            onClick={sendOtp}
+            disabled={sending || !email}
             className="
               shrink-0 rounded-lg border border-[#30363d] bg-[#21262d]
               px-4 py-2.5 text-sm font-medium text-[#c9d1d9]
@@ -95,7 +181,11 @@ export default function EmailCard({ status = "pending" }) {
               transition-all
             "
           >
-            Send OTP
+            {sending ? (
+              <Loader2 size={14} className="animate-spin" />
+            ) : (
+              "Send OTP"
+            )}
           </button>
         </div>
       )}
@@ -105,36 +195,54 @@ export default function EmailCard({ status = "pending" }) {
         <div className="mt-4 space-y-3">
           <p className="text-xs text-[#8b949e]">
             Enter the 6-digit code sent to{" "}
-            <span className="font-medium text-[#c9d1d9]">you@example.com</span>
+            <span className="font-medium text-[#c9d1d9]">{email}</span>
           </p>
           <div className="flex gap-2">
-            {[...Array(6)].map((_, i) => (
-              <input
-                key={i}
-                type="text"
-                maxLength={1}
-                className="
-                  h-11 w-11 rounded-lg border border-[#30363d] bg-[#0d1117]
-                  text-center text-base font-semibold text-[#c9d1d9]
-                  outline-none transition-all
-                  focus:border-[#388bfd] focus:ring-1 focus:ring-[#388bfd]/30
-                "
-              />
-            ))}
+            <input
+              value={otp}
+              maxLength={6}
+              onChange={(e) => {
+                setOtp(e.target.value);
+                setError("");
+              }}
+              placeholder="123456"
+              className="
+                w-full rounded-lg
+                border border-[#30363d]
+                bg-[#0d1117]
+                px-3 py-2.5
+                text-center
+                tracking-[0.4em]
+                text-[#c9d1d9]
+                outline-none
+                focus:border-[#388bfd]
+              "
+            />
           </div>
           <div className="flex items-center justify-between">
-            <button className="text-xs text-[#8b949e] hover:text-[#c9d1d9] transition-colors">
-              Resend code
+            <button
+              onClick={sendOtp}
+              disabled={sending}
+              className="text-xs text-[#8b949e] hover:text-[#c9d1d9] transition-colors"
+            >
+              {sending ? "Sending..." : "Resend code"}
             </button>
             <button
+              onClick={verifyOtp}
+              disabled={verifying || otp.length !== 6}
               className="
                 rounded-lg bg-[#388bfd] px-4 py-2 text-sm font-medium text-white
                 hover:bg-[#58a6ff] transition-colors
               "
             >
-              Verify
+              {verifying ? (
+                <Loader2 size={14} className="animate-spin" />
+              ) : (
+                "Verify"
+              )}
             </button>
           </div>
+          {error && <p className="mt-3 text-xs text-red-400">{error}</p>}
         </div>
       )}
 
@@ -154,7 +262,7 @@ export default function EmailCard({ status = "pending" }) {
               d="M5 13l4 4L19 7"
             />
           </svg>
-          <span className="text-sm text-[#c9d1d9]">you@example.com</span>
+          <span className="font-medium text-[#c9d1d9]">{email}</span>
           <button className="ml-auto text-xs text-[#388bfd] hover:underline">
             Change
           </button>

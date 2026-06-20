@@ -1,7 +1,7 @@
-import { useState } from "react";
-
 import IdentitySetup from "../components/onboarding/IdentitySetup";
 import CompleteProfile from "../components/onboarding/CompleteProfile";
+
+import { useOnboarding } from "../hooks/useOnboarding";
 
 const STEPS = [
   { id: 1, key: "identity", label: "Identity" },
@@ -9,159 +9,112 @@ const STEPS = [
 ];
 
 export default function Onboarding() {
-  const [step, setStep] = useState(1);
+  const { status, loading, refresh } = useOnboarding();
+
+  let step = null;
+
+  if (status) {
+    if (!status.identity.status) {
+      step = 1;
+    } else if (!status.profile.status) {
+      step = 2;
+    }
+  }
+
+  if (loading || step === null) {
+    return <div className="min-h-screen bg-[#0d1117]" />;
+  }
 
   return (
     <div className="min-h-screen bg-[#0d1117] text-[#c9d1d9]">
-      {/* TOP BAR */}
-      <header className="border-b border-[#21262d] px-6 py-4">
-        <div className="flex items-center gap-2.5">
-          {/* Axon Logo */}
-          <svg viewBox="0 0 24 24" fill="none" className="h-7 w-7">
-            <path
-              d="M12 2L2 19h20L12 2z"
-              stroke="#388bfd"
-              strokeWidth="1.8"
-              strokeLinejoin="round"
-            />
-
-            <circle cx="12" cy="8" r="1.5" fill="#388bfd" />
-
-            <circle cx="7" cy="16" r="1.5" fill="#58a6ff" />
-
-            <circle cx="17" cy="16" r="1.5" fill="#58a6ff" />
-
-            <line
-              x1="12"
-              y1="8"
-              x2="7"
-              y2="16"
-              stroke="#388bfd"
-              strokeWidth="1"
-              opacity="0.5"
-            />
-
-            <line
-              x1="12"
-              y1="8"
-              x2="17"
-              y2="16"
-              stroke="#388bfd"
-              strokeWidth="1"
-              opacity="0.5"
-            />
-          </svg>
-
-          <span className="text-sm font-semibold text-[#c9d1d9]">Axon</span>
-        </div>
-      </header>
-
-      {/* PAGE SHELL */}
-      <main className="mx-auto w-full max-w-3xl px-4 py-12">
-        {/* OUTER CONTAINER */}
-        <div
-          className="
-          rounded-2xl
-          border border-[#30363d]
-          bg-[#111820]
-          shadow-2xl shadow-black/30
-          px-8 py-10
-          "
-        >
-          {/* PAGE HEADING */}
+      <main className="mx-auto w-full max-w-3xl px-4 pt-26 pb-12">
+        <div className="rounded-2xl border border-[#30363d] bg-[#111820] shadow-2xl shadow-black/30 px-8 py-10">
           <div className="mb-8">
-            <p
-              className="
-              mb-1.5
-              text-xs
-              font-medium
-              uppercase
-              tracking-widest
-              text-[#388bfd]
-            "
-            >
+            <p className="mb-1.5 text-xs font-medium uppercase tracking-widest text-[#388bfd]">
               Workspace setup
             </p>
-
-            <h1
-              className="
-              text-2xl
-              font-bold
-              tracking-tight
-              text-[#e6edf3]
-            "
-            >
+            <h1 className="text-2xl font-bold tracking-tight text-[#e6edf3]">
               Set up your developer workspace
             </h1>
 
-            <p
-              className="
-              mt-1.5
-              text-sm
-              text-[#8b949e]
-            "
-            >
+            <p className="mt-1.5 text-sm text-[#8b949e]">
               Complete a few steps before entering your dashboard.
             </p>
           </div>
 
-          {/* PROGRESS BAR */}
-          <div className="mb-10">
-            <div className="mb-2.5 flex justify-between">
-              {STEPS.map((s) => (
-                <span
-                  key={s.id}
-                  className={`
-                  text-xs
-                  font-medium
-                  transition-colors
+          {/* STEP INDICATOR */}
+          <div className="mb-10 flex items-center">
+            {STEPS.map((s, i) => (
+              <div
+                key={s.id}
+                className="flex items-center flex-1 last:flex-none"
+              >
+                {/* Dot + label */}
+                <div className="flex flex-col items-center gap-2">
+                  <div
+                    className={`
+            flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold
+            transition-all duration-300
+            ${
+              step > s.id
+                ? "bg-[#238636] text-white"
+                : step === s.id
+                  ? "bg-[#388bfd] text-white ring-4 ring-[#388bfd]/15"
+                  : "border border-[#30363d] bg-transparent text-[#484f58]"
+            }`}
+                  >
+                    {step > s.id ? (
+                      <svg
+                        className="h-3.5 w-3.5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={3}
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                    ) : (
+                      s.id
+                    )}
+                  </div>
 
-                  ${
-                    step === s.id
-                      ? "text-[#c9d1d9]"
-                      : step > s.id
-                        ? "text-[#238636]"
-                        : "text-[#484f58]"
-                  }
+                  <span
+                    className={`
+            text-xs font-medium whitespace-nowrap transition-colors duration-300
+            ${step > s.id ? "text-[#3fb950]" : step === s.id ? "text-[#c9d1d9]" : "text-[#484f58]"}
+          `}
+                  >
+                    {s.label}
+                  </span>
+                </div>
 
-                  `}
-                >
-                  {s.label}
-                </span>
-              ))}
-            </div>
-
-            <div className="flex gap-2">
-              {STEPS.map((s) => (
-                <div
-                  key={s.id}
-                  className={`
-                  h-[3px]
-                  flex-1
-                  rounded-full
-                  transition-all
-                  duration-500
-
-
-                  ${
-                    step > s.id
-                      ? "bg-[#238636]"
-                      : step === s.id
-                        ? "bg-[#388bfd]"
-                        : "bg-[#21262d]"
-                  }
-
-                  `}
-                />
-              ))}
-            </div>
+                {/* Connector line — not rendered after last step */}
+                {i < STEPS.length - 1 && (
+                  <div
+                    className={`
+            mx-3 mb-5 h-px flex-1 rounded-full transition-all duration-500
+            ${step > s.id ? "bg-[#238636]" : "bg-[#21262d]"}
+          `}
+                  />
+                )}
+              </div>
+            ))}
           </div>
 
           {/* STEP CONTENT */}
           <div>
-            {step === 1 && <IdentitySetup onNext={() => setStep(2)} />}
+            {step === 1 && (
+              <IdentitySetup
+                requirements={status.identity.requirements}
+                refresh={refresh}
+              />
+            )}
 
-            {step === 2 && <CompleteProfile />}
+            {step === 2 && <CompleteProfile refresh={refresh} />}
           </div>
         </div>
       </main>

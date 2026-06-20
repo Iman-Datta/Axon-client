@@ -5,17 +5,17 @@ import { fetchWithAuth } from "../utils/fetchWithAuth";
 
 const API = import.meta.env.VITE_API_URL;
 
-export const useOnboarding = () => {
+export function useOnboarding() {
   const dispatch = useDispatch();
 
   const accessToken = useSelector((state) => state.auth.accessToken);
 
-  const [onboarding, setOnboarding] = useState(null);
-
+  const [status, setStatus] = useState(null);
   const [loading, setLoading] = useState(true);
-
-  const checkOnboarding = async () => {
+  const [error, setError] = useState(null);
+  const fetchStatus = async () => {
     try {
+      setLoading(true);
       const res = await fetchWithAuth(
         `${API}/auth/onboarding/status/`,
         {},
@@ -26,24 +26,29 @@ export const useOnboarding = () => {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error("Onboarding check failed");
+        throw new Error(data.message || "Failed");
       }
 
-      setOnboarding(data);
-    } catch (error) {
-      console.log(error);
+      setStatus(data);
+    } catch (err) {
+      setError(err.message);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    checkOnboarding();
+    const load = async () => {
+      await fetchStatus();
+    };
+
+    load();
   }, []);
 
   return {
-    onboarding,
+    status,
     loading,
-    refresh: onboarding,
+    error,
+    refresh: fetchStatus,
   };
-};
+}

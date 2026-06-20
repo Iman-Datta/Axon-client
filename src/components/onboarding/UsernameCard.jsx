@@ -1,9 +1,96 @@
-// UI only – no logic. Wire up state/handlers in IdentitySetup.jsx
+import { useEffect, useState } from "react";
+import { Check, Loader2 } from "lucide-react";
 
-export default function UsernameCard({ status = "pending" }) {
-  // status: "pending" | "active" | "done" | "skipped"
+import { useDispatch, useSelector } from "react-redux";
+import { fetchWithAuth } from "../../utils/fetchWithAuth";
+
+const API = import.meta.env.VITE_API_URL;
+
+export default function UsernameCard({ status = "pending", refresh }) {
+  const dispatch = useDispatch();
+  const accessToken = useSelector((state) => state.auth.accessToken);
+
   const isDone = status === "done";
   const isActive = status === "active";
+
+  const [username, setUsername] = useState("");
+  const [available, setAvailable] = useState(null);
+  const [checking, setChecking] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleUsernameChange = (e) => {
+    const value = e.target.value;
+
+    setUsername(value);
+    setError("");
+    setAvailable(null);
+  };
+
+  useEffect(() => {
+    if (username.trim().length < 3) return;
+
+    const timer = setTimeout(async () => {
+      try {
+        setChecking(true);
+
+        const res = await fetchWithAuth(
+          `${API}/auth/profile/check-username/?username=${encodeURIComponent(username.trim())}`,
+          {},
+          dispatch,
+          accessToken,
+        );
+
+        const data = await res.json();
+        
+        if (!res.ok) {
+          throw new Error("Username check failed");
+        }
+        setAvailable(data.available);
+      } catch (err) {
+        console.log(err);
+      } finally {
+        setChecking(false);
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [username, dispatch, accessToken]);
+
+  const saveUsername = async () => {
+    if (!available) return;
+    try {
+      setSaving(true);
+      setError("");
+
+      const res = await fetchWithAuth(
+        `${API}/auth/profile/username/`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            username: username.trim(),
+          }),
+        },
+        dispatch,
+        accessToken,
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Username update failed");
+      }
+
+      refresh();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <div
@@ -61,7 +148,7 @@ export default function UsernameCard({ status = "pending" }) {
               </span>
             </div>
             <p className="mt-0.5 text-xs text-[#8b949e]">
-              Your unique handle on Axon — used for mentions and your public
+              Your unique handle on Axon, used for mentions and your public
               profile.
             </p>
           </div>
@@ -75,7 +162,7 @@ export default function UsernameCard({ status = "pending" }) {
         )}
       </div>
 
-      {/* Input area — shown when not done */}
+      {/* Input area shown when not done */}
       {!isDone && (
         <div className="mt-4">
           <div className="flex items-center rounded-lg border border-[#30363d] bg-[#0d1117] ring-0 focus-within:border-[#388bfd] focus-within:ring-1 focus-within:ring-[#388bfd]/30 transition-all">
@@ -84,17 +171,42 @@ export default function UsernameCard({ status = "pending" }) {
             </span>
             <input
               type="text"
+              value={username}
               placeholder="your-username"
+              onChange={handleUsernameChange}
               className="w-full bg-transparent px-3 py-2.5 text-sm text-[#c9d1d9] placeholder-[#484f58] outline-none"
             />
+            <button
+              onClick={saveUsername}
+              disabled={!available || saving}
+              className="px-3 text-xs text-[#388bfd] disabled:text-[#484f58]"
+            >
+              {saving ? <Loader2 size={14} className="animate-spin" /> : "Save"}
+            </button>
           </div>
           <p className="mt-1.5 text-[11px] text-[#484f58]">
             Only letters, numbers, and hyphens. Min 3 characters.
           </p>
+          {checking && (
+            <p className="mt-1 text-xs text-[#8b949e]">Checking...</p>
+          )}
+
+          {available === true && (
+            <p className="mt-1 flex items-center gap-1 text-xs text-green-400">
+              <Check size={12} />
+              Username available
+            </p>
+          )}
+
+          {available === false && (
+            <p className="mt-1 text-xs text-red-400">Username already taken</p>
+          )}
+
+          {error && <p className="mt-1 text-xs text-red-400">{error}</p>}
         </div>
       )}
 
-      {/* Done state — show chosen username */}
+      {/* Done state show chosen username TODO*/}
       {isDone && (
         <div className="mt-3 flex items-center gap-2 rounded-lg border border-[#30363d] bg-[#0d1117] px-3 py-2.5">
           <span className="text-sm text-[#8b949e]">@</span>
