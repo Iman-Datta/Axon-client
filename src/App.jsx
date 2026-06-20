@@ -9,6 +9,7 @@ import AuthPage from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import CheckEmail from "./pages/CheckEmail";
 import EmailCallback from "./pages/EmailCallback";
+import Onboarding from "./pages/Onboarding";
 
 import { setUser, setAuthLoading, clearUser } from "./redux/slices/authSlice";
 
@@ -65,6 +66,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/checkEmail" element={<CheckEmail />} />
         <Route path="/email-callback" element={<EmailCallback />} />
+        <Route path="/onboarding" element={<Onboarding />} />
       </Routes>
     </div>
   );
