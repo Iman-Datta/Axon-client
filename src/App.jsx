@@ -11,6 +11,7 @@ import EmailCallback from "./pages/EmailCallback";
 import Onboarding from "./pages/Onboarding";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import OnboardingGuard from "./components/onboarding/OnboardingGuard";
+import Profile from "./pages/Profile";
 
 import { setUser, setAuthLoading, clearUser } from "./redux/slices/authSlice";
 
@@ -51,7 +52,7 @@ function App() {
     };
 
     restoreAuth();
-  }, [dispatch]);
+  }, [dispatch, accessToken]);
 
   if (isAuthLoading) {
     return <div className="bg-[#0d1117] min-h-screen" />;
@@ -59,7 +60,7 @@ function App() {
 
   return (
     <div className="bg-[#0d1117] text-[#c9d1d9] min-h-screen">
-      {location.pathname !== "/auth" && <Navbar />}
+      {/* {location.pathname !== "/auth" && <Navbar />} */}
 
       <Routes>
         <Route path="/" element={<LandingPage />} />
@@ -84,6 +85,8 @@ function App() {
             </ProtectedRoute>
           }
         />
+        {/* <Route path="/:username" element={<Profile />} /> */}
+        <Route path="profile" element={<Profile />} />
       </Routes>
     </div>
   );
