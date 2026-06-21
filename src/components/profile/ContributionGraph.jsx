@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 
-const COLORS = [
+const LEVEL_COLORS = [
   "bg-[#161b22] border border-[#30363d]",
   "bg-[#0e4429]",
   "bg-[#006d32]",
@@ -8,48 +8,68 @@ const COLORS = [
   "bg-[#39d353]",
 ];
 
+const MONTHS = [
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+];
+
 function ContributionGraph() {
-  const graph = useMemo(() => {
-    return Array.from({ length: 53 }, () =>
-      Array.from({ length: 7 }, () => ({
+  const grid = useMemo(() => {
+    return Array.from({ length: 53 }, () => {
+      return Array.from({ length: 7 }, () => ({
         level: Math.floor(Math.random() * 5),
-      })),
-    );
+      }));
+    });
   }, []);
 
   return (
     <div
       className="
-mt-6
-p-5
-rounded-2xl
-border border-[#30363d]
+border
+border-[#30363d]
 bg-[#161b22]/70
+rounded-2xl
+p-5
+mt-6
 "
     >
       <div
         className="
-flex justify-between
+flex
+justify-between
 items-center
 mb-5
+flex-wrap
+gap-3
 "
       >
         <h3
           className="
+text-sm
 font-medium
 text-[#c9d1d9]
 "
         >
-          Contribution Activity
+          Contribution activity
         </h3>
 
         <span
           className="
-text-sm
+text-xs
 text-[#8b949e]
 "
         >
-          847 contributions this year
+          847 contributions in the last year
         </span>
       </div>
 
@@ -60,39 +80,70 @@ overflow-x-auto
       >
         <div
           className="
-flex gap-[3px]
-min-w-[700px]
+min-w-[680px]
 "
         >
-          {graph.map((week, i) => (
-            <div
-              key={i}
-              className="
-flex flex-col
+          <div
+            className="
+flex
+gap-[3px]
+mb-2
+"
+          >
+            {MONTHS.map((month) => (
+              <span
+                key={month}
+                className="
+text-[11px]
+text-[#8b949e]
+w-[46px]
+"
+              >
+                {month}
+              </span>
+            ))}
+          </div>
+
+          <div
+            className="
+flex
 gap-[3px]
 "
-            >
-              {week.map((day, j) => (
-                <div
-                  key={j}
-                  className={`
-w-[11px]
-h-[11px]
-rounded-[3px]
-${COLORS[day.level]}
+          >
+            {grid.map((week, i) => (
+              <div
+                key={i}
+                className="
+flex
+flex-col
+gap-[3px]
+"
+              >
+                {week.map((day, j) => (
+                  <div
+                    key={j}
+                    className={`
+w-[10px]
+h-[10px]
+rounded-[2px]
+${LEVEL_COLORS[day.level]}
 `}
-                />
-              ))}
-            </div>
-          ))}
+                  />
+                ))}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
       <div
         className="
+flex
+justify-between
 mt-4
-flex justify-between
 items-center
+flex-wrap
+gap-3
 "
       >
         <p
@@ -101,27 +152,45 @@ text-xs
 text-[#8b949e]
 "
         >
-          Code, tickets and GitHub events power your activity.
+          Your graph grows from commits, tickets and pull requests.
         </p>
 
         <div
           className="
-flex gap-1 items-center
+flex
+items-center
+gap-1
 "
         >
-          <span className="text-xs text-[#8b949e]">Less</span>
+          <span
+            className="
+text-xs
+text-[#8b949e]
+"
+          >
+            Less
+          </span>
 
-          {COLORS.map((c, i) => (
+          {LEVEL_COLORS.map((c, i) => (
             <div
               key={i}
               className={`
-w-3 h-3 rounded-sm
+w-[10px]
+h-[10px]
+rounded-[2px]
 ${c}
 `}
             />
           ))}
 
-          <span className="text-xs text-[#8b949e]">More</span>
+          <span
+            className="
+text-xs
+text-[#8b949e]
+"
+          >
+            More
+          </span>
         </div>
       </div>
     </div>

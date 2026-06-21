@@ -4,93 +4,92 @@ function ProfileSidebar() {
   const details = [
     {
       icon: MapPin,
-      text: "Kolkata, India",
+      label: "Kolkata, India",
     },
 
     {
       icon: Calendar,
-      text: "Joined June 2026",
+      label: "Joined June 2026",
     },
 
     {
       icon: Code2,
-      text: "Django • React • DRF",
+      label: "Django • React • DRF",
     },
 
     {
       icon: Link,
-      text: "iman.dev",
+      label: "iman.dev",
     },
 
     {
       icon: Mail,
-      text: "iman@axon.dev",
-    },
-  ];
-
-  const socials = [
-    {
-      icon: Globe,
-      label: "Portfolio",
-    },
-
-    {
-      icon: Link,
-      label: "Website",
+      label: "iman@axon.dev",
     },
   ];
 
   return (
     <div
       className="
-      rounded-2xl
-      border border-[#30363d]
-      bg-[#161b22]/70
-      p-5
-      "
+border
+border-[#30363d]
+bg-[#161b22]/70
+rounded-2xl
+p-5
+"
     >
       <div
         className="
-        inline-block
-        px-3 py-1
-        rounded-full
-        bg-blue-500/10
-        text-blue-400
-        text-xs
-        mb-4
-        "
+inline-flex
+items-center
+px-3
+py-1
+rounded-full
+bg-[#2f81f7]/10
+text-[#2f81f7]
+text-xs
+font-medium
+mb-4
+"
       >
-        Founder
+        Axon Founder
       </div>
 
       <p
         className="
-        text-sm
-        leading-relaxed
-        text-[#c9d1d9]
-        "
+text-sm
+leading-relaxed
+text-[#c9d1d9]
+"
       >
-        Building Axon 🚀 — a Git aware developer collaboration platform with
-        projects, tickets and automation.
+        Building Axon 🚀 — a Git-aware developer collaboration platform with
+        tickets, projects, teams and automation.
       </p>
 
-      <div className="mt-5 space-y-3">
-        {details.map(({ icon: Icon, text }) => (
+      <div
+        className="
+mt-5
+space-y-3
+"
+      >
+        {details.map(({ icon: Icon, label }) => (
           <div
-            key={text}
+            key={label}
             className="
-              flex gap-3 items-center
-              "
+flex
+items-center
+gap-2.5
+"
           >
-            <Icon size={16} className="text-[#8b949e]" />
+            <Icon size={15} className="text-[#8b949e]" />
 
             <span
               className="
-                text-sm
-                text-[#8b949e]
-                "
+text-sm
+text-[#8b949e]
+"
             >
-              {text}
+              {label}
             </span>
           </div>
         ))}
@@ -98,30 +97,30 @@ function ProfileSidebar() {
 
       <div
         className="
-        flex gap-2
-        mt-5 pt-5
-        border-t
-        border-[#30363d]
-        "
+mt-5
+pt-5
+border-t
+border-[#30363d]
+"
       >
-        {socials.map(({ icon: Icon, label }) => (
-          <button
-            key={label}
-            title={label}
-            className="
-              w-9 h-9
-              rounded-lg
-              border border-[#30363d]
-              flex
-              items-center
-              justify-center
-              hover:bg-[#21262d]
-              transition
-              "
-          >
-            <Icon size={16} />
-          </button>
-        ))}
+        <button
+          className="
+w-full
+flex
+gap-2
+items-center
+justify-center
+rounded-xl
+border
+border-[#30363d]
+py-2
+hover:bg-[#21262d]
+transition
+"
+        >
+          <Globe size={16} />
+          Portfolio
+        </button>
       </div>
     </div>
   );

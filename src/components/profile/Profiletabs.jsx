@@ -1,6 +1,6 @@
-import { LayoutGrid, FolderGit2, Building2, Activity } from "lucide-react";
+import { LayoutGrid, BookMarked, Building2, Activity } from "lucide-react";
 
-const tabs = [
+const TABS = [
   {
     id: "overview",
     label: "Overview",
@@ -10,7 +10,7 @@ const tabs = [
   {
     id: "projects",
     label: "Projects",
-    icon: FolderGit2,
+    icon: BookMarked,
   },
 
   {
@@ -36,45 +36,54 @@ border-[#30363d]
     >
       <nav
         className="
-flex gap-2
+flex
+items-center
+gap-1
 overflow-x-auto
 "
       >
-        {tabs.map(({ id, label, icon: Icon }) => (
-          <button
-            key={id}
-            onClick={() => onChange(id)}
-            className={`
+        {TABS.map(({ id, label, icon: Icon }) => {
+          const active = activeTab === id;
+
+          return (
+            <button
+              key={id}
+              onClick={() => onChange(id)}
+              className={`
 relative
-px-4 py-3
-flex gap-2
+flex
 items-center
+gap-2
+px-4
+py-3
 text-sm
+font-medium
 transition
 
-${activeTab === id ? "text-white" : "text-[#8b949e] hover:text-white"}
+${active ? "text-[#c9d1d9]" : "text-[#8b949e] hover:text-white"}
 
 `}
-          >
-            <Icon size={16} />
+            >
+              <Icon size={15} />
 
-            {label}
+              {label}
 
-            {activeTab === id && (
-              <span
-                className="
+              {active && (
+                <span
+                  className="
 absolute
-bottom-0
 left-0
 right-0
+-bottom-px
 h-[2px]
-bg-blue-500
+bg-[#2f81f7]
 rounded-full
 "
-              />
-            )}
-          </button>
-        ))}
+                />
+              )}
+            </button>
+          );
+        })}
       </nav>
     </div>
   );

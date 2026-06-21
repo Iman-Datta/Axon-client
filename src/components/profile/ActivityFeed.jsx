@@ -2,52 +2,58 @@ import {
   GitCommit,
   GitPullRequest,
   CheckCircle2,
-  UserPlus,
   Rocket,
+  Users,
 } from "lucide-react";
 
 function ActivityFeed() {
-  const activities = [
+  const activity = [
     {
       icon: Rocket,
-      title: "Created project Axon",
+      text: "Created project Axon",
       time: "Today",
     },
 
     {
       icon: GitPullRequest,
-      title: "Merged PR #42 - JWT refresh system",
+      text: "Merged PR #42 - JWT refresh system",
       time: "2 hours ago",
     },
 
     {
       icon: GitCommit,
-      title: "Pushed 12 commits to axon-server",
+      text: "Pushed 12 commits to axon-server",
       time: "Yesterday",
     },
 
     {
       icon: CheckCircle2,
-      title: "Completed ticket AXON-101 GitHub automation",
+      text: "Completed ticket AXON-101 Git automation",
       time: "3 days ago",
     },
 
     {
-      icon: UserPlus,
-      title: "Added Rahul as Backend Developer",
+      icon: Users,
+      text: "Added Rahul as Backend Developer",
       time: "Last week",
     },
   ];
 
   return (
-    <div className="mt-6">
+    <div
+      className="
+mt-6
+"
+    >
       <h3
         className="
-mb-4
+text-sm
 font-medium
+text-[#c9d1d9]
+mb-4
 "
       >
-        Recent Activity
+        Recent activity
       </h3>
 
       <div
@@ -55,20 +61,23 @@ font-medium
 space-y-4
 "
       >
-        {activities.map(({ icon: Icon, title, time }) => (
+        {activity.map(({ icon: Icon, text, time }) => (
           <div
-            key={title}
+            key={text}
             className="
-flex gap-4
-p-4
-rounded-2xl
-border border-[#30363d]
+flex
+gap-4
+border
+border-[#30363d]
 bg-[#161b22]/70
+rounded-2xl
+p-4
 "
           >
             <div
               className="
-w-10 h-10
+w-10
+h-10
 rounded-xl
 bg-[#21262d]
 flex
@@ -76,7 +85,7 @@ items-center
 justify-center
 "
             >
-              <Icon size={18} className="text-blue-400" />
+              <Icon size={18} className="text-[#2f81f7]" />
             </div>
 
             <div>
@@ -86,7 +95,7 @@ text-sm
 text-[#c9d1d9]
 "
               >
-                {title}
+                {text}
               </p>
 
               <span

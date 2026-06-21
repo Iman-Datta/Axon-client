@@ -1,76 +1,166 @@
 import { useState } from "react";
-import { CheckCircle2, X } from "lucide-react";
+import { CheckCircle2, Circle, X } from "lucide-react";
 
 import ProfileHeader from "../components/profile/ProfileHeader";
 import ProfileSidebar from "../components/profile/ProfileSidebar";
-import ProfileProjects from "../components/profile/ProfileProjects";
 import ProfileOrganizations from "../components/profile/ProfileOrganizations";
 import ProfileTabs from "../components/profile/ProfileTabs";
 import ContributionGraph from "../components/profile/ContributionGraph";
+import ProfileProjects from "../components/profile/ProfileProjects";
 import ActivityFeed from "../components/profile/ActivityFeed";
+
+const INITIAL_CHECKLIST = [
+  { id: "profile", label: "Profile completed", done: true },
+  { id: "github", label: "GitHub connected", done: true },
+  { id: "project", label: "First project created", done: true },
+  { id: "automation", label: "Automation enabled", done: true },
+];
 
 function Profile() {
   const [activeTab, setActiveTab] = useState("overview");
-  const [show, setShow] = useState(true);
+  const [checklist, setChecklist] = useState(INITIAL_CHECKLIST);
+  const [showChecklist, setShowChecklist] = useState(true);
 
-  const checklist = [
-    "GitHub Connected",
-    "Organization Created",
-    "First Project Created",
-    "Automation Enabled",
-  ];
+  const completedCount = checklist.filter((c) => c.done).length;
+
+  const progress = Math.round((completedCount / checklist.length) * 100);
+
+  const toggleItem = (id) => {
+    setChecklist((prev) =>
+      prev.map((item) =>
+        item.id === id ? { ...item, done: !item.done } : item,
+      ),
+    );
+  };
 
   return (
     <main className="min-h-screen bg-[#0d1117] text-[#c9d1d9]">
       <ProfileHeader />
 
-      <div className="max-w-7xl mx-auto px-6 pb-20">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          <aside className="lg:col-span-3 space-y-5">
+      <div className="max-w-7xl mx-auto px-6 pb-24">
+        <div
+          className="
+grid grid-cols-1
+lg:grid-cols-12
+gap-8
+"
+        >
+          <aside
+            className="
+lg:col-span-3
+order-2
+lg:order-1
+"
+          >
             <ProfileSidebar />
 
             <ProfileOrganizations />
           </aside>
 
-          <section className="lg:col-span-9">
-            {show && (
+          <section
+            className="
+lg:col-span-9
+order-1
+lg:order-2
+"
+          >
+            {showChecklist && (
               <div
                 className="
-relative mb-6 p-5 rounded-2xl
 border border-[#30363d]
-bg-gradient-to-br from-[#161b22] to-[#0d1117]
+bg-gradient-to-br
+from-[#161b22]
+to-[#0d1117]
+rounded-2xl
+p-5
+mb-6
+relative
 "
               >
                 <button
-                  onClick={() => setShow(false)}
-                  className="absolute right-4 top-4 text-[#8b949e]"
+                  onClick={() => setShowChecklist(false)}
+                  className="
+absolute top-4 right-4
+text-[#8b949e]
+hover:text-white
+"
                 >
                   <X size={16} />
                 </button>
 
-                <h2 className="text-xl font-bold text-white">
-                  Welcome to Axon 🚀
-                </h2>
+                <h3
+                  className="
+text-base
+font-semibold
+text-[#e6edf3]
+"
+                >
+                  Welcome to Axon, Iman 🚀
+                </h3>
 
-                <p className="text-sm text-[#8b949e] mt-1 mb-5">
-                  Your Git aware workspace is ready.
+                <p
+                  className="
+text-sm
+text-[#8b949e]
+mb-4
+"
+                >
+                  Your developer workspace is ready.
                 </p>
 
-                <div className="grid sm:grid-cols-2 gap-3">
+                <div
+                  className="
+h-1.5
+bg-[#21262d]
+rounded-full
+overflow-hidden
+mb-5
+"
+                >
+                  <div
+                    className="
+h-full
+bg-[#2f81f7]
+rounded-full
+"
+                    style={{
+                      width: `${progress}%`,
+                    }}
+                  />
+                </div>
+
+                <div
+                  className="
+grid
+sm:grid-cols-2
+gap-3
+"
+                >
                   {checklist.map((item) => (
-                    <div
-                      key={item}
+                    <button
+                      key={item.id}
+                      onClick={() => toggleItem(item.id)}
                       className="
-flex items-center gap-3
-bg-[#161b22]
-border border-[#30363d]
-rounded-xl p-3
+flex gap-2
+items-center
+text-left
 "
                     >
-                      <CheckCircle2 size={18} className="text-green-500" />
+                      {item.done ? (
+                        <CheckCircle2 size={17} className="text-[#238636]" />
+                      ) : (
+                        <Circle size={17} />
+                      )}
 
-                      <span>{item}</span>
-                    </div>
+                      <span
+                        className="
+text-sm
+text-[#c9d1d9]
+"
+                      >
+                        {item.label}
+                      </span>
+                    </button>
                   ))}
                 </div>
               </div>
@@ -90,7 +180,11 @@ rounded-xl p-3
 
             {activeTab === "projects" && <ProfileProjects />}
 
-            {activeTab === "organizations" && <ProfileOrganizations />}
+            {activeTab === "organizations" && (
+              <div className="mt-6 max-w-sm">
+                <ProfileOrganizations />
+              </div>
+            )}
 
             {activeTab === "activity" && <ActivityFeed />}
           </section>
