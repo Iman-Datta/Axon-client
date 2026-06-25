@@ -62,7 +62,7 @@ leading-relaxed
 text-[#c9d1d9]
 "
       >
-        Building Axon 🚀 — a Git-aware developer collaboration platform with
+        Building Axon — a Git-aware developer collaboration platform with
         tickets, projects, teams and automation.
       </p>
 

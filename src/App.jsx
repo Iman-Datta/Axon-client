@@ -60,7 +60,7 @@ function App() {
 
   return (
     <div className="bg-[#0d1117] text-[#c9d1d9] min-h-screen">
-      {/* {location.pathname !== "/auth" && <Navbar />} */}
+      {location.pathname !== "/auth" && <Navbar />}
 
       <Routes>
         <Route path="/" element={<LandingPage />} />
@@ -76,7 +76,7 @@ function App() {
           }
         />
         <Route path="/checkEmail" element={<CheckEmail />} />
-        <Route path="/email-callback" element={<EmailCallback />} />
+        <Route path="/callback" element={<EmailCallback />} />
         <Route
           path="/onboarding"
           element={
@@ -85,8 +85,7 @@ function App() {
             </ProtectedRoute>
           }
         />
-        {/* <Route path="/:username" element={<Profile />} /> */}
-        <Route path="profile" element={<Profile />} />
+        <Route path="/:username" element={<Profile />} />
       </Routes>
     </div>
   );
