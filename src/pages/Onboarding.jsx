@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 import IdentitySetup from "../components/onboarding/IdentitySetup";
 import CompleteProfile from "../components/onboarding/CompleteProfile";
@@ -14,16 +15,17 @@ const STEPS = [
 export default function Onboarding() {
   const { status, loading, refresh } = useOnboarding();
   const navigate = useNavigate();
+  const user = useSelector((state) => state.auth.user);
 
   const [step, setStep] = useState(1);
 
   useEffect(() => {
-    if (step === 3) {
-      navigate("/dashboard", {
+    if (step === 3 && user?.username) {
+      navigate(`/${user.username}`, {
         replace: true,
       });
     }
-  }, [step, navigate]);
+  }, [step, user, navigate]);
 
   if (loading || step === null) {
     return <div className="min-h-screen bg-[#0d1117]" />;
@@ -120,7 +122,15 @@ export default function Onboarding() {
             )}
 
             {step === 2 && (
-              <CompleteProfile profile={status.profile} refresh={refresh} />
+              <CompleteProfile
+                key={
+                  status.profile?.data?.id ||
+                  status.profile?.data?.username ||
+                  "profile"
+                }
+                profile={status.profile}
+                refresh={refresh}
+              />
             )}
           </div>
         </div>

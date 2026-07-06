@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ArrowRight, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -10,10 +10,11 @@ import { fetchWithAuth } from "../../utils/fetchWithAuth";
 const API = import.meta.env.VITE_API_URL;
 
 export default function CompleteProfile({ profile, refresh }) {
+  console.log(profile?.data); // Debug
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const accessToken = useSelector((state) => state.auth.accessToken);
+  const { accessToken, user } = useSelector((state) => state.auth);
 
   const [form, setForm] = useState({
     first_name: profile?.data?.first_name || "",
@@ -28,8 +29,9 @@ export default function CompleteProfile({ profile, refresh }) {
   });
 
   const [saving, setSaving] = useState(false);
-
   const [error, setError] = useState("");
+
+
 
   const handleCompleteProfile = async () => {
     try {
@@ -73,7 +75,11 @@ export default function CompleteProfile({ profile, refresh }) {
 
       await refresh();
 
-      navigate("/dashboard");
+      if (user?.username) {
+        navigate(`/${user.username}`, {
+          replace: true,
+        });
+      }
     } catch (err) {
       setError(err.message);
     } finally {

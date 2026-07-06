@@ -19,7 +19,7 @@ function Auth() {
 
   useEffect(() => {
     if (user) {
-      navigate("/dashboard");
+      navigate(`/${user.username}`);
     }
   }, [user, navigate]);
 

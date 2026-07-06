@@ -1,13 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import {
-  User,
-  FolderGit2,
-  Building2,
-  Settings,
-  LogOut,
-} from "lucide-react";
+import { User, FolderGit2, Building2, Settings, LogOut } from "lucide-react";
 
 import AxonLogo from "./AxonLogo";
 
@@ -20,11 +14,14 @@ function Navbar() {
   const [open, setOpen] = useState(false);
 
   const publicNav = ["Features", "Workflow", "About", "Contact"];
+  const { user, isAuthLoading, accessToken } = useSelector(
+    (state) => state.auth,
+  );
 
   const privateNav = [
     {
       name: "Overview",
-      path: "/dashboard",
+      path: `/${user?.username}`,
     },
 
     {
@@ -47,10 +44,6 @@ function Navbar() {
       path: "/stars",
     },
   ];
-
-  const { user, isAuthLoading, accessToken } = useSelector(
-    (state) => state.auth,
-  );
 
   const dispatch = useDispatch();
 

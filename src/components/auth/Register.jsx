@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import OAuth from "./OAuth";
+
+const API = import.meta.env.VITE_API_URL;
 
 function PasswordInput({ name, value, onChange, placeholder }) {
   const [show, setShow] = useState(false);
@@ -39,14 +41,68 @@ function Register({ onLogin, onRegister }) {
     confirmPassword: "",
   });
 
-  const [error, setError] = useState("");
+  const [error, setError] = useState(""); // registration errors
   const [loading, setLoading] = useState(false);
+  const [available, setAvailable] = useState(null);
+  const [checking, setChecking] = useState(false);
+  const [usernameError, setUsernameError] = useState("");
+
+  useEffect(() => {
+    const username = formData.username.trim();
+
+    if (username.length < 3) return;
+
+    const timer = setTimeout(async () => {
+      try {
+        setChecking(true);
+        setAvailable(null);
+        setUsernameError("");
+
+        const res = await fetch(
+          `${API}/auth/profile/check-username/?username=${encodeURIComponent(username)}`,
+        );
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          setAvailable(false);
+          setUsernameError(data.message || "Invalid username");
+          return;
+        }
+
+        setAvailable(data.available);
+
+        if (data.available) {
+          setUsernameError("");
+        } else {
+          setUsernameError("Username already taken");
+        }
+      } catch {
+        setAvailable(false);
+        setUsernameError("Unable to check username");
+      } finally {
+        setChecking(false);
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [formData.username]);
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+    setError("");
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
+    if (name === "username") {
+      if (value.trim().length < 3) {
+        setAvailable(null);
+        setUsernameError("");
+        setChecking(false);
+      }
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -66,6 +122,9 @@ function Register({ onLogin, onRegister }) {
     if (formData.password !== formData.confirmPassword)
       return setError("Passwords do not match");
 
+    if (available !== true) {
+      return setError("Choose an available username");
+    }
     setLoading(true);
 
     try {
@@ -131,8 +190,23 @@ function Register({ onLogin, onRegister }) {
           placeholder="Confirm Password"
         />
 
+        {checking && <p className="mt-1 text-xs text-[#8b949e]">Checking...</p>}
+
+        {available === true && (
+          <p className="mt-1 text-xs text-green-400">✓ Username available</p>
+        )}
+
+        {usernameError && (
+          <p className="mt-1 text-xs text-red-400">{usernameError}</p>
+        )}
+
         <button
-          disabled={loading}
+          disabled={
+            loading ||
+            checking ||
+            formData.username.trim().length < 3 ||
+            available !== true
+          }
           className="
             w-full
             bg-[#2f81f7]
