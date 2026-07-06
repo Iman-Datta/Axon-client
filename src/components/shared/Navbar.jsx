@@ -7,8 +7,6 @@ import {
   Building2,
   Settings,
   LogOut,
-  LayoutDashboard,
-  Star,
 } from "lucide-react";
 
 import AxonLogo from "./AxonLogo";

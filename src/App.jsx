@@ -85,7 +85,14 @@ function App() {
             </ProtectedRoute>
           }
         />
-        <Route path="/:username" element={<Profile />} />
+        <Route
+          path="/:username"
+          element={
+            <OnboardingGuard>
+              <Profile />
+            </OnboardingGuard>
+          }
+        />
       </Routes>
     </div>
   );

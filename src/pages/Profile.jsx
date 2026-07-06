@@ -105,7 +105,7 @@ function Profile() {
 
           <section className="lg:col-span-9 order-1 lg:order-2">
             {showChecklist && (
-              <div className="border border-[#30363d] bg-gradient-to-br from-[#161b22] to-[#0d1117] rounded-2xl p-5 mb-6 relative">
+              <div className="border border-[#30363d] bg-linear-to-br from-[#161b22] to-[#0d1117] rounded-2xl p-5 mb-6 relative">
                 <button
                   onClick={() => setShowChecklist(false)}
                   className="absolute top-4 right-4 text-[#8b949e] hover:text-white"
