@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, CheckCircle2, Sparkles } from "lucide-react";
 
 import { useDispatch, useSelector } from "react-redux";
 import { fetchWithAuth } from "../../utils/fetchWithAuth";
@@ -92,20 +92,26 @@ export default function GithubCard({
                 GitHub account
               </h3>
 
-              <span className="rounded-full border border-[#30363d] bg-[#0d1117] px-2 py-0.5 text-[10px] text-[#8b949e]">
-                Required
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-[#30363d] bg-[#0d1117] px-2.5 py-1 text-xs font-medium text-[#8b949e]">
+                <Sparkles size={12} />
+                Optional
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-[#388bfd]/20 bg-[#388bfd]/10 px-2.5 py-1 text-xs font-medium text-[#58a6ff]">
+                Recommended
               </span>
             </div>
 
             <p className="mt-0.5 text-xs text-[#8b949e]">
-              Connect GitHub for repository automation and integrations.
+              Connect GitHub for repository automation and integrations. You can
+              also do this later from Settings.
             </p>
           </div>
         </div>
 
         {isDone && (
-          <span className="rounded-full border border-green-500/30 bg-green-500/10 px-2.5 py-1 text-xs text-green-400">
-            Connected ✓
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-1 text-xs font-medium text-emerald-400">
+            <CheckCircle2 size={12} />
+            Connected
           </span>
         )}
       </div>

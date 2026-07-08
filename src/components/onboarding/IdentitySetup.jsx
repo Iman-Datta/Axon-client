@@ -9,11 +9,11 @@ export default function IdentitySetup({ identity, refresh, nextStep }) {
   const data = identity.data;
 
   const needs = {
-    // Convert completed requirements into missing requirements
     username: !requirements.username,
     email: !requirements.email,
-    github: !requirements.github,
   };
+
+  const githubConnected = requirements.github;
 
   const pendingCount = Object.values(needs).filter(Boolean).length;
   const allDone = pendingCount === 0;
@@ -69,7 +69,7 @@ export default function IdentitySetup({ identity, refresh, nextStep }) {
         />
 
         <GithubCard
-          status={needs.github ? "pending" : "done"}
+          status={githubConnected ? "done" : "optional"}
           githubUsername={data.github?.username}
           githubAvatar={data.github?.avatar}
         />
