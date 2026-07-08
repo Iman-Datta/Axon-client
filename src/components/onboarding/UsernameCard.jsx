@@ -31,14 +31,23 @@ export default function UsernameCard({
   };
 
   useEffect(() => {
-    if (username.trim().length < 3) return;
+    setUsername(usernameValue || "");
+  }, [usernameValue]);
+
+  useEffect(() => {
+    if (username.trim().length < 3) {
+      setAvailable(null);
+      return;
+    }
 
     const timer = setTimeout(async () => {
       try {
         setChecking(true);
 
         const res = await fetchWithAuth(
-          `${API}/auth/profile/check-username/?username=${encodeURIComponent(username.trim())}`,
+          `${API}/auth/profile/check-username/?username=${encodeURIComponent(
+            username.trim(),
+          )}`,
           {},
           dispatch,
           accessToken,
@@ -48,11 +57,9 @@ export default function UsernameCard({
 
         if (!res.ok) {
           setAvailable(false);
-
           setError(
             data.message || "Only letters, numbers and underscore allowed",
           );
-
           return;
         }
 
@@ -60,8 +67,9 @@ export default function UsernameCard({
 
         if (!data.available) {
           setError("Username already taken");
+        } else {
+          setError("");
         }
-        setAvailable(data.available);
       } catch (err) {
         console.log(err);
       } finally {

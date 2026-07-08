@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { fetchWithAuth } from "../utils/fetchWithAuth";
@@ -13,9 +13,11 @@ export function useOnboarding() {
   const [status, setStatus] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const fetchStatus = async () => {
+
+  const fetchStatus = useCallback(async () => {
     try {
       setLoading(true);
+
       const res = await fetchWithAuth(
         `${API}/auth/onboarding/status/`,
         {},
@@ -35,15 +37,11 @@ export function useOnboarding() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [dispatch, accessToken]);
 
   useEffect(() => {
-    const load = async () => {
-      await fetchStatus();
-    };
-
-    load();
-  }, []);
+    fetchStatus();
+  }, [fetchStatus]);
 
   return {
     status,

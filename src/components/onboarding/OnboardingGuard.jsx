@@ -1,19 +1,14 @@
 import { Navigate } from "react-router-dom";
-
-import { useOnboarding } from "../../hooks/useOnboarding";
+import { useSelector } from "react-redux";
 
 function OnboardingGuard({ children }) {
-  const { status, loading } = useOnboarding();
+  const user = useSelector((state) => state.auth.user);
 
-  if (loading) {
+  if (!user) {
     return null;
   }
 
-  if (!status.identity.status) {
-    return <Navigate to="/onboarding" replace />;
-  }
-
-  if (!status.profile.status) {
+  if (!user.is_profile_completed) {
     return <Navigate to="/onboarding" replace />;
   }
 

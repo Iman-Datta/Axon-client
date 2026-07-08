@@ -27,6 +27,8 @@ function App() {
   const isAuthLoading = useSelector((state) => state.auth.isAuthLoading);
 
   useEffect(() => {
+    let mounted = true;
+
     const restoreAuth = async () => {
       try {
         const res = await fetchWithAuth(
@@ -38,20 +40,30 @@ function App() {
 
         const data = await res.json();
 
+        if (!mounted) return;
+
         if (!res.ok) {
-          throw new Error("Auth failed");
+          throw new Error(data.message || "Authentication failed");
         }
 
         dispatch(setUser(data.user));
       } catch (error) {
+        if (!mounted) return;
+
         dispatch(clearUser());
         console.log(error);
       } finally {
-        dispatch(setAuthLoading(false));
+        if (mounted) {
+          dispatch(setAuthLoading(false));
+        }
       }
     };
 
     restoreAuth();
+
+    return () => {
+      mounted = false;
+    };
   }, [dispatch, accessToken]);
 
   if (isAuthLoading) {
