@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { ArrowRight, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -16,22 +16,18 @@ export default function CompleteProfile({ profile, refresh }) {
 
   const { accessToken, user } = useSelector((state) => state.auth);
 
+  const initialData = profile?.data || user || {};
+
   const [form, setForm] = useState({
-    first_name: profile?.data?.first_name || "",
-
-    last_name: profile?.data?.last_name || "",
-
-    bio: "",
-
-    linkedin_profile: "",
-
-    portfolio_website: "",
+    first_name: initialData.first_name || "",
+    last_name: initialData.last_name || "",
+    bio: initialData.bio || "",
+    linkedin_profile: initialData.linkedin_profile || "",
+    portfolio_website: initialData.portfolio_website || "",
   });
 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-
-
 
   const handleCompleteProfile = async () => {
     try {
