@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import {
   User,
@@ -12,7 +12,6 @@ import {
 } from "lucide-react";
 
 import AxonLogo from "./AxonLogo";
-
 import { clearUser } from "../../redux/slices/authSlice";
 import { fetchWithAuth } from "../../utils/fetchWithAuth";
 
@@ -26,6 +25,10 @@ function Navbar() {
   const { user, isAuthLoading, accessToken } = useSelector(
     (state) => state.auth,
   );
+
+  const location = useLocation();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   // Replace these with actual counts from API later
   const projectCount = 2;
@@ -65,9 +68,6 @@ function Navbar() {
     },
   ];
 
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-
   const logoutUser = async () => {
     try {
       await fetchWithAuth(
@@ -94,7 +94,6 @@ function Navbar() {
           <div className="flex items-center">
             <Link to="/" className="flex items-center gap-3.5">
               <AxonLogo />
-
               <span className="text-[22px] font-semibold text-white">Axon</span>
             </Link>
 
@@ -103,42 +102,27 @@ function Navbar() {
                 ? privateNav.map((item) => {
                     const Icon = item.icon;
 
+                    const isActive =
+                      item.name === "Overview"
+                        ? location.pathname === `/${user?.username}`
+                        : location.pathname.startsWith(item.path);
+
                     return (
                       <Link
                         key={item.name}
                         to={item.path}
-                        className="
-              flex
-              items-center
-              gap-2
-              text-[13px]
-              text-[#8b949e]
-              hover:text-[#c9d1d9]
-              transition
-            "
+                        className={`flex items-center gap-2 text-[13px] transition pb-1 border-b-2 ${
+                          isActive
+                            ? "text-white border-[#58a6ff]"
+                            : "text-[#8b949e] border-transparent hover:text-[#c9d1d9]"
+                        }`}
                       >
                         {Icon && <Icon size={15} strokeWidth={2} />}
 
                         <span>{item.name}</span>
 
                         {item.count > 0 && (
-                          <span
-                            className="
-                  min-w-5
-                  h-5
-                  px-1.5
-                  rounded-full
-                  bg-[#21262d]
-                  border
-                  border-[#30363d]
-                  text-[11px]
-                  text-[#c9d1d9]
-                  flex
-                  items-center
-                  justify-center
-                  font-medium
-                "
-                          >
+                          <span className="min-w-5 h-5 px-1.5 rounded-full bg-[#21262d] border border-[#30363d] text-[11px] text-[#c9d1d9] flex items-center justify-center font-medium">
                             {item.count}
                           </span>
                         )}
@@ -149,12 +133,7 @@ function Navbar() {
                     <a
                       key={item}
                       href={`#${item.toLowerCase()}`}
-                      className="
-            text-[13px]
-            text-[#8b949e]
-            hover:text-[#c9d1d9]
-            transition
-          "
+                      className="text-[13px] text-[#8b949e] hover:text-[#c9d1d9] transition"
                     >
                       {item}
                     </a>
@@ -170,18 +149,7 @@ function Navbar() {
               <div className="relative">
                 <button
                   onClick={() => setOpen(!open)}
-                  className="
-                    w-10
-                    h-10
-                    rounded-full
-                    overflow-hidden
-                    border
-                    border-[#30363d]
-                    bg-[#161b22]
-                    flex
-                    items-center
-                    justify-center
-                  "
+                  className="w-10 h-10 rounded-full overflow-hidden border border-[#30363d] bg-[#161b22] flex items-center justify-center"
                 >
                   {user.avatar ? (
                     <img
@@ -195,20 +163,7 @@ function Navbar() {
                 </button>
 
                 {open && (
-                  <div
-                    className="
-                      absolute
-                      right-0
-                      mt-3
-                      w-56
-                      rounded-xl
-                      border
-                      border-[#30363d]
-                      bg-[#161b22]
-                      shadow-xl
-                      overflow-hidden
-                    "
-                  >
+                  <div className="absolute right-0 mt-3 w-56 rounded-xl border border-[#30363d] bg-[#161b22] shadow-xl overflow-hidden">
                     <div className="px-4 py-3 border-b border-[#30363d]">
                       <p className="text-sm text-white">
                         {user.first_name} {user.last_name}
@@ -219,16 +174,7 @@ function Navbar() {
 
                     <Link
                       to={`/${user.username}`}
-                      className="
-                        flex
-                        items-center
-                        gap-3
-                        px-4
-                        py-3
-                        text-sm
-                        text-[#c9d1d9]
-                        hover:bg-[#21262d]
-                      "
+                      className="flex items-center gap-3 px-4 py-3 text-sm text-[#c9d1d9] hover:bg-[#21262d]"
                     >
                       <User size={15} />
                       Profile
@@ -236,16 +182,7 @@ function Navbar() {
 
                     <Link
                       to="/projects"
-                      className="
-                        flex
-                        items-center
-                        gap-3
-                        px-4
-                        py-3
-                        text-sm
-                        text-[#c9d1d9]
-                        hover:bg-[#21262d]
-                      "
+                      className="flex items-center gap-3 px-4 py-3 text-sm text-[#c9d1d9] hover:bg-[#21262d]"
                     >
                       <FolderGit2 size={15} />
                       Projects
@@ -253,16 +190,7 @@ function Navbar() {
 
                     <Link
                       to="/organizations"
-                      className="
-                        flex
-                        items-center
-                        gap-3
-                        px-4
-                        py-3
-                        text-sm
-                        text-[#c9d1d9]
-                        hover:bg-[#21262d]
-                      "
+                      className="flex items-center gap-3 px-4 py-3 text-sm text-[#c9d1d9] hover:bg-[#21262d]"
                     >
                       <Building2 size={15} />
                       Organizations
@@ -270,18 +198,7 @@ function Navbar() {
 
                     <Link
                       to="/settings"
-                      className="
-                        flex
-                        items-center
-                        gap-3
-                        px-4
-                        py-3
-                        text-sm
-                        text-[#c9d1d9]
-                        hover:bg-[#21262d]
-                        border-t
-                        border-[#30363d]
-                      "
+                      className="flex items-center gap-3 px-4 py-3 text-sm text-[#c9d1d9] hover:bg-[#21262d] border-t border-[#30363d]"
                     >
                       <Settings size={15} />
                       Settings
@@ -289,17 +206,7 @@ function Navbar() {
 
                     <button
                       onClick={logoutUser}
-                      className="
-                        w-full
-                        flex
-                        items-center
-                        gap-3
-                        px-4
-                        py-3
-                        text-sm
-                        text-red-400
-                        hover:bg-red-950/20
-                      "
+                      className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-400 hover:bg-red-950/20"
                     >
                       <LogOut size={15} />
                       Logout
@@ -310,18 +217,7 @@ function Navbar() {
             ) : (
               <Link
                 to="/auth"
-                className="
-                  text-[13px]
-                  text-[#c9d1d9]
-                  hover:text-white
-                  border
-                  border-[#30363d]
-                  hover:bg-[#161b22]
-                  px-5
-                  py-2
-                  rounded-[10px]
-                  transition
-                "
+                className="text-[13px] text-[#c9d1d9] hover:text-white border border-[#30363d] hover:bg-[#161b22] px-5 py-2 rounded-[10px] transition"
               >
                 Sign In
               </Link>
