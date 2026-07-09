@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Check, Loader2 } from "lucide-react";
 
 import { useDispatch, useSelector } from "react-redux";
+import { setUser } from "../../redux/slices/authSlice";
 import { fetchWithAuth } from "../../utils/fetchWithAuth";
 
 const API = import.meta.env.VITE_API_URL;
@@ -12,6 +13,8 @@ export default function UsernameCard({
 }) {
   const dispatch = useDispatch();
   const accessToken = useSelector((state) => state.auth.accessToken);
+
+  const user = useSelector((state) => state.auth.user);
 
   const isDone = status === "done";
   const isActive = status === "active";
@@ -106,8 +109,9 @@ export default function UsernameCard({
       if (!res.ok) {
         throw new Error(data.message || "Username update failed");
       }
+      dispatch(setUser(data.user));
+      await refresh();
 
-      refresh();
     } catch (err) {
       setError(err.message);
     } finally {
