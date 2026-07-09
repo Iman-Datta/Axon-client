@@ -11,7 +11,7 @@ import Onboarding from "./pages/Onboarding";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import OnboardingGuard from "./components/onboarding/OnboardingGuard";
 import Profile from "./pages/Profile";
-import Organization from "./pages/Organizations";
+import OrganizationsPage from "./pages/organizations/OrganizationsPage";
 
 import { setUser, setAuthLoading, clearUser } from "./redux/slices/authSlice";
 
@@ -99,12 +99,10 @@ function App() {
           }
         />
         <Route
-          path="/org/:slug"
+          path="/organizations"
           element={
             <ProtectedRoute>
-              <OnboardingGuard>
-                <Organization />
-              </OnboardingGuard>
+              <OrganizationsPage />
             </ProtectedRoute>
           }
         />
