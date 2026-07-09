@@ -64,7 +64,7 @@ function App() {
     return () => {
       mounted = false;
     };
-  }, [dispatch, accessToken]);
+  }, []);
 
   if (isAuthLoading) {
     return <div className="bg-[#0d1117] min-h-screen" />;
@@ -97,14 +97,7 @@ function App() {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/:username"
-          element={
-            <OnboardingGuard>
-              <Profile />
-            </OnboardingGuard>
-          }
-        />
+        <Route path="/:username" element={<Profile />} />
       </Routes>
     </div>
   );

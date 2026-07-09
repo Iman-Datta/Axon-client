@@ -30,13 +30,7 @@ export default function Onboarding() {
   if (loading || !status || !status.profile) {
     return <div className="min-h-screen bg-[#0d1117]" />;
   }
-  
-  // Debug
-  console.log(status);
-  console.log(status.profile);
-  console.log(status.profile?.data);
-  console.log(user);
-  console.log(status?.profile?.data);
+
   return (
     <div className="min-h-screen bg-[#0d1117] text-[#c9d1d9]">
       <main className="mx-auto w-full max-w-3xl px-4 pt-26 pb-12">

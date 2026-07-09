@@ -1,7 +1,6 @@
 import { Pencil, BookMarked, Users, Activity } from "lucide-react";
 
 function ProfileHeader({ user }) {
-  console.log(user);
   const fullName = `${user.first_name || ""} ${user.last_name || ""}`.trim();
 
   const initials =
