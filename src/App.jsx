@@ -12,6 +12,7 @@ import ProtectedRoute from "./components/auth/ProtectedRoute";
 import OnboardingGuard from "./components/onboarding/OnboardingGuard";
 import Profile from "./pages/Profile";
 import OrganizationsPage from "./pages/organizations/OrganizationsPage";
+import CreateOrganization from "./pages/organizations/CreateOrganization";
 
 import { setUser, setAuthLoading, clearUser } from "./redux/slices/authSlice";
 
@@ -103,6 +104,14 @@ function App() {
           element={
             <ProtectedRoute>
               <OrganizationsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/organizations/create"
+          element={
+            <ProtectedRoute>
+              <CreateOrganization />
             </ProtectedRoute>
           }
         />
