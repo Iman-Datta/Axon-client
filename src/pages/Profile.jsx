@@ -4,11 +4,6 @@ import { CheckCircle2, Circle, X } from "lucide-react";
 
 import ProfileHeader from "../components/profile/ProfileHeader";
 import ProfileSidebar from "../components/profile/ProfileSidebar";
-import ProfileOrganizations from "../components/profile/ProfileOrganizations";
-import ProfileTabs from "../components/profile/ProfileTabs";
-import ContributionGraph from "../components/profile/ContributionGraph";
-import ProfileProjects from "../components/profile/ProfileProjects";
-import ActivityFeed from "../components/profile/ActivityFeed";
 
 const API = import.meta.env.VITE_API_URL;
 
@@ -26,7 +21,6 @@ function Profile() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const [activeTab, setActiveTab] = useState("overview");
   const [checklist, setChecklist] = useState(INITIAL_CHECKLIST);
   const [showChecklist, setShowChecklist] = useState(true);
 
@@ -100,7 +94,6 @@ function Profile() {
           <aside className="lg:col-span-3 order-2 lg:order-1">
             <ProfileSidebar user={profile} />
 
-            <ProfileOrganizations />
           </aside>
 
           <section className="lg:col-span-9 order-1 lg:order-2">
@@ -149,26 +142,6 @@ function Profile() {
                 </div>
               </div>
             )}
-
-            <ProfileTabs activeTab={activeTab} onChange={setActiveTab} />
-
-            {activeTab === "overview" && (
-              <>
-                <ContributionGraph />
-                <ProfileProjects />
-                <ActivityFeed />
-              </>
-            )}
-
-            {activeTab === "projects" && <ProfileProjects />}
-
-            {activeTab === "organizations" && (
-              <div className="mt-6 max-w-sm">
-                <ProfileOrganizations />
-              </div>
-            )}
-
-            {activeTab === "activity" && <ActivityFeed />}
           </section>
         </div>
       </div>
