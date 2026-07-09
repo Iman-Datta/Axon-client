@@ -8,19 +8,17 @@ function SidebarItem({ item }) {
         flex
         items-center
         gap-3
-        px-4
-        py-3
-        rounded-xl
-        text-gray-300
-        hover:bg-slate-800
-        hover:text-white
-        transition-all
-        duration-200
+        px-3
+        py-2
+        rounded-md
+        text-[#e6edf3]
+        hover:bg-[#21262d]
+        transition-colors
       "
     >
-      <Icon size={18} />
+      <Icon size={18} className="text-[#8b949e]" />
 
-      <span className="font-medium">{item.title}</span>
+      <span>{item.title}</span>
     </button>
   );
 }

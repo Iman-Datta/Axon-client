@@ -2,8 +2,8 @@ function SidebarProfile({ user }) {
   const fullName = `${user.first_name || ""} ${user.last_name || ""}`.trim();
 
   return (
-    <div className="flex flex-col items-center text-center">
-      <div className="h-20 w-20 overflow-hidden rounded-full border border-[#30363d] bg-[#161b22]">
+    <div className="flex items-center gap-4 pb-5">
+      <div className="h-16 w-16 shrink-0 overflow-hidden rounded-full border border-[#30363d] bg-[#161b22]">
         {user.avatar ? (
           <img
             src={user.avatar}
@@ -19,9 +19,9 @@ function SidebarProfile({ user }) {
               w-full
               items-center
               justify-center
-              bg-blue-600
+              bg-[#1f6feb]
               text-2xl
-              font-bold
+              font-semibold
               text-white
             "
           >
@@ -30,12 +30,14 @@ function SidebarProfile({ user }) {
         )}
       </div>
 
-      <p className="mt-4 text-sm text-gray-400">Profile</p>
+      <div className="min-w-0">
+        <h3 className="text-xl font-semibold text-[#e6edf3] leading-tight">
+          {fullName || user.username}
+          <span className="font-normal text-[#8b949e]"> ({user.username})</span>
+        </h3>
 
-      <h3 className="mt-1 text-lg font-semibold">
-        {fullName || user.username}
-        <span className="text-gray-400 font-normal"> ({user.username})</span>
-      </h3>
+        <p className="mt-1 text-sm text-[#8b949e]">Your personal account</p>
+      </div>
     </div>
   );
 }
