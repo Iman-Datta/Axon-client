@@ -89,7 +89,7 @@ function EmailCallback() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 0.15 }}
         transition={{ duration: 1.5 }}
-        className={`absolute w-[500px] h-[500px] rounded-full blur-[120px] pointer-events-none ${
+        className={`absolute  w-96 h-96 rounded-full blur-[120px] pointer-events-none ${
           failed ? "bg-red-500" : "bg-[#2f81f7]"
         }`}
       />

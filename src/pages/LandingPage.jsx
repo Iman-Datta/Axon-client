@@ -7,7 +7,7 @@ function LandingPage() {
       <section className="relative pt-40 pb-28 px-6">
         {/* Background Glow */}
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[700px] bg-blue-500/10 blur-[180px]" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[44rem] h-[44rem] bg-blue-500/10 blur-[180px]" />
         </div>
 
         <div className="relative max-w-6xl mx-auto flex flex-col items-center text-center">
@@ -87,7 +87,7 @@ function LandingPage() {
             </div>
 
             {/* CONTENT */}
-            <div className="grid grid-cols-12 min-h-[500px]">
+            <div className="grid grid-cols-12 min-h-96">
               {/* SIDEBAR */}
               <div className="col-span-2 border-r border-[#30363d] p-5">
                 <h3 className="text-sm text-[#8b949e] mb-4 uppercase tracking-wider">
