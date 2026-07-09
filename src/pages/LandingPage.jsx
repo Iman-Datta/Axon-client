@@ -33,7 +33,7 @@ function LandingPage() {
 
           {/* SUBTEXT */}
           <p className="mt-8 max-w-3xl text-lg md:text-xl text-[#8b949e] leading-relaxed">
-            A collaborative workspace built for developers — Git-powered
+            A collaborative workspace built for developers Git-powered
             automation, Kanban workflows, organizations, and real-time project
             tracking.
           </p>
@@ -99,7 +99,7 @@ function LandingPage() {
                     acme-eng
                   </div>
 
-                  <div className="px-3 py-2 text-[#8b949e]">lovable-os</div>
+                  <div className="px-3 py-2 text-[#8b949e]">os</div>
 
                   <div className="px-3 py-2 text-[#8b949e]">side-quest</div>
                 </div>
