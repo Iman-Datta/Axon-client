@@ -5,13 +5,13 @@ import { useDispatch, useSelector } from "react-redux";
 import Navbar from "./components/shared/Navbar";
 import LandingPage from "./pages/LandingPage";
 import AuthPage from "./pages/Auth";
-import Dashboard from "./pages/Dashboard";
 import CheckEmail from "./pages/CheckEmail";
 import EmailCallback from "./pages/EmailCallback";
 import Onboarding from "./pages/Onboarding";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import OnboardingGuard from "./components/onboarding/OnboardingGuard";
 import Profile from "./pages/Profile";
+import Organization from "./pages/Organizations";
 
 import { setUser, setAuthLoading, clearUser } from "./redux/slices/authSlice";
 
@@ -77,16 +77,7 @@ function App() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/auth" element={<AuthPage />} />
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <OnboardingGuard>
-                <Dashboard />
-              </OnboardingGuard>
-            </ProtectedRoute>
-          }
-        />
+
         <Route path="/checkEmail" element={<CheckEmail />} />
         <Route path="/callback" element={<EmailCallback />} />
         <Route
@@ -97,7 +88,26 @@ function App() {
             </ProtectedRoute>
           }
         />
-        <Route path="/:username" element={<Profile />} />
+        <Route
+          path="/:username"
+          element={
+            <ProtectedRoute>
+              <OnboardingGuard>
+                <Profile />
+              </OnboardingGuard>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/org/:slug"
+          element={
+            <ProtectedRoute>
+              <OnboardingGuard>
+                <Organization />
+              </OnboardingGuard>
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </div>
   );

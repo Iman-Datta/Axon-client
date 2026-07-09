@@ -3,9 +3,6 @@ import { Pencil, BookMarked, Users, Activity } from "lucide-react";
 function ProfileHeader({ user }) {
   const fullName = `${user.first_name || ""} ${user.last_name || ""}`.trim();
 
-  const initials =
-    `${user.first_name?.[0] || ""}${user.last_name?.[0] || ""}`.toUpperCase();
-
   const stats = [
     {
       label: "Projects",
@@ -25,7 +22,7 @@ function ProfileHeader({ user }) {
       icon: Activity,
     },
   ];
-
+  console.log(user.avatar);
   return (
     <section className="relative">
       <div className="relative h-44 md:h-52 overflow-hidden border-b border-[#30363d]">
@@ -36,22 +33,18 @@ function ProfileHeader({ user }) {
       <div className="max-w-7xl mx-auto px-6">
         <div className="relative -mt-14 md:-mt-16 flex justify-between items-end pb-6">
           <div className="flex items-end gap-5">
-            <div className="w-32 h-32 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-800 border-4 border-gray-950 flex items-center justify-center overflow-hidden">
+            <div className="h-56 w-56 overflow-hidden rounded-full border-4 border-[#30363d] bg-[#161b22] shadow-xl shadow-black/30">
               {user.avatar ? (
                 <img
                   src={user.avatar}
                   alt={user.username}
                   referrerPolicy="no-referrer"
-                  className="
-                  w-full
-                  h-full
-                  object-cover
-                  "
+                  className="h-full w-full object-cover"
                 />
               ) : (
-                <span className="text-4xl font-bold text-white">
-                  {initials || user.username[0].toUpperCase()}
-                </span>
+                <div className="flex h-full w-full items-center justify-center bg-[linear-gradient(135deg,#3b82f6,#1d4ed8)] text-6xl font-bold text-white">
+                  {user.username?.[0]?.toUpperCase()}
+                </div>
               )}
             </div>
 
