@@ -1,28 +1,6 @@
-import { Pencil, BookMarked, Users, Activity } from "lucide-react";
-
 function ProfileHeader({ user }) {
   const fullName = `${user.first_name || ""} ${user.last_name || ""}`.trim();
 
-  const stats = [
-    {
-      label: "Projects",
-      value: 0,
-      icon: BookMarked,
-    },
-
-    {
-      label: "Organizations",
-      value: 0,
-      icon: Users,
-    },
-
-    {
-      label: "Contributions",
-      value: 0,
-      icon: Activity,
-    },
-  ];
-  console.log(user.avatar);
   return (
     <section className="relative">
       <div className="relative h-44 md:h-52 overflow-hidden border-b border-[#30363d]">
@@ -60,46 +38,6 @@ function ProfileHeader({ user }) {
               </p>
             </div>
           </div>
-
-          <button
-            className="
-            flex
-            gap-2
-            px-4
-            py-2
-            rounded-xl
-            bg-[#161b22]
-            border
-            border-[#30363d]
-            "
-          >
-            <Pencil size={15} />
-            Edit profile
-          </button>
-        </div>
-
-        <div className="flex gap-3 pb-6">
-          {stats.map(({ label, value, icon: Icon }) => (
-            <div
-              key={label}
-              className="
-              flex
-              gap-2
-              px-4
-              py-2
-              rounded-full
-              bg-[#161b22]
-              border
-              border-[#30363d]
-              "
-            >
-              <Icon size={14} />
-
-              {value}
-
-              <span className="text-[#8b949e]">{label}</span>
-            </div>
-          ))}
         </div>
       </div>
     </section>
