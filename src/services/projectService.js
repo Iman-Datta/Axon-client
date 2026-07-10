@@ -2,9 +2,8 @@ import { fetchWithAuth } from "../utils/fetchWithAuth";
 
 const API = import.meta.env.VITE_API_URL;
 export const getMyProjects = async (workspaceSlug, dispatch, accessToken) => {
-  console.log(`${API}/workspaces/${workspaceSlug}/projects/`);
   const response = await fetchWithAuth(
-    `${API}/projects/workspaces/${workspaceSlug}/`,
+    `${API}/projects/${workspaceSlug}/`,
     {},
     dispatch,
     accessToken,
@@ -26,7 +25,7 @@ export const createProject = async (
   accessToken,
 ) => {
   const response = await fetchWithAuth(
-    `${API}/projects/workspaces/${workspaceSlug}/create/`,
+    `${API}/projects/${workspaceSlug}/create/`,
     {
       method: "POST",
       headers: {

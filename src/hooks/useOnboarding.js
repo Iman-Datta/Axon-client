@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { fetchWithAuth } from "../utils/fetchWithAuth";
+import { setOnboardingStatus } from "../redux/slices/onboardingSlice";
 
 const API = import.meta.env.VITE_API_URL;
 
@@ -10,11 +11,21 @@ export function useOnboarding() {
 
   const accessToken = useSelector((state) => state.auth.accessToken);
 
-  const [status, setStatus] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const onboarding = useSelector((state) => state.onboarding.status);
+
+  const loaded = useSelector((state) => state.onboarding.loaded);
+
+  const [status, setStatus] = useState(onboarding);
+  const [loading, setLoading] = useState(!loaded);
   const [error, setError] = useState(null);
 
   const fetchStatus = useCallback(async () => {
+    if (loaded && onboarding) {
+      setStatus(onboarding);
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
 
@@ -31,13 +42,14 @@ export function useOnboarding() {
         throw new Error(data.message || "Failed");
       }
 
+      dispatch(setOnboardingStatus(data));
       setStatus(data);
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
-  }, [dispatch, accessToken]);
+  }, [loaded, onboarding, dispatch, accessToken]);
 
   useEffect(() => {
     fetchStatus();

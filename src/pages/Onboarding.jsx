@@ -15,6 +15,7 @@ const STEPS = [
 export default function Onboarding() {
   const { status, loading, refresh } = useOnboarding();
   const navigate = useNavigate();
+
   const user = useSelector((state) => state.auth.user);
 
   const [step, setStep] = useState(1);

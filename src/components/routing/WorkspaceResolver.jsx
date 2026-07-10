@@ -5,7 +5,10 @@ import { useDispatch, useSelector } from "react-redux";
 import Profile from "../../pages/Profile";
 import OrganizationDetailsPage from "../../pages/organizations/OrganizationDetailsPage";
 
-import { setCurrentWorkspace } from "../../redux/slices/workspaceSlice";
+import {
+  setCurrentWorkspace,
+  cacheWorkspace,
+} from "../../redux/slices/workspaceSlice";
 
 import { getWorkspaceType } from "../../services/workspaceService";
 
@@ -16,26 +19,39 @@ function WorkspaceResolver() {
 
   const accessToken = useSelector((state) => state.auth.accessToken);
 
-  const workspace = useSelector((state) => state.workspace.currentWorkspace);
+  const currentWorkspace = useSelector(
+    (state) => state.workspace.currentWorkspace,
+  );
+
+  const workspaceCache = useSelector((state) => state.workspace.workspaceCache);
 
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadWorkspace = async () => {
       try {
-        if (workspace?.slug === slug) {
-          setLoading(false);
+        setLoading(true);
+        // 1. Current workspace already correct
+        if (currentWorkspace?.slug === slug) {
           return;
         }
+        // 2. Check cache first
+        const cachedWorkspace = workspaceCache[slug];
 
+        if (cachedWorkspace) {
+          dispatch(setCurrentWorkspace(cachedWorkspace));
+          return;
+        }
+        // 3. API call
         const data = await getWorkspaceType(slug, dispatch, accessToken);
 
-        dispatch(
-          setCurrentWorkspace({
-            slug,
-            type: data.type,
-          }),
-        );
+        const workspace = {
+          slug,
+          type: data.workspace.type,
+        };
+
+        dispatch(cacheWorkspace(workspace));
+        dispatch(setCurrentWorkspace(workspace));
       } catch (error) {
         console.log(error);
       } finally {
@@ -44,9 +60,12 @@ function WorkspaceResolver() {
     };
 
     loadWorkspace();
-  }, [slug, dispatch, accessToken, workspace]);
+  }, [slug, dispatch, accessToken, currentWorkspace, workspaceCache]);
 
-  if (loading || !workspace || workspace.slug !== slug) {
+  const workspace =
+    currentWorkspace?.slug === slug ? currentWorkspace : workspaceCache[slug];
+
+  if (loading || !workspace) {
     return (
       <div className="min-h-screen flex items-center justify-center text-white">
         Loading...
