@@ -1,8 +1,7 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
-import ProfileHeader from "../components/profile/ProfileHeader";
-import ProfileSidebar from "../components/profile/ProfileSidebar";
+import ProfileLayout from "../components/shared/ProfileLayout";
 import ProfileChecklist from "../components/profile/ProfileChecklist";
 
 const API = import.meta.env.VITE_API_URL;
@@ -64,21 +63,14 @@ function Profile() {
   }
 
   return (
-    <main className="min-h-screen bg-[#0d1117] text-[#c9d1d9]">
-      <ProfileHeader user={profile} />
+    <ProfileLayout user={profile}>
+      <ProfileChecklist user={profile} />
 
-      <div className="max-w-7xl mx-auto px-6 pb-24">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          <aside className="lg:col-span-3 order-2 lg:order-1">
-            <ProfileSidebar user={profile} />
-          </aside>
-
-          <section className="lg:col-span-9 order-1 lg:order-2">
-            <ProfileChecklist user={profile} />
-          </section>
-        </div>
-      </div>
-    </main>
+      {/* Future Components */}
+      {/* <PinnedProjects user={profile} /> */}
+      {/* <OrganizationPreview user={profile} /> */}
+      {/* <RecentActivity user={profile} /> */}
+    </ProfileLayout>
   );
 }
 
