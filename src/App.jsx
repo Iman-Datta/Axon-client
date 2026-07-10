@@ -10,7 +10,7 @@ import EmailCallback from "./pages/EmailCallback";
 import Onboarding from "./pages/Onboarding";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import OnboardingGuard from "./components/onboarding/OnboardingGuard";
-import Profile from "./pages/Profile";
+import WorkspaceResolver from "./components/routing/WorkspaceResolver";
 import OrganizationsPage from "./pages/organizations/OrganizationsPage";
 import CreateOrganization from "./pages/organizations/CreateOrganization";
 import ProjectsPage from "./pages/projects/ProjectsPage";
@@ -98,7 +98,7 @@ function App() {
           element={
             <ProtectedRoute>
               <OnboardingGuard>
-                <Profile />
+                <WorkspaceResolver />
               </OnboardingGuard>
             </ProtectedRoute>
           }

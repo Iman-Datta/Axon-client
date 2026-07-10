@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 import ProfileLayout from "../components/shared/ProfileLayout";
 import ProfileChecklist from "../components/profile/ProfileChecklist";
@@ -10,10 +11,20 @@ function Profile() {
   const { slug } = useParams();
 
   const [profile, setProfile] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  const authUser = useSelector((state) => state.auth.user);
+
+  const isOwnProfile = authUser?.username === slug;
+
+  const displayProfile = isOwnProfile ? authUser : profile;
+
   useEffect(() => {
+    if (!slug || isOwnProfile) {
+      return;
+    }
+
     const controller = new AbortController();
 
     const fetchProfile = async () => {
@@ -44,13 +55,21 @@ function Profile() {
     fetchProfile();
 
     return () => controller.abort();
-  }, [slug]);
+  }, [slug, isOwnProfile]);
+
+  if (!displayProfile && loading) {
+    return (
+      <ProfileLayout user={authUser}>
+        <div className="py-20 text-center">Loading profile...</div>
+      </ProfileLayout>
+    );
+  }
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0d1117] text-white flex items-center justify-center">
-        Loading profile...
-      </div>
+      <ProfileLayout user={authUser}>
+        <div className="py-20 text-center">Loading profile...</div>
+      </ProfileLayout>
     );
   }
 
@@ -63,13 +82,8 @@ function Profile() {
   }
 
   return (
-    <ProfileLayout user={profile}>
-      <ProfileChecklist user={profile} />
-
-      {/* Future Components */}
-      {/* <PinnedProjects user={profile} /> */}
-      {/* <OrganizationPreview user={profile} /> */}
-      {/* <RecentActivity user={profile} /> */}
+    <ProfileLayout user={displayProfile}>
+      <ProfileChecklist user={displayProfile} />
     </ProfileLayout>
   );
 }
