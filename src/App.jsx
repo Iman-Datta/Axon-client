@@ -2,7 +2,7 @@ import { Routes, Route, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import Navbar from "./components/shared/Navbar";
+import Navbar from "./components/shared/navbar/Navbar";
 import LandingPage from "./pages/LandingPage";
 import AuthPage from "./pages/Auth";
 import CheckEmail from "./pages/CheckEmail";
