@@ -26,7 +26,7 @@ export const createProject = async (
   accessToken,
 ) => {
   const response = await fetchWithAuth(
-    `${API}/workspaces/${workspaceSlug}/projects/create/`,
+    `${API}/projects/workspaces/${workspaceSlug}/create/`,
     {
       method: "POST",
       headers: {
@@ -41,7 +41,7 @@ export const createProject = async (
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.message || "Failed to create project.");
+    throw data;
   }
 
   return data;

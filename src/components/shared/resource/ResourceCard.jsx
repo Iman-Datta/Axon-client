@@ -4,9 +4,14 @@ import { Building2, FolderGit2 } from "lucide-react";
 function ResourceCard({
   resource,
   type = "organization",
+  workspaceSlug,
   actionText,
   onAction,
 }) {
+  const href =
+    type === "project"
+      ? `/${workspaceSlug}/${resource.slug}`
+      : `/${resource.slug}`;
   const Icon = type === "project" ? FolderGit2 : Building2;
 
   return (
@@ -26,7 +31,7 @@ function ResourceCard({
 
         <div className="min-w-0">
           <Link
-            to={`/${resource.slug}`}
+            to={href}
             className="text-base font-semibold text-[#58a6ff] hover:underline"
           >
             {resource.name}

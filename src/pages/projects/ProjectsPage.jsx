@@ -1,14 +1,14 @@
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 
-import useProjects from "../hooks/useProjects";
+import useProjects from "../../hooks/useProjects";
 
-import ProfileLayout from "../components/shared/ProfileLayout";
+import ProfileLayout from "../../components/shared/ProfileLayout";
 
-import ResourceList from "../components/shared/resource/ResourceList";
-import ResourceSkeleton from "../components/shared/resource/ResourceSkeleton";
-import EmptyState from "../components/shared/resource/EmptyState";
-import NewResourceButton from "../components/shared/resource/NewResourceButton";
+import ResourceList from "../../components/shared/resource/ResourceList";
+import ResourceSkeleton from "../../components/shared/resource/ResourceSkeleton";
+import EmptyState from "../../components/shared/resource/EmptyState";
+import NewResourceButton from "../../components/shared/resource/NewResourceButton";
 
 function ProjectsPage() {
   const { slug } = useParams();
@@ -52,7 +52,11 @@ function ProjectsPage() {
           description="Create your first project to get started."
         />
       ) : (
-        <ResourceList resources={projects} type="project" />
+        <ResourceList
+          resources={projects}
+          type="project"
+          workspaceSlug={slug}
+        />
       )}
     </ProfileLayout>
   );
