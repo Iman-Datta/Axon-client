@@ -3,12 +3,15 @@ import { useSelector } from "react-redux";
 
 function OnboardingGuard({ children }) {
   const user = useSelector((state) => state.auth.user);
-
+  console.log(user);
   if (!user) {
     return null;
   }
 
-  if (!user.is_profile_completed) {
+  const onboardingCompleted =
+    user.is_profile_completed && user.is_username_set && user.is_email_verified;
+
+  if (!onboardingCompleted) {
     return <Navigate to="/onboarding" replace />;
   }
 

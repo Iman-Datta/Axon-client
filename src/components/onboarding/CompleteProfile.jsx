@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { setUser } from "../../redux/slices/authSlice";
 
 import { fetchWithAuth } from "../../utils/fetchWithAuth";
 
@@ -43,11 +44,13 @@ const LEVELS = [
   },
 ];
 
-export default function CompleteProfile({ profile, refresh }) {
+export default function CompleteProfile({ profile }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const { accessToken, user } = useSelector((state) => state.auth);
+  console.log(user);
+  console.log(profile);
 
   const initialData = profile?.data || user || {};
 
@@ -108,13 +111,21 @@ export default function CompleteProfile({ profile, refresh }) {
         throw new Error(data.message || "Profile update failed");
       }
 
-      await refresh();
+      dispatch(
+        setUser({
+          ...user,
+          first_name: form.first_name.trim(),
+          last_name: form.last_name.trim(),
+          bio: form.bio.trim(),
+          linkedin_profile: form.linkedin_profile.trim(),
+          portfolio_website: form.portfolio_website.trim(),
+          is_profile_completed: true,
+        }),
+      );
 
-      if (user?.username) {
-        navigate(`/${user.username}`, {
-          replace: true,
-        });
-      }
+      navigate(`/${user.username}`, {
+        replace: true,
+      });
     } catch (err) {
       setError(err.message);
     } finally {

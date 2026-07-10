@@ -1,83 +1,44 @@
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { CheckCircle2, Circle, X } from "lucide-react";
-import { useDispatch, useSelector } from "react-redux";
-
-import { fetchWithAuth } from "../../utils/fetchWithAuth";
-
-const API = import.meta.env.VITE_API_URL;
 
 function ProfileChecklist({ user }) {
-  const dispatch = useDispatch();
-  const accessToken = useSelector((state) => state.auth.accessToken);
-
   const STORAGE_KEY = "axon-profile-checklist-hidden";
 
-  const [showChecklist, setShowChecklist] = useState(() => {
-    return localStorage.getItem(STORAGE_KEY) !== "true";
-  });
-  const [checklist, setChecklist] = useState([]);
-
-  useEffect(() => {
-    const fetchStatus = async () => {
-      try {
-        const res = await fetchWithAuth(
-          `${API}/auth/onboarding/status/`,
-          {},
-          dispatch,
-          accessToken,
-        );
-
-        const data = await res.json();
-
-        if (!res.ok) {
-          return;
-        }
-
-        const items = [
-          {
-            id: "username",
-            label: "Username created",
-            done: data.identity.requirements.username,
-          },
-          {
-            id: "email",
-            label: "Email verified",
-            done: data.identity.requirements.email,
-          },
-          {
-            id: "github",
-            label: "GitHub connected",
-            done: data.identity.requirements.github,
-          },
-          {
-            id: "profile",
-            label: "Profile completed",
-            done: data.profile.status,
-          },
-        ];
-
-        setChecklist(items);
-        const allCompleted = items.every((item) => item.done);
-
-        if (allCompleted) {
-          localStorage.setItem(STORAGE_KEY, "true");
-          setShowChecklist(false);
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-    fetchStatus();
-  }, [dispatch, accessToken]);
+  const checklist = useMemo(
+    () => [
+      {
+        id: "username",
+        label: "Username created",
+        done: !!user?.username,
+      },
+      {
+        id: "email",
+        label: "Email verified",
+        done: !!user?.is_email_verified,
+      },
+      {
+        id: "github",
+        label: "GitHub connected",
+        done: !!user?.github_profile,
+      },
+      {
+        id: "profile",
+        label: "Profile completed",
+        done: !!user?.is_profile_completed,
+      },
+    ],
+    [user],
+  );
 
   const completedCount = checklist.filter((item) => item.done).length;
 
-  const progress = checklist.length
-    ? Math.round((completedCount / checklist.length) * 100)
-    : 0;
+  const progress = Math.round((completedCount / checklist.length) * 100);
 
-  if (!showChecklist || checklist.length === 0) {
+  const allCompleted = completedCount === checklist.length;
+
+  const isHidden = localStorage.getItem(STORAGE_KEY) === "true";
+
+  if (isHidden || allCompleted) {
     return null;
   }
 
@@ -86,7 +47,7 @@ function ProfileChecklist({ user }) {
       <button
         onClick={() => {
           localStorage.setItem(STORAGE_KEY, "true");
-          setShowChecklist(false);
+          window.location.reload();
         }}
         className="absolute top-4 right-4 text-[#8b949e] hover:text-white"
       >
@@ -94,7 +55,7 @@ function ProfileChecklist({ user }) {
       </button>
 
       <h3 className="text-base font-semibold text-[#e6edf3]">
-        Welcome to Axon, {user.first_name}
+        Welcome to Axon, {user?.first_name || user?.username || "Developer"}
       </h3>
 
       <p className="text-sm text-[#8b949e] mb-4">
@@ -103,7 +64,7 @@ function ProfileChecklist({ user }) {
 
       <div className="h-1.5 bg-[#21262d] rounded-full overflow-hidden mb-5">
         <div
-          className="h-full bg-[#2f81f7] rounded-full"
+          className="h-full bg-[#2f81f7] rounded-full transition-all duration-500"
           style={{ width: `${progress}%` }}
         />
       </div>

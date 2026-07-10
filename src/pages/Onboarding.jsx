@@ -5,32 +5,57 @@ import { useSelector } from "react-redux";
 import IdentitySetup from "../components/onboarding/IdentitySetup";
 import CompleteProfile from "../components/onboarding/CompleteProfile";
 
-import { useOnboarding } from "../hooks/useOnboarding";
-
 const STEPS = [
   { id: 1, key: "identity", label: "Identity" },
   { id: 2, key: "profile", label: "Profile" },
 ];
 
 export default function Onboarding() {
-  const { status, loading, refresh } = useOnboarding();
   const navigate = useNavigate();
-
   const user = useSelector((state) => state.auth.user);
 
   const [step, setStep] = useState(1);
 
+  const identityCompleted = user?.is_username_set && user?.is_email_verified;
+
+  const profileCompleted = user?.is_profile_completed;
+
+  const username = user?.username;
+
   useEffect(() => {
-    if (step === 3 && user?.username) {
-      navigate(`/${user.username}`, {
+    if (identityCompleted && profileCompleted && username) {
+      navigate(`/${username}`, {
         replace: true,
       });
     }
-  }, [step, user, navigate]);
+  }, [identityCompleted, profileCompleted, username, navigate]);
 
-  if (loading || !status || !status.profile) {
+  if (!user) {
     return <div className="min-h-screen bg-[#0d1117]" />;
   }
+
+  const identity = {
+    requirements: {
+      username: user.is_username_set,
+      email: user.is_email_verified,
+      github: !!user.github_profile,
+    },
+
+    data: {
+      username: user.username,
+      email: user.email,
+
+      github: {
+        username: user.github_username,
+        avatar: user.avatar,
+      },
+    },
+  };
+
+  const profile = {
+    completed: user.is_profile_completed,
+    data: user,
+  };
 
   return (
     <div className="min-h-screen bg-[#0d1117] text-[#c9d1d9]">
@@ -40,6 +65,7 @@ export default function Onboarding() {
             <p className="mb-1.5 text-xs font-medium uppercase tracking-widest text-[#388bfd]">
               Workspace setup
             </p>
+
             <h1 className="text-2xl font-bold tracking-tight text-[#e6edf3]">
               Set up your developer workspace
             </h1>
@@ -49,91 +75,56 @@ export default function Onboarding() {
             </p>
           </div>
 
-          {/* STEP INDICATOR */}
+          {/* Step Indicator */}
           <div className="mb-10 flex items-center">
             {STEPS.map((s, i) => (
               <div
                 key={s.id}
                 className="flex items-center flex-1 last:flex-none"
               >
-                {/* Dot + label */}
                 <div className="flex flex-col items-center gap-2">
                   <div
                     className={`
-            flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold
-            transition-all duration-300
-            ${
-              step > s.id
-                ? "bg-[#238636] text-white"
-                : step === s.id
-                  ? "bg-[#388bfd] text-white ring-4 ring-[#388bfd]/15"
-                  : "border border-[#30363d] bg-transparent text-[#484f58]"
-            }`}
+                      flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold
+                      ${
+                        step > s.id
+                          ? "bg-[#238636] text-white"
+                          : step === s.id
+                            ? "bg-[#388bfd] text-white"
+                            : "border border-[#30363d] text-[#484f58]"
+                      }
+                    `}
                   >
-                    {step > s.id ? (
-                      <svg
-                        className="h-3.5 w-3.5"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={3}
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
-                    ) : (
-                      s.id
-                    )}
+                    {step > s.id ? "✓" : s.id}
                   </div>
 
                   <span
-                    className={`
-            text-xs font-medium whitespace-nowrap transition-colors duration-300
-            ${step > s.id ? "text-[#3fb950]" : step === s.id ? "text-[#c9d1d9]" : "text-[#484f58]"}
-          `}
+                    className={
+                      step >= s.id
+                        ? "text-[#c9d1d9] text-xs"
+                        : "text-[#484f58] text-xs"
+                    }
                   >
                     {s.label}
                   </span>
                 </div>
 
-                {/* Connector line — not rendered after last step */}
                 {i < STEPS.length - 1 && (
                   <div
-                    className={`
-            mx-3 mb-5 h-px flex-1 rounded-full transition-all duration-500
-            ${step > s.id ? "bg-[#238636]" : "bg-[#21262d]"}
-          `}
+                    className={`mx-3 mb-5 h-px flex-1 ${
+                      step > s.id ? "bg-[#238636]" : "bg-[#21262d]"
+                    }`}
                   />
                 )}
               </div>
             ))}
           </div>
 
-          {/* STEP CONTENT */}
-          <div>
-            {step === 1 && (
-              <IdentitySetup
-                identity={status.identity}
-                refresh={refresh}
-                nextStep={() => setStep(2)}
-              />
-            )}
-
-            {step === 2 && (
-              <CompleteProfile
-                key={
-                  status.profile?.data?.id ||
-                  status.profile?.data?.username ||
-                  "profile"
-                }
-                profile={status.profile}
-                refresh={refresh}
-              />
-            )}
-          </div>
+          {step === 1 ? (
+            <IdentitySetup identity={identity} nextStep={() => setStep(2)} />
+          ) : (
+            <CompleteProfile key={user.id} profile={profile} />
+          )}
         </div>
       </main>
     </div>
