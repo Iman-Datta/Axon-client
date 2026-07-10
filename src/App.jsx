@@ -13,6 +13,7 @@ import OnboardingGuard from "./components/onboarding/OnboardingGuard";
 import Profile from "./pages/Profile";
 import OrganizationsPage from "./pages/organizations/OrganizationsPage";
 import CreateOrganization from "./pages/organizations/CreateOrganization";
+import ProjectsPage from "./pages/ProjectsPage";
 
 import { setUser, setAuthLoading, clearUser } from "./redux/slices/authSlice";
 
@@ -81,6 +82,7 @@ function App() {
 
         <Route path="/checkEmail" element={<CheckEmail />} />
         <Route path="/callback" element={<EmailCallback />} />
+
         <Route
           path="/onboarding"
           element={
@@ -89,8 +91,9 @@ function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
-          path="/:username"
+          path="/:slug"
           element={
             <ProtectedRoute>
               <OnboardingGuard>
@@ -99,14 +102,25 @@ function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
-          path="/organizations"
+          path="/:slug/organizations"
           element={
             <ProtectedRoute>
               <OrganizationsPage />
             </ProtectedRoute>
           }
         />
+
+        <Route
+          path="/:slug/projects"
+          element={
+            <ProtectedRoute>
+              <ProjectsPage />
+            </ProtectedRoute>
+          }
+        />
+
         <Route
           path="/organizations/create"
           element={

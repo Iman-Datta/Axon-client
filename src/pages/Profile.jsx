@@ -7,7 +7,7 @@ import ProfileChecklist from "../components/profile/ProfileChecklist";
 const API = import.meta.env.VITE_API_URL;
 
 function Profile() {
-  const { username } = useParams();
+  const { slug } = useParams();
 
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -21,7 +21,7 @@ function Profile() {
         setLoading(true);
         setError(null);
 
-        const response = await fetch(`${API}/auth/${username}/`, {
+        const response = await fetch(`${API}/auth/${slug}/`, {
           signal: controller.signal,
         });
 
@@ -44,7 +44,7 @@ function Profile() {
     fetchProfile();
 
     return () => controller.abort();
-  }, [username]);
+  }, [slug]);
 
   if (loading) {
     return (

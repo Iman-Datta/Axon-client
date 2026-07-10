@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
-import { createOrganization } from "./services/organizationService";
+import { createOrganization } from "../../services/organizationService";
 
 function CreateOrganization() {
   const dispatch = useDispatch();
