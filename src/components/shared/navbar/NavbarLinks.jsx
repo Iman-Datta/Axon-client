@@ -1,27 +1,36 @@
 import { Link, useLocation } from "react-router-dom";
+import { useSelector } from "react-redux";
+
 import { publicNav, getPrivateNav } from "./navbarData";
 import { isNavItemActive } from "./navbarUtils";
 
 function NavbarLinks({ user }) {
   const location = useLocation();
 
-  const privateNav = getPrivateNav(user?.username, 2, 3, 5, 0);
+  const currentWorkspace = useSelector(
+    (state) => state.workspace.currentWorkspace,
+  );
+
+  const workspaceSlug = currentWorkspace?.slug || user?.username;
+
+  const workspaceType = currentWorkspace?.type || "personal";
+
+  const privateNav = getPrivateNav(workspaceSlug, workspaceType, 2, 3, 5);
 
   return (
-    <nav className="hidden md:flex items-center gap-8 ml-16">
+    <nav
+      key={`${workspaceSlug}-${workspaceType}`}
+      className="hidden md:flex items-center gap-8 ml-16"
+    >
       {user
         ? privateNav.map((item) => {
             const Icon = item.icon;
 
-            const active = isNavItemActive(
-              location.pathname,
-              item,
-              user.username,
-            );
+            const active = isNavItemActive(location.pathname, item);
 
             return (
               <Link
-                key={item.name}
+                key={item.path}
                 to={item.path}
                 className={`flex items-center gap-2 text-[13px] transition pb-1 border-b-2 ${
                   active

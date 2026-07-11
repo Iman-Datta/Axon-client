@@ -1,6 +1,6 @@
-export const isNavItemActive = (pathname, item, username) => {
-  if (item.name === "Overview") {
-    return pathname === `/${username}`;
+export const isNavItemActive = (pathname, item) => {
+  if (item.name === "Overview" || pathname === item.path) {
+    return pathname === item.path;
   }
 
   return pathname.startsWith(item.path);

@@ -49,8 +49,7 @@ export default function CompleteProfile({ profile }) {
   const navigate = useNavigate();
 
   const { accessToken, user } = useSelector((state) => state.auth);
-  console.log(user);
-  console.log(profile);
+
 
   const initialData = profile?.data || user || {};
 

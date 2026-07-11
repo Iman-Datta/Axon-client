@@ -6,6 +6,8 @@ import NavbarLinks from "./NavbarLinks";
 import NavbarProfileMenu from "./NavbarProfileMenu";
 
 import { clearUser } from "../../../redux/slices/authSlice";
+import { clearWorkspaceState } from "../../../redux/slices/workspaceSlice";
+
 import { fetchWithAuth } from "../../../utils/fetchWithAuth";
 
 const API = import.meta.env.VITE_API_URL;
@@ -16,6 +18,10 @@ function Navbar() {
 
   const { user, isAuthLoading, accessToken } = useSelector(
     (state) => state.auth,
+  );
+
+  const currentWorkspace = useSelector(
+    (state) => state.workspace.currentWorkspace,
   );
 
   const logoutUser = async () => {
@@ -32,6 +38,8 @@ function Navbar() {
       console.log(error);
     } finally {
       dispatch(clearUser());
+      dispatch(clearWorkspaceState());
+
       navigate("/");
     }
   };
@@ -43,13 +51,14 @@ function Navbar() {
           <div className="flex items-center">
             <NavbarLogo />
 
-            <NavbarLinks user={user} />
+            <NavbarLinks user={user} currentWorkspace={currentWorkspace} />
           </div>
 
           <div>
             {user ? (
               <NavbarProfileMenu
                 user={user}
+                currentWorkspace={currentWorkspace}
                 isAuthLoading={isAuthLoading}
                 logoutUser={logoutUser}
               />

@@ -3,7 +3,6 @@ import { useSelector } from "react-redux";
 
 function OnboardingGuard({ children }) {
   const user = useSelector((state) => state.auth.user);
-  console.log(user);
   if (!user) {
     return null;
   }
