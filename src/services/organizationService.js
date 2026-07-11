@@ -43,3 +43,15 @@ export const createOrganization = async (data, dispatch, accessToken) => {
 
   return responseData;
 };
+
+export async function getOrganization(slug) {
+  const response = await fetchWithAuth(`/org/${slug}/`);
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || "Failed to fetch organization.");
+  }
+
+  return data.organization;
+}
