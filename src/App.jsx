@@ -10,11 +10,13 @@ import EmailCallback from "./pages/EmailCallback";
 import Onboarding from "./pages/Onboarding";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import OnboardingGuard from "./components/onboarding/OnboardingGuard";
-import WorkspaceResolver from "./components/routing/WorkspaceResolver";
 import OrganizationsPage from "./pages/organizations/OrganizationsPage";
 import CreateOrganization from "./pages/organizations/CreateOrganization";
 import ProjectsPage from "./pages/projects/ProjectsPage";
 import CreateProject from "./pages/projects/CreateProject";
+
+import WorkspaceResolver from "./components/routing/WorkspaceResolver";
+import WorkspaceLoader from "./components/routing/WorkspaceLoader";
 
 import { setUser, setAuthLoading, clearUser } from "./redux/slices/authSlice";
 
@@ -117,7 +119,9 @@ function App() {
           path="/:slug/projects"
           element={
             <ProtectedRoute>
-              <ProjectsPage />
+              <WorkspaceLoader>
+                <ProjectsPage />
+              </WorkspaceLoader>
             </ProtectedRoute>
           }
         />
