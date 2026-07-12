@@ -8,6 +8,11 @@ function CreateProject() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  const currentWorkspace = useSelector(
+    (state) => state.workspace.currentWorkspace,
+  );
+
+  console.log(currentWorkspace);
   const accessToken = useSelector((state) => state.auth.accessToken);
 
   const user = useSelector((state) => state.auth.user);
@@ -40,8 +45,8 @@ function CreateProject() {
       setLoading(true);
       setError("");
 
-      const workspaceSlug = user.username;
-
+      const workspaceSlug = currentWorkspace?.slug || user.username;
+      console.log(workspaceSlug);
       const data = await createProject(
         workspaceSlug,
         formData,

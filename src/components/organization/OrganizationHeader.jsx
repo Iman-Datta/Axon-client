@@ -1,36 +1,37 @@
-import { Building2, Users, FolderGit2, Heart } from "lucide-react";
+import { Building2, Users, FolderGit2 } from "lucide-react";
 
 function OrganizationHeader({ organization }) {
   return (
-    <div className="border-b border-[#30363d] pb-10">
-      <div className="flex items-start gap-6">
-        <div className="w-28 h-28 rounded-2xl bg-[#21262d] flex items-center justify-center">
-          <Building2 size={48} className="text-[#8b949e]" />
+    <div className="border-b border-[#30363d] pb-5 mt-4">
+      <div className="flex items-start gap-4">
+        {/* Organization Avatar */}
+        <div className="w-20 h-20 rounded-xl bg-[#21262d] flex items-center justify-center shrink-0">
+          <Building2 size={36} className="text-[#8b949e]" />
         </div>
 
-        <div className="flex-1">
-          <h1 className="text-4xl font-bold text-white">{organization.name}</h1>
+        {/* Organization Info */}
+        <div className="flex-1 pt-1">
+          <h1 className="text-2xl font-bold text-white leading-tight">
+            {organization.name}
+          </h1>
 
-          <p className="text-[#8b949e] mt-2">@{organization.slug}</p>
+          <p className="text-[#8b949e] text-base mt-1">@{organization.slug}</p>
 
-          <p className="mt-4 max-w-3xl text-[#c9d1d9]">
-            {organization.description}
-          </p>
+          {organization.description && (
+            <p className="mt-2 max-w-3xl text-[#c9d1d9] text-sm">
+              {organization.description}
+            </p>
+          )}
 
-          <div className="flex gap-8 mt-6 flex-wrap">
+          <div className="flex flex-wrap gap-6 mt-4 text-[#c9d1d9] text-sm">
             <div className="flex items-center gap-2">
-              <Users size={20} />
+              <Users size={16} className="text-[#8b949e]" />
               <span>{organization.members_count} Members</span>
             </div>
 
             <div className="flex items-center gap-2">
-              <FolderGit2 size={20} />
+              <FolderGit2 size={16} className="text-[#8b949e]" />
               <span>{organization.projects_count} Projects</span>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <Heart size={20} />
-              <span>{organization.followers_count} Followers</span>
             </div>
           </div>
         </div>

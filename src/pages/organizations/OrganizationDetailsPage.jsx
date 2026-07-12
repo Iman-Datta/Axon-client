@@ -3,7 +3,8 @@ import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
 import { fetchWithAuth } from "../../utils/fetchWithAuth";
-import OrganizationHeader from "../../components/organization/OrganizationHeader";
+import OrganizationLayout from "../../components/organization/OrganizationLayout";
+import { setCurrentWorkspace } from "../../redux/slices/workspaceSlice";
 
 const API = import.meta.env.VITE_API_URL;
 
@@ -14,6 +15,7 @@ function OrganizationDetailsPage() {
   const accessToken = useSelector((state) => state.auth.accessToken);
 
   const [organization, setOrganization] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchOrganization() {
@@ -27,18 +29,28 @@ function OrganizationDetailsPage() {
 
         const data = await response.json();
 
-        if (response.ok) {
-          setOrganization(data.organization);
+        if (!response.ok) {
+          throw new Error(data.message || "Failed to fetch organization.");
         }
+
+        const org = {
+          ...data.organization,
+          type: "organization",
+        };
+
+        setOrganization(org);
+        dispatch(setCurrentWorkspace(org));
       } catch (error) {
         console.error(error);
+      } finally {
+        setLoading(false);
       }
     }
 
     fetchOrganization();
   }, [slug, dispatch, accessToken]);
 
-  if (!organization) {
+  if (loading) {
     return (
       <main className="min-h-screen bg-[#0d1117] text-white pt-20">
         <div className="max-w-7xl mx-auto px-6">Loading...</div>
@@ -46,20 +58,18 @@ function OrganizationDetailsPage() {
     );
   }
 
+  if (!organization) {
+    return (
+      <main className="min-h-screen bg-[#0d1117] text-white pt-20">
+        <div className="max-w-7xl mx-auto px-6">Organization not found.</div>
+      </main>
+    );
+  }
+
   return (
-    <main className="min-h-screen bg-[#0d1117] text-[#c9d1d9] pt-20">
-      <div className="max-w-7xl mx-auto px-6">
-        <OrganizationHeader organization={organization} />
-
-        <div className="mt-12">
-          <h2 className="text-5xl font-bold text-white mb-4">
-            Welcome to {organization.name}
-          </h2>
-
-          <p className="text-xl text-[#8b949e]">{organization.description}</p>
-        </div>
-      </div>
-    </main>
+    <OrganizationLayout organization={organization}>
+      {/* Organization Overview Content */}
+    </OrganizationLayout>
   );
 }
 
