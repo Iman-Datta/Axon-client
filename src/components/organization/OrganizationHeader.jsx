@@ -1,7 +1,6 @@
 import { Building2, Users, FolderGit2 } from "lucide-react";
 
 function OrganizationHeader({ organization }) {
-  // console.log(organization)
   if (!organization) return null;
   return (
     <div className="border-b border-[#30363d] pb-5 mt-4">

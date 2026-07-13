@@ -1,4 +1,5 @@
 function ProfileHeader({ user }) {
+  if (!user) return null;
   const fullName = `${user.first_name || ""} ${user.last_name || ""}`.trim();
 
   return (

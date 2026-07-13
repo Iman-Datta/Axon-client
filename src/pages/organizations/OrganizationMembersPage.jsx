@@ -30,7 +30,7 @@ function OrganizationMembersPage() {
 
   return (
     <OrganizationLayout organization={organization}>
-      <div className="flex items-start justify-between">
+      <div className="flex items-start justify-between mb-3">
         <div>
           <h1 className="text-4xl font-bold text-[#e6edf3]">
             Organization Members

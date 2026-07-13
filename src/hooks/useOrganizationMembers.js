@@ -12,7 +12,6 @@ export function useOrganizationMembers() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log("useEffect running", slug);
     fetchMembers();
   }, [slug]);
 
