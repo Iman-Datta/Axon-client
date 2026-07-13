@@ -21,6 +21,7 @@ import WorkspaceLoader from "./components/routing/WorkspaceLoader";
 import { setUser, setAuthLoading, clearUser } from "./redux/slices/authSlice";
 
 import { fetchWithAuth } from "./utils/fetchWithAuth";
+import OrganizationMembersPage from "./pages/organizations/OrganizationMembersPage";
 
 const API = import.meta.env.VITE_API_URL;
 
@@ -125,7 +126,17 @@ function App() {
             </ProtectedRoute>
           }
         />
-
+        
+        <Route
+          path="/:slug/people"
+          element={
+            <ProtectedRoute>
+              <WorkspaceLoader>
+                <OrganizationMembersPage />
+              </WorkspaceLoader>
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/organizations/create"
           element={

@@ -55,3 +55,14 @@ export async function getOrganization(slug) {
 
   return data.organization;
 }
+
+export async function getOrganizationMembers(slug, accessToken, dispatch) {
+  return await fetchWithAuth(
+    `${API}/org/${slug}/members/`,
+    {
+      method: "GET",
+    },
+    dispatch,
+    accessToken,
+  );
+}
