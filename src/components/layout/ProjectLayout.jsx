@@ -3,8 +3,6 @@ import { Outlet } from "react-router-dom";
 import ProjectSidebar from "../project/Sidebar/ProjectSidebar";
 
 function ProjectLayout() {
-  console.log("Project Layout Rendered");
-
   return (
     <div className="flex min-h-screen bg-[#0d1117]">
       <ProjectSidebar />
