@@ -11,7 +11,7 @@ import ResourceSkeleton from "../../components/shared/resource/ResourceSkeleton"
 import EmptyState from "../../components/shared/resource/EmptyState";
 import NewResourceButton from "../../components/shared/resource/NewResourceButton";
 
-function ProjectsPage() {
+function ProjectsListPage() {
   const { slug } = useParams();
 
   const { projects, loading, error } = useProjects(slug);
@@ -85,4 +85,4 @@ function ProjectsPage() {
   );
 }
 
-export default ProjectsPage;
+export default ProjectsListPage;

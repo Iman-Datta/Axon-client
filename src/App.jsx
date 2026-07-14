@@ -9,14 +9,19 @@ import CheckEmail from "./pages/CheckEmail";
 import EmailCallback from "./pages/EmailCallback";
 import Onboarding from "./pages/Onboarding";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+
 import OnboardingGuard from "./components/onboarding/OnboardingGuard";
 import OrganizationsPage from "./pages/organizations/OrganizationsPage";
 import CreateOrganization from "./pages/organizations/CreateOrganization";
-import ProjectsPage from "./pages/projects/ProjectsPage";
+
+import ProjectsListPage from "./pages/projects/ProjectsListPage";
 import CreateProject from "./pages/projects/CreateProject";
+import OverviewPage from "./pages/projects/OverviewPage";
 
 import WorkspaceResolver from "./components/routing/WorkspaceResolver";
 import WorkspaceLoader from "./components/routing/WorkspaceLoader";
+
+import ProjectLayout from "./components/project/ProjectLayout";
 
 import { setUser, setAuthLoading, clearUser } from "./redux/slices/authSlice";
 
@@ -121,12 +126,12 @@ function App() {
           element={
             <ProtectedRoute>
               <WorkspaceLoader>
-                <ProjectsPage />
+                <ProjectsListPage />
               </WorkspaceLoader>
             </ProtectedRoute>
           }
         />
-        
+
         <Route
           path="/:slug/people"
           element={
@@ -153,6 +158,15 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route path="/:slug/:project_slug" element={<ProjectLayout />}>
+          <Route index element={<OverviewPage />} />
+          {/* <Route path="board" element={<BoardPage />} />
+          <Route path="tickets" element={<TicketsPage />} />
+          <Route path="epics" element={<EpicsPage />} />
+          <Route path="members" element={<MembersPage />} />
+          <Route path="activity" element={<ActivityPage />} />
+          <Route path="settings" element={<SettingsPage />} /> */}
+        </Route>
       </Routes>
     </div>
   );
