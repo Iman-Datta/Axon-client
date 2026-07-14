@@ -35,10 +35,14 @@ function useEpics(workspaceSlug, projectSlug) {
   };
 
   useEffect(() => {
-    if (workspaceSlug && projectSlug) {
-      fetchEpics();
-    }
-  }, [workspaceSlug, projectSlug, dispatch, accessToken]);
+    if (!workspaceSlug || !projectSlug) return;
+
+    const loadEpics = async () => {
+      await fetchEpics();
+    };
+
+    loadEpics();
+  }, [workspaceSlug, projectSlug]);
 
   return {
     epics,
