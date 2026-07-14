@@ -18,6 +18,7 @@ import ProjectsListPage from "./pages/projects/ProjectsListPage";
 import CreateProject from "./pages/projects/CreateProject";
 import OverviewPage from "./pages/projects/OverviewPage";
 import EpicsPage from "./pages/projects/EpicsPage";
+import TicketsPage from "./pages/projects/TicketsPage";
 
 import WorkspaceResolver from "./components/routing/WorkspaceResolver";
 import WorkspaceLoader from "./components/routing/WorkspaceLoader";
@@ -168,8 +169,8 @@ function App() {
           }
         >
           <Route index element={<OverviewPage />} />
-          {/* <Route path="board" element={<BoardPage />} />
-          <Route path="tickets" element={<TicketsPage />} /> */}
+          {/* <Route path="board" element={<BoardPage />} /> */}
+          <Route path="tickets" element={<TicketsPage />} />
           <Route path="epics" element={<EpicsPage />} />
           {/* <Route path="members" element={<MembersPage />} />
           <Route path="activity" element={<ActivityPage />} />
