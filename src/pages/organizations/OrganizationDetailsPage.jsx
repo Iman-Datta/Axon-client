@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
 import { fetchWithAuth } from "../../utils/fetchWithAuth";
-import OrganizationLayout from "../../components/organization/OrganizationLayout";
+import OrganizationLayout from "../../components/layout/OrganizationLayout";
 import { setCurrentWorkspace } from "../../redux/slices/workspaceSlice";
 
 const API = import.meta.env.VITE_API_URL;

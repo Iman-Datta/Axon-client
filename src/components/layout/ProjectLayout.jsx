@@ -1,6 +1,6 @@
 import { Outlet } from "react-router-dom";
 
-import ProjectSidebar from "./Sidebar/ProjectSidebar";
+import ProjectSidebar from "../project/Sidebar/ProjectSidebar";
 
 function ProjectLayout() {
   console.log("Project Layout Rendered");

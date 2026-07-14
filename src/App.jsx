@@ -21,7 +21,7 @@ import OverviewPage from "./pages/projects/OverviewPage";
 import WorkspaceResolver from "./components/routing/WorkspaceResolver";
 import WorkspaceLoader from "./components/routing/WorkspaceLoader";
 
-import ProjectLayout from "./components/project/ProjectLayout";
+import ProjectLayout from "./components/layout/ProjectLayout";
 
 import { setUser, setAuthLoading, clearUser } from "./redux/slices/authSlice";
 

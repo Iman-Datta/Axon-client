@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 import useProjects from "../../hooks/useProjects";
 
 import ProfileLayout from "../../components/shared/ProfileLayout";
-import OrganizationLayout from "../../components/organization/OrganizationLayout";
+import OrganizationLayout from "../../components/layout/OrganizationLayout";
 
 import ResourceList from "../../components/shared/resource/ResourceList";
 import ResourceSkeleton from "../../components/shared/resource/ResourceSkeleton";

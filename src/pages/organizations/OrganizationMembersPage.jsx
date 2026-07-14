@@ -1,6 +1,6 @@
 import { useSelector } from "react-redux";
 
-import OrganizationLayout from "../../components/organization/OrganizationLayout";
+import OrganizationLayout from "../../components/layout/OrganizationLayout";
 
 import { useOrganizationMembers } from "../../hooks/useOrganizationMembers";
 
