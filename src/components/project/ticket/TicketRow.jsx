@@ -1,5 +1,4 @@
 function TicketRow({ ticket }) {
-  console.log(ticket);
   return (
     <tr className="border-b border-[#21262d] last:border-0">
       <td className="px-5 py-4">

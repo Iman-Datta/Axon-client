@@ -1,7 +1,6 @@
 import TicketRow from "./TicketRow";
 
 function TicketTable({ tickets }) {
-  console.log(tickets);
   return (
     <div className="overflow-hidden rounded-2xl border border-[#30363d] bg-[#161b22]">
       <table className="w-full">

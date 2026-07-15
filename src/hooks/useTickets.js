@@ -37,10 +37,11 @@ function useTickets(workspaceSlug, projectSlug) {
 
   useEffect(() => {
     if (!workspaceSlug || !projectSlug) return;
-    const loadEpics = async () => {
-      fetchTickets();
+    const loadTickets = async () => {
+      await fetchTickets();
     };
-    loadEpics();
+
+    loadTickets();
   }, [workspaceSlug, projectSlug]);
 
   return {
