@@ -1,9 +1,13 @@
+import { Link } from "react-router-dom";
+
 function EpicCard({ epic }) {
   const createdDate = new Date(epic.created_at).toLocaleDateString("en-IN", {
     day: "numeric",
     month: "short",
     year: "numeric",
   });
+
+  const user = epic.created_by;
 
   return (
     <div
@@ -49,9 +53,40 @@ function EpicCard({ epic }) {
               Created By
             </p>
 
-            <p className="mt-1 text-sm font-medium text-[#c9d1d9]">
-              {epic.created_by}
-            </p>
+            <div className="group/user relative mt-2">
+              <Link to={`/${user.username}`}>
+                <img
+                  src={user.avatar}
+                  alt={user.username}
+                  className="h-9 w-9 rounded-full border border-[#30363d] object-cover transition hover:border-[#58a6ff]"
+                />
+              </Link>
+
+              {/* Hover Card */}
+              <div className="pointer-events-none absolute bottom-12 left-0 z-20 hidden w-64 rounded-xl border border-[#30363d] bg-[#161b22] p-4 shadow-2xl group-hover/user:block">
+                <div className="flex items-center gap-3">
+                  <img
+                    src={user.avatar}
+                    alt={user.username}
+                    className="h-12 w-12 rounded-full object-cover"
+                  />
+
+                  <div className="min-w-0">
+                    <h4 className="truncate font-semibold text-[#e6edf3]">
+                      {user.first_name} {user.last_name}
+                    </h4>
+
+                    <p className="text-sm text-[#8b949e]">@{user.username}</p>
+                  </div>
+                </div>
+
+                <div className="mt-4">
+                  <span className="rounded-full border border-[#30363d] bg-[#0d1117] px-3 py-1 text-xs font-medium text-[#c9d1d9]">
+                    {user.role}
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div className="text-right">

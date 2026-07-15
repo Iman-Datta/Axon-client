@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 
-import TicketHeader from "../../components/ticket/TicketHeader";
-import TicketTable from "../../components/ticket/TicketTable";
+import TicketHeader from "../../components/project/ticket/TicketHeader";
+import TicketTable from "../../components/project/ticket/TicketTable";
 
 import useTickets from "../../hooks/useTickets";
 
