@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 import { getMyTickets } from "../services/ticketService";
 
-function useTickets(workspaceSlug, projectSlug) {
+function useTickets(workspaceSlug, projectSlug, filters = {}) {
   const dispatch = useDispatch();
 
   const accessToken = useSelector((state) => state.auth.accessToken);
@@ -14,7 +14,9 @@ function useTickets(workspaceSlug, projectSlug) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const fetchTickets = async () => {
+  const filtersKey = JSON.stringify(filters);
+
+  const refetch = async () => {
     try {
       setLoading(true);
       setError("");
@@ -24,32 +26,38 @@ function useTickets(workspaceSlug, projectSlug) {
         projectSlug,
         dispatch,
         accessToken,
+        filters,
       );
 
       setTickets(data.tickets);
       setCount(data.count);
     } catch (error) {
-      setError(error.message);
+      setError(error.message || "Failed to fetch tickets.");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (!workspaceSlug || !projectSlug) return;
+    if (!workspaceSlug || !projectSlug || !accessToken) {
+      return;
+    }
+
     const loadTickets = async () => {
-      await fetchTickets();
+      await refetch();
     };
 
     loadTickets();
-  }, [workspaceSlug, projectSlug]);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [workspaceSlug, projectSlug, accessToken, filtersKey]);
 
   return {
     tickets,
     count,
     loading,
     error,
-    refetch: fetchTickets,
+    refetch,
   };
 }
 

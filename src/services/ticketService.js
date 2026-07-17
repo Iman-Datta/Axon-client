@@ -7,13 +7,15 @@ export const getMyTickets = async (
   projectSlug,
   dispatch,
   accessToken,
+  filters = {},
 ) => {
-  const res = await fetchWithAuth(
-    `${API}/tickets/${workspaceSlug}/${projectSlug}/`,
-    {},
-    dispatch,
-    accessToken,
-  );
+  const query = new URLSearchParams(filters).toString();
+  
+  const url =
+    `${API}/tickets/${workspaceSlug}/${projectSlug}/` +
+    (query ? `?${query}` : "");
+
+  const res = await fetchWithAuth(url, {}, dispatch, accessToken);
 
   const data = await res.json();
 
