@@ -54,6 +54,7 @@ function useTickets(workspaceSlug, projectSlug, filters = {}) {
 
   return {
     tickets,
+    setTickets,
     count,
     loading,
     error,

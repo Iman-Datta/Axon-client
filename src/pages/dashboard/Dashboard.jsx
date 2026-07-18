@@ -7,9 +7,13 @@ import KanbanHeader from "../../components/kanban/KanbanHeader";
 const Dashboard = () => {
   const { slug, project_slug } = useParams();
 
-  const { tickets, loading, error } = useTickets(slug, project_slug, {
-    status: "OPEN",
-  });
+  const { tickets, setTickets, loading, error } = useTickets(
+    slug,
+    project_slug,
+    {
+      status: "OPEN",
+    },
+  );
 
   if (loading) {
     return <div className="mt-18 p-6">Loading...</div>;
@@ -24,7 +28,7 @@ const Dashboard = () => {
       <KanbanHeader />
 
       <div className="mt-8">
-        <KanbanBoard tickets={tickets} />
+        <KanbanBoard tickets={tickets} setTickets={setTickets} />
       </div>
     </div>
   );

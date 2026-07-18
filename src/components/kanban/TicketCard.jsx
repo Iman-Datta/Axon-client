@@ -1,3 +1,6 @@
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+
 import { CalendarDays } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -9,6 +12,16 @@ const priorityColors = {
 };
 
 const TicketCard = ({ ticket }) => {
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({
+      id: ticket.id,
+    });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
   const navigate = useNavigate();
   const { slug, project_slug } = useParams();
 
@@ -18,6 +31,10 @@ const TicketCard = ({ ticket }) => {
 
   return (
     <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
       onClick={() => navigate(`/${slug}/${project_slug}/tickets/${ticket.id}`)}
       className="group cursor-pointer rounded-xl border border-[#30363d] bg-[#0d1117] p-4 transition-all duration-200 hover:border-[#388bfd]/40 hover:bg-[#111827]"
     >

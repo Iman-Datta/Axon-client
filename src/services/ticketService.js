@@ -64,7 +64,7 @@ export const updateTicket = async (
   accessToken,
 ) => {
   const res = await fetchWithAuth(
-    `${API}/tickets/${workspaceSlug}/${projectSlug}/${ticket_id}/update`,
+    `${API}/tickets/${workspaceSlug}/${projectSlug}/${ticket_id}/update/`,
     {
       method: "PATCH",
       headers: {
