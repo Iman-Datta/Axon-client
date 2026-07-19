@@ -11,6 +11,7 @@ const COLUMN_ORDER = ["TODO", "IN_PROGRESS", "REVIEW", "DONE"];
 
 const KanbanBoard = ({ tickets, setTickets }) => {
   const [activeTicket, setActiveTicket] = useState(null);
+  const [placeholder, setPlaceholder] = useState(null);
 
   const { slug, project_slug } = useParams();
   const dispatch = useDispatch();
@@ -34,6 +35,7 @@ const KanbanBoard = ({ tickets, setTickets }) => {
 
     if (!over) {
       setActiveTicket(null);
+      setPlaceholder(null);
       return;
     }
 
@@ -44,11 +46,13 @@ const KanbanBoard = ({ tickets, setTickets }) => {
 
     if (active.id === over.id) {
       setActiveTicket(null);
+      setPlaceholder(null);
       return;
     }
 
     if (!activeTicket) {
       setActiveTicket(null);
+      setPlaceholder(null);
       return;
     }
 
@@ -61,23 +65,27 @@ const KanbanBoard = ({ tickets, setTickets }) => {
         ? over.id
         : tickets.find((ticket) => ticket.id === over.id)?.kanban_column;
 
-    if (!newColumn || newColumn === activeTicket.kanban_column) {
+    if (!newColumn) {
       setActiveTicket(null);
+      setPlaceholder(null);
       return;
     }
 
     // Save previous state for rollback
     const previousTickets = tickets.map((ticket) => ({ ...ticket }));
 
-    // Optimistic UI update
-    const updatedTickets = tickets.map((ticket) =>
-      String(ticket.id) === String(active.id)
-        ? { ...ticket, kanban_column: newColumn }
-        : ticket,
+    const updatedTickets = moveTicket(tickets, active.id, over.id);
+    console.table(
+      updatedTickets.map((ticket) => ({
+        id: ticket.id,
+        column: ticket.kanban_column,
+        order: ticket.order,
+      })),
     );
 
     setTickets(updatedTickets);
     setActiveTicket(null);
+    setPlaceholder(null);
 
     try {
       await updateTicket(
@@ -91,11 +99,57 @@ const KanbanBoard = ({ tickets, setTickets }) => {
         accessToken,
       );
     } catch (error) {
-      // Rollback on failure
+      console.log(error);
       setTickets(previousTickets);
-      alert(error.message);
       setActiveTicket(null);
+      setPlaceholder(null);
     }
+  };
+
+  const moveTicket = (tickets, activeId, overId) => {
+    const updated = tickets.map((ticket) => ({ ...ticket }));
+
+    const activeIndex = updated.findIndex(
+      (ticket) => String(ticket.id) === String(activeId),
+    );
+
+    if (activeIndex === -1) return updated;
+
+    // Remove dragged ticket
+    const [draggedTicket] = updated.splice(activeIndex, 1);
+
+    // Find destination ticket
+    const overTicket = updated.find(
+      (ticket) => String(ticket.id) === String(overId),
+    );
+
+    // If hovering over a ticket
+    if (overTicket) {
+      draggedTicket.kanban_column = overTicket.kanban_column;
+
+      const insertIndex = updated.findIndex(
+        (ticket) => String(ticket.id) === String(overId),
+      );
+
+      updated.splice(insertIndex, 0, draggedTicket);
+    } else {
+      // Hovering over an empty column
+      draggedTicket.kanban_column = overId;
+      updated.push(draggedTicket);
+    }
+
+    // Normalize order within each column
+    COLUMN_ORDER.forEach((column) => {
+      let order = 1;
+
+      updated
+        .filter((ticket) => ticket.kanban_column === column)
+        .forEach((ticket) => {
+          ticket.order = order++;
+        });
+    });
+
+    return updated;
   };
 
   const handleDragStart = (event) => {
@@ -105,9 +159,28 @@ const KanbanBoard = ({ tickets, setTickets }) => {
 
     setActiveTicket(ticket);
   };
+
+  const handleDragOver = ({ over }) => {
+    if (!over) {
+      setPlaceholder(null);
+      return;
+    }
+
+    const ticket = tickets.find((t) => String(t.id) === String(over.id));
+
+    if (!ticket) return;
+
+    setPlaceholder({
+      column: ticket.kanban_column,
+      beforeTicketId: ticket.id,
+      beforeOrder: ticket.order,
+    });
+  };
+
   return (
     <DndContext
       onDragStart={handleDragStart}
+      onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
       collisionDetection={closestCorners}
     >
@@ -126,6 +199,7 @@ const KanbanBoard = ({ tickets, setTickets }) => {
               key={column}
               column={column}
               tickets={columns[column]}
+              placeholder={placeholder}
             />
           ))}
         </div>

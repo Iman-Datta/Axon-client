@@ -13,7 +13,7 @@ const titles = {
   DONE: "Done",
 };
 
-const KanbanColumn = ({ column, tickets }) => {
+const KanbanColumn = ({ column, tickets, placeholder }) => {
   const { setNodeRef } = useDroppable({
     id: column,
   });
@@ -50,9 +50,18 @@ const KanbanColumn = ({ column, tickets }) => {
               No tickets
             </div>
           ) : (
-            tickets.map((ticket) => (
-              <TicketCard key={ticket.id} ticket={ticket} />
-            ))
+            <>
+              {tickets.map((ticket) => (
+                <div key={ticket.id}>
+                  {placeholder?.beforeTicketId === ticket.id &&
+                    placeholder.column === column && (
+                      <div className="mb-3 h-20 rounded-xl border-2 border-dashed border-[#58a6ff] bg-[#58a6ff]/10" />
+                    )}
+
+                  <TicketCard ticket={ticket} />
+                </div>
+              ))}
+            </>
           )}
         </div>
       </SortableContext>
