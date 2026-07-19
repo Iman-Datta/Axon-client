@@ -1,13 +1,17 @@
+import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { DndContext, closestCorners } from "@dnd-kit/core";
+import { DndContext, closestCorners, DragOverlay } from "@dnd-kit/core";
 
 import KanbanColumn from "./KanbanColumn";
+import TicketCardPreview from "./TicketCardPreview";
 import { updateTicket } from "../../services/ticketService";
 
 const COLUMN_ORDER = ["TODO", "IN_PROGRESS", "REVIEW", "DONE"];
 
 const KanbanBoard = ({ tickets, setTickets }) => {
+  const [activeTicket, setActiveTicket] = useState(null);
+
   const { slug, project_slug } = useParams();
   const dispatch = useDispatch();
   const accessToken = useSelector((state) => state.auth.accessToken);
@@ -28,17 +32,25 @@ const KanbanBoard = ({ tickets, setTickets }) => {
   const handleDragEnd = async (event) => {
     const { active, over } = event;
 
-    if (!over) return;
-
-    // Ignore if dropped on itself
-    if (active.id === over.id) return;
+    if (!over) {
+      setActiveTicket(null);
+      return;
+    }
 
     // Find the dragged ticket
     const activeTicket = tickets.find(
       (ticket) => String(ticket.id) === String(active.id),
     );
 
-    if (!activeTicket) return;
+    if (active.id === over.id) {
+      setActiveTicket(null);
+      return;
+    }
+
+    if (!activeTicket) {
+      setActiveTicket(null);
+      return;
+    }
 
     // Determine the destination column
     const newColumn =
@@ -49,7 +61,10 @@ const KanbanBoard = ({ tickets, setTickets }) => {
         ? over.id
         : tickets.find((ticket) => ticket.id === over.id)?.kanban_column;
 
-    if (!newColumn || newColumn === activeTicket.kanban_column) return;
+    if (!newColumn || newColumn === activeTicket.kanban_column) {
+      setActiveTicket(null);
+      return;
+    }
 
     // Save previous state for rollback
     const previousTickets = tickets.map((ticket) => ({ ...ticket }));
@@ -62,6 +77,7 @@ const KanbanBoard = ({ tickets, setTickets }) => {
     );
 
     setTickets(updatedTickets);
+    setActiveTicket(null);
 
     try {
       await updateTicket(
@@ -78,11 +94,23 @@ const KanbanBoard = ({ tickets, setTickets }) => {
       // Rollback on failure
       setTickets(previousTickets);
       alert(error.message);
+      setActiveTicket(null);
     }
   };
 
+  const handleDragStart = (event) => {
+    const ticket = tickets.find(
+      (ticket) => String(ticket.id) === String(event.active.id),
+    );
+
+    setActiveTicket(ticket);
+  };
   return (
-    <DndContext onDragEnd={handleDragEnd} collisionDetection={closestCorners}>
+    <DndContext
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+      collisionDetection={closestCorners}
+    >
       <div
         className="w-full overflow-x-auto overflow-y-hidden pb-4
       [scrollbar-width:thin] [scrollbar-color:#30363d_transparent]
@@ -101,6 +129,9 @@ const KanbanBoard = ({ tickets, setTickets }) => {
             />
           ))}
         </div>
+        <DragOverlay>
+          {activeTicket ? <TicketCardPreview ticket={activeTicket} /> : null}
+        </DragOverlay>
       </div>
     </DndContext>
   );
