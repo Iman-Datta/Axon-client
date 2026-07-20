@@ -5,7 +5,7 @@ import { DndContext, closestCorners, DragOverlay } from "@dnd-kit/core";
 
 import KanbanColumn from "./KanbanColumn";
 import TicketCardPreview from "./TicketCardPreview";
-import { updateTicket } from "../../services/ticketService";
+import { updateKanbanBoard } from "../../services/ticketService";
 
 const COLUMN_ORDER = ["TODO", "IN_PROGRESS", "REVIEW", "DONE"];
 
@@ -30,82 +30,6 @@ const KanbanBoard = ({ tickets, setTickets }) => {
     }
   });
 
-  const handleDragEnd = async (event) => {
-    const { active, over } = event;
-
-    if (!over) {
-      setActiveTicket(null);
-      setPlaceholder(null);
-      return;
-    }
-
-    // Find the dragged ticket
-    const activeTicket = tickets.find(
-      (ticket) => String(ticket.id) === String(active.id),
-    );
-
-    if (active.id === over.id) {
-      setActiveTicket(null);
-      setPlaceholder(null);
-      return;
-    }
-
-    if (!activeTicket) {
-      setActiveTicket(null);
-      setPlaceholder(null);
-      return;
-    }
-
-    // Determine the destination column
-    const newColumn =
-      over.id === "TODO" ||
-      over.id === "IN_PROGRESS" ||
-      over.id === "REVIEW" ||
-      over.id === "DONE"
-        ? over.id
-        : tickets.find((ticket) => ticket.id === over.id)?.kanban_column;
-
-    if (!newColumn) {
-      setActiveTicket(null);
-      setPlaceholder(null);
-      return;
-    }
-
-    // Save previous state for rollback
-    const previousTickets = tickets.map((ticket) => ({ ...ticket }));
-
-    const updatedTickets = moveTicket(tickets, active.id, over.id);
-    console.table(
-      updatedTickets.map((ticket) => ({
-        id: ticket.id,
-        column: ticket.kanban_column,
-        order: ticket.order,
-      })),
-    );
-
-    setTickets(updatedTickets);
-    setActiveTicket(null);
-    setPlaceholder(null);
-
-    try {
-      await updateTicket(
-        slug,
-        project_slug,
-        active.id,
-        {
-          kanban_column: newColumn,
-        },
-        dispatch,
-        accessToken,
-      );
-    } catch (error) {
-      console.log(error);
-      setTickets(previousTickets);
-      setActiveTicket(null);
-      setPlaceholder(null);
-    }
-  };
-
   const moveTicket = (tickets, activeId, overId) => {
     const updated = tickets.map((ticket) => ({ ...ticket }));
 
@@ -115,15 +39,12 @@ const KanbanBoard = ({ tickets, setTickets }) => {
 
     if (activeIndex === -1) return updated;
 
-    // Remove dragged ticket
     const [draggedTicket] = updated.splice(activeIndex, 1);
 
-    // Find destination ticket
     const overTicket = updated.find(
       (ticket) => String(ticket.id) === String(overId),
     );
 
-    // If hovering over a ticket
     if (overTicket) {
       draggedTicket.kanban_column = overTicket.kanban_column;
 
@@ -133,12 +54,10 @@ const KanbanBoard = ({ tickets, setTickets }) => {
 
       updated.splice(insertIndex, 0, draggedTicket);
     } else {
-      // Hovering over an empty column
       draggedTicket.kanban_column = overId;
       updated.push(draggedTicket);
     }
 
-    // Normalize order within each column
     COLUMN_ORDER.forEach((column) => {
       let order = 1;
 
@@ -177,6 +96,60 @@ const KanbanBoard = ({ tickets, setTickets }) => {
     });
   };
 
+  const handleDragEnd = async (event) => {
+    const { active, over } = event;
+
+    if (!over) {
+      setActiveTicket(null);
+      setPlaceholder(null);
+      return;
+    }
+
+    if (active.id === over.id) {
+      setActiveTicket(null);
+      setPlaceholder(null);
+      return;
+    }
+
+    const draggedTicket = tickets.find(
+      (ticket) => String(ticket.id) === String(active.id),
+    );
+
+    if (!draggedTicket) {
+      setActiveTicket(null);
+      setPlaceholder(null);
+      return;
+    }
+
+    const previousTickets = tickets.map((ticket) => ({ ...ticket }));
+
+    const updatedTickets = moveTicket(tickets, active.id, over.id);
+
+    setTickets(updatedTickets);
+    setActiveTicket(null);
+    setPlaceholder(null);
+
+    try {
+      await updateKanbanBoard(
+        slug,
+        project_slug,
+        updatedTickets.map((ticket) => ({
+          id: ticket.id,
+          kanban_column: ticket.kanban_column,
+          order: ticket.order,
+        })),
+        dispatch,
+        accessToken,
+      );
+    } catch (error) {
+      console.error(error);
+
+      setTickets(previousTickets);
+      setActiveTicket(null);
+      setPlaceholder(null);
+    }
+  };
+
   return (
     <DndContext
       onDragStart={handleDragStart}
@@ -186,12 +159,12 @@ const KanbanBoard = ({ tickets, setTickets }) => {
     >
       <div
         className="w-full overflow-x-auto overflow-y-hidden pb-4
-      [scrollbar-width:thin] [scrollbar-color:#30363d_transparent]
-      [&::-webkit-scrollbar]:h-2
-      [&::-webkit-scrollbar-track]:bg-transparent
-      [&::-webkit-scrollbar-thumb]:rounded-full
-      [&::-webkit-scrollbar-thumb]:bg-[#30363d]
-      hover:[&::-webkit-scrollbar-thumb]:bg-[#484f58]"
+        [scrollbar-width:thin] [scrollbar-color:#30363d_transparent]
+        [&::-webkit-scrollbar]:h-2
+        [&::-webkit-scrollbar-track]:bg-transparent
+        [&::-webkit-scrollbar-thumb]:rounded-full
+        [&::-webkit-scrollbar-thumb]:bg-[#30363d]
+        hover:[&::-webkit-scrollbar-thumb]:bg-[#484f58]"
       >
         <div className="flex items-start gap-6 pt-6">
           {COLUMN_ORDER.map((column) => (
@@ -203,6 +176,7 @@ const KanbanBoard = ({ tickets, setTickets }) => {
             />
           ))}
         </div>
+
         <DragOverlay>
           {activeTicket ? <TicketCardPreview ticket={activeTicket} /> : null}
         </DragOverlay>

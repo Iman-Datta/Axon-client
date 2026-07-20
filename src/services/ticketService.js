@@ -84,3 +84,34 @@ export const updateTicket = async (
 
   return data;
 };
+
+export const updateKanbanBoard = async (
+  workspaceSlug,
+  projectSlug,
+  tickets,
+  dispatch,
+  accessToken,
+) => {
+  const res = await fetchWithAuth(
+    `${API}/tickets/${workspaceSlug}/${projectSlug}/board/`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        tickets,
+      }),
+    },
+    dispatch,
+    accessToken,
+  );
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.message || "Failed to update Kanban board.");
+  }
+
+  return data;
+};
