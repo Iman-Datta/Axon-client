@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 import Login from "../components/auth/Login";
 import Register from "../components/auth/Register";
-import ForgotPassword from "../components/auth/ForgotPassword";
+import ForgotPassword from "../components/auth/Forgotpassword";
 import AxonLogo from "../components/shared/AxonLogo";
 import { setAccessToken, setUser } from "../redux/slices/authSlice";
 
