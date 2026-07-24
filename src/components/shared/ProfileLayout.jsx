@@ -1,5 +1,5 @@
 import ProfileHeader from "../profile/ProfileHeader";
-import ProfileSidebar from "../profile/ProfileSidebar";
+import ProfileSidebar from "../profile/Profilesidebar"
 
 function ProfileLayout({ user, children }) {
   return (
