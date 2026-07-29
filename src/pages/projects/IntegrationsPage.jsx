@@ -21,6 +21,7 @@ function IntegrationsPage() {
   const [status, setStatus] = useState(null);
   const [error, setError] = useState(null);
   const [reconnecting, setReconnecting] = useState(false);
+  const [importingRepoId, setImportingRepoId] = useState(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -93,57 +94,56 @@ function IntegrationsPage() {
   };
 
   const handleImportRepository = async (repo) => {
-  try {
-    // Connect repository
-    const connectRes = await fetchWithAuth(
-      `${API}/projects/${slug}/${project_slug}/github/connect/`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+    setImportingRepoId(repo.id);
+    try {
+      // Connect repository
+      const connectRes = await fetchWithAuth(
+        `${API}/projects/${slug}/${project_slug}/github/connect/`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            repository_id: repo.id,
+          }),
         },
-        body: JSON.stringify({
-          repository_id: repo.id,
-        }),
-      },
-      dispatch,
-      accessToken,
-    );
-
-    const connectData = await connectRes.json();
-
-    if (!connectRes.ok) {
-      throw new Error(
-        connectData.message || "Failed to connect repository."
+        dispatch,
+        accessToken,
       );
-    }
 
-    // Create webhook
-    const webhookRes = await fetchWithAuth(
-      `${API}/projects/${slug}/${project_slug}/github/create-webhook/`,
-      {
-        method: "POST",
-      },
-      dispatch,
-      accessToken,
-    );
+      const connectData = await connectRes.json();
 
-    const webhookData = await webhookRes.json();
+      if (!connectRes.ok) {
+        throw new Error(connectData.message || "Failed to connect repository.");
+      }
 
-    if (!webhookRes.ok) {
-      throw new Error(
-        webhookData.message || "Failed to create webhook."
+      // Create webhook
+      const webhookRes = await fetchWithAuth(
+        `${API}/projects/${slug}/${project_slug}/github/create-webhook/`,
+        {
+          method: "POST",
+        },
+        dispatch,
+        accessToken,
       );
+
+      const webhookData = await webhookRes.json();
+
+      if (!webhookRes.ok) {
+        throw new Error(webhookData.message || "Failed to create webhook.");
+      }
+
+      // Refresh UI
+      window.location.reload();
+    } catch (err) {
+      console.error(err);
+      alert(err.message);
     }
-
-    // Refresh UI
-    window.location.reload();
-
-  } catch (err) {
-    console.error(err);
-    alert(err.message);
-  }
-};
+    finally{
+      setImportingRepoId(null);
+    }
+  };
 
   if (loading) {
     return <div className="mt-18 p-6">Loading...</div>;
@@ -164,7 +164,10 @@ function IntegrationsPage() {
       )}
 
       {status.github_connected && !status.repository_connected && (
-        <RepositorySelector onImport={handleImportRepository} />
+        <RepositorySelector
+          onImport={handleImportRepository}
+          importingRepoId={importingRepoId}
+        />
       )}
 
       {status.github_connected &&

@@ -6,7 +6,7 @@ import { fetchWithAuth } from "../../../utils/fetchWithAuth";
 
 const API = import.meta.env.VITE_API_URL;
 
-function RepositorySelector({ onImport }) {
+function RepositorySelector({ onImport, importingRepoId }) {
   const dispatch = useDispatch();
   const accessToken = useSelector((state) => state.auth.accessToken);
 
@@ -140,9 +140,22 @@ function RepositorySelector({ onImport }) {
 
             <button
               onClick={() => onImport?.(repo)}
-              className="rounded-lg bg-white px-5 py-2 font-medium text-black hover:bg-gray-200"
+              disabled={importingRepoId === repo.id}
+              className={`flex items-center gap-2 rounded-lg px-5 py-2 font-medium transition
+              ${
+                importingRepoId === repo.id
+                  ? "cursor-not-allowed bg-gray-500 text-white"
+                  : "bg-white text-black hover:bg-gray-200"
+              }`}
             >
-              Import
+              {importingRepoId === repo.id ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span>Importing...</span>
+                </>
+              ) : (
+                "Import"
+              )}
             </button>
           </div>
         ))}
