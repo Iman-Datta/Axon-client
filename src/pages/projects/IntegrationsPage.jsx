@@ -92,6 +92,59 @@ function IntegrationsPage() {
     }
   };
 
+  const handleImportRepository = async (repo) => {
+  try {
+    // Connect repository
+    const connectRes = await fetchWithAuth(
+      `${API}/projects/${slug}/${project_slug}/github/connect/`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          repository_id: repo.id,
+        }),
+      },
+      dispatch,
+      accessToken,
+    );
+
+    const connectData = await connectRes.json();
+
+    if (!connectRes.ok) {
+      throw new Error(
+        connectData.message || "Failed to connect repository."
+      );
+    }
+
+    // Create webhook
+    const webhookRes = await fetchWithAuth(
+      `${API}/projects/${slug}/${project_slug}/github/create-webhook/`,
+      {
+        method: "POST",
+      },
+      dispatch,
+      accessToken,
+    );
+
+    const webhookData = await webhookRes.json();
+
+    if (!webhookRes.ok) {
+      throw new Error(
+        webhookData.message || "Failed to create webhook."
+      );
+    }
+
+    // Refresh UI
+    window.location.reload();
+
+  } catch (err) {
+    console.error(err);
+    alert(err.message);
+  }
+};
+
   if (loading) {
     return <div className="mt-18 p-6">Loading...</div>;
   }
@@ -111,7 +164,7 @@ function IntegrationsPage() {
       )}
 
       {status.github_connected && !status.repository_connected && (
-        <RepositorySelector />
+        <RepositorySelector onImport={handleImportRepository} />
       )}
 
       {status.github_connected &&
