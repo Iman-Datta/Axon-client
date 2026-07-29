@@ -17,7 +17,7 @@ function ProjectSidebar() {
 
   return (
     <aside
-      className={`sticky top-18 h-[calc(100vh-4.5rem)] shrink-0 border-r border-[#21262d] bg-gradient-to-b from-[#0d1117]/98 via-[#0d1117]/95 to-[#0d1117]/98 backdrop-blur-md flex flex-col transition-all duration-300 ${collapsed ? "w-20" : "w-72"}`}
+      className={`sticky top-18 h-[calc(100vh-4.5rem)] shrink-0 border-r border-[#21262d] bg-linear-to-b from-[#0d1117]/98 via-[#0d1117]/95 to-[#0d1117]/98 backdrop-blur-md flex flex-col transition-all duration-300 ${collapsed ? "w-20" : "w-72"}`}
     >
       <style>{`
         .axon-sidebar-scroll::-webkit-scrollbar {
@@ -62,7 +62,7 @@ function ProjectSidebar() {
 
         {/* Project Card */}
         <div
-          className={`group rounded-2xl border border-[#30363d] bg-gradient-to-b from-[#161b22] to-[#11161d] p-4 transition-all duration-300 hover:border-[#3d444d] hover:shadow-[0_8px_24px_rgba(0,0,0,0.35)] ${collapsed ? "flex justify-center" : "flex items-center gap-4"}`}
+          className={`group rounded-2xl border border-[#30363d] bg-linear-to-b from-[#161b22] to-[#11161d] p-4 transition-all duration-300 hover:border-[#3d444d] hover:shadow-[0_8px_24px_rgba(0,0,0,0.35)] ${collapsed ? "flex justify-center" : "flex items-center gap-4"}`}
         >
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-[#30363d] bg-[#0d1117] transition-transform duration-300 group-hover:scale-105">
             <FolderGit2 size={22} className="text-[#58a6ff]" />

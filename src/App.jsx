@@ -19,6 +19,7 @@ import CreateProject from "./pages/projects/CreateProject";
 import OverviewPage from "./pages/projects/OverviewPage";
 import EpicsPage from "./pages/projects/EpicsPage";
 import TicketsPage from "./pages/projects/TicketsPage";
+import IntegrationsPage from "./pages/projects/IntegrationsPage";
 
 import Dashboard from "./pages/dashboard/Dashboard";
 
@@ -174,6 +175,7 @@ function App() {
           <Route path="board" element={<Dashboard />} />
           <Route path="tickets" element={<TicketsPage />} />
           <Route path="epics" element={<EpicsPage />} />
+          <Route path="integrations" element={<IntegrationsPage />} />
           {/* <Route path="members" element={<MembersPage />} />
           <Route path="activity" element={<ActivityPage />} />
           <Route path="settings" element={<SettingsPage />} /> */}

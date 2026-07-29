@@ -51,7 +51,7 @@ export const toolItems = [
     name: "Integrations",
     icon: Link2,
     path: "integrations",
-    soon: true,
+    soon: false,
   },
   {
     name: "Development Feed",
