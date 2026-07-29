@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -26,48 +26,62 @@ function IntegrationsPage() {
   const [reconnecting, setReconnecting] = useState(false);
   const [disconnecting, setDisconnecting] = useState(false);
 
-  useEffect(() => {
-    let isMounted = true;
+  const fetchStatus = useCallback(async () => {
+    const res = await fetchWithAuth(
+      `${API}/projects/${slug}/${project_slug}/github/status/`,
+      {},
+      dispatch,
+      accessToken,
+    );
 
-    const loadStatus = async () => {
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.message || "Failed to load status");
+    }
+
+    return data;
+  }, [slug, project_slug, dispatch, accessToken]);
+
+  const refreshStatus = useCallback(async () => {
+    try {
+      const data = await fetchStatus();
+      setStatus(data);
+    } catch (err) {
+      console.error(err);
+      setError(err.message);
+    }
+  }, [fetchStatus]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    (async () => {
       setLoading(true);
       setError(null);
 
       try {
-        const res = await fetchWithAuth(
-          `${API}/projects/${slug}/${project_slug}/github/status/`,
-          {},
-          dispatch,
-          accessToken,
-        );
+        const data = await fetchStatus();
 
-        const data = await res.json();
-
-        if (!res.ok) {
-          throw new Error(data.message || "Failed to load status");
-        }
-
-        if (isMounted) {
+        if (!cancelled) {
           setStatus(data);
         }
-      } catch (error) {
-        if (isMounted) {
-          console.error(error);
-          setError(error.message);
+      } catch (err) {
+        if (!cancelled) {
+          console.error(err);
+          setError(err.message);
         }
       } finally {
-        if (isMounted) {
+        if (!cancelled) {
           setLoading(false);
         }
       }
-    };
-
-    loadStatus();
+    })();
 
     return () => {
-      isMounted = false;
+      cancelled = true;
     };
-  }, [slug, project_slug, dispatch, accessToken]);
+  }, [fetchStatus]);
 
   const handleReconnectGithub = async () => {
     console.log("Reconnect clicked");
@@ -138,7 +152,7 @@ function IntegrationsPage() {
       }
 
       // Refresh UI
-      window.location.reload();
+      await refreshStatus();
     } catch (err) {
       console.error(err);
       alert(err.message);
@@ -165,8 +179,8 @@ function IntegrationsPage() {
         throw new Error(data.message || "Failed to disconnect repository.");
       }
 
-      // For now
-      window.location.reload();
+      // Reload
+      await refreshStatus();
     } catch (err) {
       console.error(err);
       setError(err.message);
