@@ -8,7 +8,6 @@ import ConnectedRepositoryCard from "../../components/project/integrations/Conne
 import ConnectGithubCard from "../../components/project/integrations/ConnectGithubCard";
 import RepositorySelector from "../../components/project/integrations/RepositorySelector";
 import WebhookCard from "../../components/project/integrations/WebhookCard";
-import GithubReconnectCard from "../../components/project/integrations/GithubReconnectCard";
 
 const API = import.meta.env.VITE_API_URL;
 
@@ -93,7 +92,6 @@ function IntegrationsPage() {
     }
   };
 
-
   if (loading) {
     return <div className="mt-18 p-6">Loading...</div>;
   }
@@ -104,16 +102,12 @@ function IntegrationsPage() {
 
   return (
     <div className="mt-18 p-6">
-      {status.github_token_expired && (
-        <GithubReconnectCard
-          message="Your GitHub authorization has expired."
-          loading={reconnecting}
+      {!status.github_connected && (
+        <ConnectGithubCard
+          expired={status.github_token_expired}
           onReconnect={handleReconnectGithub}
+          loading={reconnecting}
         />
-      )}
-
-      {!status.github_token_expired && !status.github_connected && (
-        <ConnectGithubCard onReconnect={handleReconnectGithub} />
       )}
 
       {status.github_connected && !status.repository_connected && (
