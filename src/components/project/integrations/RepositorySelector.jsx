@@ -136,11 +136,12 @@ function RepositorySelector({ onImport, importingRepoId }) {
             <button
               onClick={() => onImport?.(repo)}
               disabled={importingRepoId === repo.id}
-              className={`flex items-center gap-2 rounded-lg px-5 py-2 font-medium transition
+              className={`flex items-center gap-2 rounded-lg px-5 py-2 font-medium
+              transition-all duration-200
               ${
                 importingRepoId === repo.id
-                  ? "cursor-not-allowed bg-gray-500 text-white"
-                  : "bg-white text-black hover:bg-gray-200"
+                  ? "cursor-not-allowed bg-gray-500 text-white opacity-70"
+                  : "cursor-pointer bg-white text-black hover:-translate-y-0.5 hover:scale-105 hover:bg-gray-200 hover:shadow-lg active:scale-95"
               }`}
             >
               {importingRepoId === repo.id ? (

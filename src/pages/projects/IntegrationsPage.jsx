@@ -22,8 +22,9 @@ function IntegrationsPage() {
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState(null);
   const [error, setError] = useState(null);
-  const [reconnecting, setReconnecting] = useState(false);
   const [importingRepoId, setImportingRepoId] = useState(null);
+  const [reconnecting, setReconnecting] = useState(false);
+  const [disconnecting, setDisconnecting] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -147,6 +148,7 @@ function IntegrationsPage() {
   };
 
   const handleDisconnectRepository = async () => {
+    setDisconnecting(true);
     try {
       const res = await fetchWithAuth(
         `${API}/projects/${slug}/${project_slug}/github/disconnect/`,
@@ -168,6 +170,8 @@ function IntegrationsPage() {
     } catch (err) {
       console.error(err);
       setError(err.message);
+    } finally {
+      setDisconnecting(false);
     }
   };
 
@@ -213,6 +217,7 @@ function IntegrationsPage() {
           <ConnectedRepositoryCard
             integration={status.integration}
             onDisconnect={handleDisconnectRepository}
+            disconnecting={disconnecting}
           />
         )}
     </div>
