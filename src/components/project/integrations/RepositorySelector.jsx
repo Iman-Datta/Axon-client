@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Search } from "lucide-react";
+import { Search, Loader2 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { fetchWithAuth } from "../../../utils/fetchWithAuth";
@@ -59,13 +59,27 @@ function RepositorySelector({ onImport }) {
   }, [dispatch, accessToken]);
 
   const filteredRepositories = useMemo(() => {
-    return repositories.filter((repo) =>
-      repo.full_name.toLowerCase().includes(search.toLowerCase()),
-    );
+    return repositories
+      .filter((repo) =>
+        repo.full_name.toLowerCase().includes(search.toLowerCase()),
+      )
+      .slice(0, 8);
   }, [repositories, search]);
 
   if (loading) {
-    return <div className="text-gray-400">Loading repositories...</div>;
+    return (
+      <div className="mx-auto flex min-h-[320px] max-w-6xl flex-col items-center justify-center rounded-xl border border-[#30363d] bg-[#161b22]">
+        <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+
+        <h3 className="mt-5 text-lg font-semibold text-white">
+          Loading repositories
+        </h3>
+
+        <p className="mt-2 text-sm text-gray-400">
+          Fetching your GitHub repositories...
+        </p>
+      </div>
+    );
   }
 
   if (error) {
@@ -96,7 +110,10 @@ function RepositorySelector({ onImport }) {
           className="h-12 w-full rounded-xl border border-[#30363d] bg-[#0d1117] pl-12 pr-4 text-white outline-none focus:border-blue-500"
         />
       </div>
-
+      <p className="mb-4 text-sm text-gray-500">
+        Showing {filteredRepositories.length} of {repositories.length}{" "}
+        repositories
+      </p>
       <div className="overflow-hidden rounded-xl border border-[#30363d]">
         {filteredRepositories.map((repo) => (
           <div
