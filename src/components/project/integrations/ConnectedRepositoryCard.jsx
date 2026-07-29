@@ -1,4 +1,4 @@
-function ConnectedRepositoryCard({ integration }) {
+function ConnectedRepositoryCard({ integration, onDisconnect }) {
   return (
     <div className="rounded-xl border border-green-500 bg-[#161b22] p-6">
       <h2 className="text-xl font-semibold text-green-400">
@@ -19,7 +19,10 @@ function ConnectedRepositoryCard({ integration }) {
         </p>
       </div>
 
-      <button className="mt-6 rounded-lg bg-red-600 px-4 py-2 text-white hover:bg-red-500">
+      <button
+        onClick={onDisconnect}
+        className="mt-6 rounded-lg bg-red-600 px-4 py-2 text-white hover:bg-red-500"
+      >
         Disconnect
       </button>
     </div>

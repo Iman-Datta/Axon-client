@@ -139,12 +139,35 @@ function IntegrationsPage() {
     } catch (err) {
       console.error(err);
       alert(err.message);
-    }
-    finally{
+    } finally {
       setImportingRepoId(null);
     }
   };
+  
+  const handleDisconnectRepository = async () => {
+    try {
+      const res = await fetchWithAuth(
+        `${API}/projects/${slug}/${project_slug}/github/disconnect/`,
+        {
+          method: "POST",
+        },
+        dispatch,
+        accessToken,
+      );
 
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to disconnect repository.");
+      }
+
+      // For now
+      window.location.reload();
+    } catch (err) {
+      console.error(err);
+      setError(err.message);
+    }
+  };
   if (loading) {
     return <div className="mt-18 p-6">Loading...</div>;
   }
@@ -177,7 +200,10 @@ function IntegrationsPage() {
       {status.github_connected &&
         status.repository_connected &&
         status.webhook_connected && (
-          <ConnectedRepositoryCard integration={status.integration} />
+          <ConnectedRepositoryCard
+            integration={status.integration}
+            onDisconnect={handleDisconnectRepository}
+          />
         )}
     </div>
   );
