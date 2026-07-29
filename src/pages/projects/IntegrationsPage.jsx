@@ -143,13 +143,13 @@ function IntegrationsPage() {
       setImportingRepoId(null);
     }
   };
-  
+
   const handleDisconnectRepository = async () => {
     try {
       const res = await fetchWithAuth(
         `${API}/projects/${slug}/${project_slug}/github/disconnect/`,
         {
-          method: "POST",
+          method: "DELETE",
         },
         dispatch,
         accessToken,
