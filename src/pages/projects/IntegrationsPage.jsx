@@ -8,6 +8,7 @@ import ConnectedRepositoryCard from "../../components/project/integrations/Conne
 import ConnectGithubCard from "../../components/project/integrations/ConnectGithubCard";
 import RepositorySelector from "../../components/project/integrations/RepositorySelector";
 import WebhookCard from "../../components/project/integrations/WebhookCard";
+import GithubReconnectCard from "../../components/project/integrations/GithubReconnectCard";
 
 const API = import.meta.env.VITE_API_URL;
 
@@ -20,6 +21,7 @@ function IntegrationsPage() {
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState(null);
   const [error, setError] = useState(null);
+  const [reconnecting, setReconnecting] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -64,6 +66,34 @@ function IntegrationsPage() {
     };
   }, [slug, project_slug, dispatch, accessToken]);
 
+  const handleReconnectGithub = async () => {
+    console.log("Reconnect clicked");
+    try {
+      setReconnecting(true);
+
+      const res = await fetchWithAuth(
+        `${API}/auth/github/connect/`,
+        {},
+        dispatch,
+        accessToken,
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Unable to connect GitHub.");
+      }
+
+      window.location.href = data.url;
+    } catch (err) {
+      console.error(err);
+      setError(err.message);
+    } finally {
+      setReconnecting(false);
+    }
+  };
+
+
   if (loading) {
     return <div className="mt-18 p-6">Loading...</div>;
   }
@@ -74,7 +104,17 @@ function IntegrationsPage() {
 
   return (
     <div className="mt-18 p-6">
-      {!status.github_connected && <ConnectGithubCard />}
+      {status.github_token_expired && (
+        <GithubReconnectCard
+          message="Your GitHub authorization has expired."
+          loading={reconnecting}
+          onReconnect={handleReconnectGithub}
+        />
+      )}
+
+      {!status.github_token_expired && !status.github_connected && (
+        <ConnectGithubCard onReconnect={handleReconnectGithub} />
+      )}
 
       {status.github_connected && !status.repository_connected && (
         <RepositorySelector />

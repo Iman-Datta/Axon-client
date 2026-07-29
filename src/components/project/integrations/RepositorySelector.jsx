@@ -1,15 +1,141 @@
-function RepositorySelector() {
+import { useEffect, useMemo, useState } from "react";
+import { Search } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+
+import { fetchWithAuth } from "../../../utils/fetchWithAuth";
+
+const API = import.meta.env.VITE_API_URL;
+
+function RepositorySelector({ onImport }) {
+  const dispatch = useDispatch();
+  const accessToken = useSelector((state) => state.auth.accessToken);
+
+  const [repositories, setRepositories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadRepositories = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const res = await fetchWithAuth(
+          `${API}/projects/github/repositories/`,
+          {},
+          dispatch,
+          accessToken,
+        );
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.message);
+        }
+
+        if (isMounted) {
+          setRepositories(data.repositories || []);
+        }
+      } catch (err) {
+        if (isMounted) {
+          console.error(err);
+          setError(err.message);
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadRepositories();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [dispatch, accessToken]);
+
+  const filteredRepositories = useMemo(() => {
+    return repositories.filter((repo) =>
+      repo.full_name.toLowerCase().includes(search.toLowerCase()),
+    );
+  }, [repositories, search]);
+
+  if (loading) {
+    return <div className="text-gray-400">Loading repositories...</div>;
+  }
+
+  if (error) {
+    return <div className="text-red-400">{error}</div>;
+  }
+
   return (
-    <div className="rounded-xl border border-[#30363d] bg-[#161b22] p-6">
-      <h2 className="text-xl font-semibold text-white">Connect Repository</h2>
+    <div className="mx-auto max-w-6xl">
+      <div className="mb-8">
+        <h1 className="text-4xl font-bold text-white">Import Git Repository</h1>
 
-      <p className="mt-2 text-sm text-gray-400">
-        Select a GitHub repository to connect with this project.
-      </p>
+        <p className="mt-2 text-gray-400">
+          Select a GitHub repository to connect with this project.
+        </p>
+      </div>
 
-      <button className="mt-6 rounded-lg bg-green-600 px-4 py-2 text-white hover:bg-green-500">
-        Load Repositories
-      </button>
+      <div className="mb-6 relative">
+        <Search
+          size={20}
+          className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"
+        />
+
+        <input
+          type="text"
+          placeholder="Search repositories..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="h-12 w-full rounded-xl border border-[#30363d] bg-[#0d1117] pl-12 pr-4 text-white outline-none focus:border-blue-500"
+        />
+      </div>
+
+      <div className="overflow-hidden rounded-xl border border-[#30363d]">
+        {filteredRepositories.map((repo) => (
+          <div
+            key={repo.id}
+            className="flex items-center justify-between border-b border-[#21262d] bg-[#161b22] px-6 py-5 last:border-b-0"
+          >
+            <div className="flex items-center gap-4">
+              <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-[#0d1117]">
+                <img
+                  src="https://github.githubassets.com/favicons/favicon.svg"
+                  alt=""
+                  className="h-6 w-6"
+                />
+              </div>
+
+              <div>
+                <h3 className="text-lg font-semibold text-white">
+                  {repo.name}
+                </h3>
+
+                <p className="text-sm text-gray-400">{repo.full_name}</p>
+              </div>
+            </div>
+
+            <button
+              onClick={() => onImport?.(repo)}
+              className="rounded-lg bg-white px-5 py-2 font-medium text-black hover:bg-gray-200"
+            >
+              Import
+            </button>
+          </div>
+        ))}
+
+        {!filteredRepositories.length && (
+          <div className="py-10 text-center text-gray-500">
+            No repositories found.
+          </div>
+        )}
+      </div>
     </div>
   );
 }
