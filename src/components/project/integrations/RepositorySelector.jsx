@@ -4,6 +4,8 @@ import { useDispatch, useSelector } from "react-redux";
 
 import { fetchWithAuth } from "../../../utils/fetchWithAuth";
 
+import LoadingCard from "../../shared/LoadingCard";
+
 const API = import.meta.env.VITE_API_URL;
 
 function RepositorySelector({ onImport, importingRepoId }) {
@@ -68,17 +70,10 @@ function RepositorySelector({ onImport, importingRepoId }) {
 
   if (loading) {
     return (
-      <div className="mx-auto flex min-h-80 max-w-6xl flex-col items-center justify-center rounded-xl border border-[#30363d] bg-[#161b22]">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-
-        <h3 className="mt-5 text-lg font-semibold text-white">
-          Loading repositories
-        </h3>
-
-        <p className="mt-2 text-sm text-gray-400">
-          Fetching your GitHub repositories...
-        </p>
-      </div>
+      <LoadingCard
+        title="Loading repositories"
+        description="Fetching your GitHub repositories..."
+      />
     );
   }
 

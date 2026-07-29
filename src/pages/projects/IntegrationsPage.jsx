@@ -9,6 +9,8 @@ import ConnectGithubCard from "../../components/project/integrations/ConnectGith
 import RepositorySelector from "../../components/project/integrations/RepositorySelector";
 import WebhookCard from "../../components/project/integrations/WebhookCard";
 
+import LoadingCard from "../../components/shared/LoadingCard";
+
 const API = import.meta.env.VITE_API_URL;
 
 function IntegrationsPage() {
@@ -168,8 +170,16 @@ function IntegrationsPage() {
       setError(err.message);
     }
   };
+
   if (loading) {
-    return <div className="mt-18 p-6">Loading...</div>;
+    return (
+      <div className="mt-18 p-6">
+        <LoadingCard
+          title="Loading integration"
+          description="Checking your GitHub integration status..."
+        />
+      </div>
+    );
   }
 
   if (error) {
