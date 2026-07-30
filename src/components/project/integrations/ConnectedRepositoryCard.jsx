@@ -1,4 +1,5 @@
-import { Loader2, Github, CheckCircle2, GitBranch } from "lucide-react";
+import { Loader2,  CheckCircle2, GitBranch } from "lucide-react";
+import { FaGithub } from "react-icons/fa";
 
 function ConnectedRepositoryCard({ integration, onDisconnect, disconnecting }) {
   return (
@@ -7,7 +8,7 @@ function ConnectedRepositoryCard({ integration, onDisconnect, disconnecting }) {
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-green-500/10 text-green-400">
-            <Github className="h-6 w-6" />
+            <FaGithub className="h-6 w-6" />
           </div>
 
           <div>

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Search, Loader2 } from "lucide-react";
+import { FaGithub } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 
 import { fetchWithAuth } from "../../../utils/fetchWithAuth";
@@ -116,12 +117,8 @@ function RepositorySelector({ onImport, importingRepoId }) {
             className="flex items-center justify-between border-b border-[#21262d] bg-[#161b22] px-6 py-5 last:border-b-0"
           >
             <div className="flex items-center gap-4">
-              <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-[#0d1117]">
-                <img
-                  src="https://github.githubassets.com/favicons/favicon.svg"
-                  alt=""
-                  className="h-6 w-6"
-                />
+              <div className="flex h-14 w-14 items-center justify-center rounded-full">
+                <FaGithub className="h-11 w-11 text-white" />
               </div>
 
               <div>
