@@ -7,8 +7,8 @@ function ConnectedRepositoryCard({ integration, onDisconnect, disconnecting }) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#0d1117] ring-1 ring-[#30363d]">
-            <FaGithub className="h-6 w-6 text-white" />
+          <div className="flex h-14 w-14 items-center justify-center rounded-full">
+            <FaGithub className="h-11 w-11 text-white" />
           </div>
 
           <div>
