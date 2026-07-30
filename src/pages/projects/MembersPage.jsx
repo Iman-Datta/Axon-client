@@ -1,42 +1,64 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
-import { listMember } from "../../services/projectService";
+import { listMember, addMember } from "../../services/projectService";
 import EmptyState from "../../components/shared/resource/EmptyState";
 import MembersTable from "../../components/project/members/MembersTable";
 import MemberToolbar from "../../components/project/members/MemberToolbar";
+import AddMemberModal from "../../components/project/members/AddMemberModal";
 
 function MembersPage() {
   const [members, setMembers] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [inviteOpen, setInviteOpen] = useState(false);
+  const [addingMember, setAddingMember] = useState(false);
+  const [addMemberError, setAddMemberError] = useState("");
 
   const { slug, project_slug } = useParams();
   const dispatch = useDispatch();
   const accessToken = useSelector((state) => state.auth.accessToken);
 
-  useEffect(() => {
-    async function loadMembers() {
-      try {
-        const members = await listMember(
-          slug,
-          project_slug,
-          dispatch,
-          accessToken,
-        );
-        setMembers(members);
-      } catch (error) {
-        setError(error);
-        console.log(error);
-      } finally {
-        setLoading(false);
-      }
+  const loadMembers = useCallback(async () => {
+    try {
+      const data = await listMember(slug, project_slug, dispatch, accessToken);
+
+      setMembers(data);
+      setError(null);
+    } catch (error) {
+      setError(error);
+    } finally {
+      setLoading(false);
     }
-    loadMembers();
   }, [slug, project_slug, dispatch, accessToken]);
+
+  useEffect(() => {
+    loadMembers();
+  }, [loadMembers]);
+
+  const handleCreateMember = async (formData) => {
+    try {
+      setAddMemberError("");
+      setAddingMember(true);
+
+      await addMember(slug, project_slug, formData, dispatch, accessToken);
+
+      await loadMembers();
+
+      setInviteOpen(false);
+      return true;
+    } catch (error) {
+      setAddMemberError(
+        error.message || error.detail || error.error || "Failed to add member.",
+      );
+      return false;
+    } finally {
+      setAddingMember(false);
+    }
+  };
 
   if (loading) {
     return <div>Loading...</div>;
@@ -85,14 +107,22 @@ function MembersPage() {
       <MemberToolbar
         search={search}
         setSearch={setSearch}
-        onAddMember={() => {
-          // Open Invite Member Modal
-        }}
+        onAddMember={() => setInviteOpen(true)}
       />
-
       <div className="mt-3">
         <MembersTable members={filteredMembers} />
       </div>
+
+      <AddMemberModal
+        open={inviteOpen}
+        loading={addingMember}
+        error={addMemberError}
+        onClose={() => {
+          setInviteOpen(false);
+          setAddMemberError("");
+        }}
+        onAdd={handleCreateMember}
+      />
     </div>
   );
 }

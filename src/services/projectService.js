@@ -46,12 +46,7 @@ export const createProject = async (
   return data;
 };
 
-export const listMember = async (
-  slug,
-  project_slug,
-  dispatch,
-  accessToken,
-) => {
+export const listMember = async (slug, project_slug, dispatch, accessToken) => {
   const response = await fetchWithAuth(
     `${API}/projects/${slug}/${project_slug}/members/`,
     {},
@@ -66,4 +61,33 @@ export const listMember = async (
   }
 
   return data.members;
+};
+
+export const addMember = async (
+  slug,
+  project_slug,
+  memberData,
+  dispatch,
+  accessToken,
+) => {
+  const response = await fetchWithAuth(
+    `${API}/projects/${slug}/${project_slug}/member/add/`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(memberData),
+    },
+    dispatch,
+    accessToken,
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw data;
+  }
+
+  return data;
 };
