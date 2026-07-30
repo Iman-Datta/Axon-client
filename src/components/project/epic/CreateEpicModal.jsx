@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { X } from "lucide-react";
 
-function CreateEpicModal({ onClose, onSubmit, loading = false }) {
+function CreateEpicModal({ onClose, onSubmit, loading = false, error }) {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -30,8 +30,14 @@ function CreateEpicModal({ onClose, onSubmit, loading = false }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-      <div className="w-full max-w-lg rounded-2xl border border-[#30363d] bg-[#161b22] p-6 shadow-2xl">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-lg rounded-2xl border border-[#30363d] bg-[#161b22] p-6 shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Header */}
         <div className="mb-6 flex items-center justify-between">
           <h2 className="text-xl font-semibold text-[#e6edf3]">
@@ -127,6 +133,11 @@ function CreateEpicModal({ onClose, onSubmit, loading = false }) {
             >
               {loading ? "Creating..." : "Create Epic"}
             </button>
+            {error && (
+              <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
+                {error}
+              </div>
+            )}
           </div>
         </form>
       </div>

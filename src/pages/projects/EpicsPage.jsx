@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 
@@ -16,23 +16,41 @@ function EpicPage() {
   const dispatch = useDispatch();
 
   const accessToken = useSelector((state) => state.auth.accessToken);
+  const [submitError, setSubmitError] = useState("");
 
   const [openModal, setOpenModal] = useState(false);
-
   const { epics, count, loading, error, refetch } = useEpics(
     slug,
     project_slug,
   );
 
+  useEffect(() => {
+    if (!openModal) return;
+
+    const handleEsc = (e) => {
+      if (e.key === "Escape") {
+        setOpenModal(false);
+      }
+    };
+
+    window.addEventListener("keydown", handleEsc);
+
+    return () => {
+      window.removeEventListener("keydown", handleEsc);
+    };
+  }, [openModal]);
+
   const handleCreateEpic = async (formData) => {
     try {
+      setSubmitError("");
+
       await createEpic(slug, project_slug, formData, dispatch, accessToken);
 
       setOpenModal(false);
 
-      await refetch();
-    } catch (error) {
-      console.log(error);
+      refetch();
+    } catch (err) {
+      setSubmitError(err.message);
     }
   };
 
@@ -54,8 +72,12 @@ function EpicPage() {
 
       {openModal && (
         <CreateEpicModal
-          onClose={() => setOpenModal(false)}
+          onClose={() => {
+            setSubmitError("");
+            setOpenModal(false);
+          }}
           onSubmit={handleCreateEpic}
+          error={submitError}
         />
       )}
     </div>
