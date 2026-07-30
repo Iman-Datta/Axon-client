@@ -24,10 +24,10 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="mt-18 w-full max-w-full overflow-hidden p-6">
+    <div className="mt-14 w-full max-w-full overflow-hidden p-6">
       <KanbanHeader />
 
-      <div className="mt-8">
+      <div>
         <KanbanBoard tickets={tickets} setTickets={setTickets} />
       </div>
     </div>
