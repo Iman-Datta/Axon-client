@@ -34,9 +34,9 @@ function WebhookCard() {
               </p>
 
               <ul className="space-y-2 text-sm text-[#8b949e]">
-                <li>• Ticket status won't update automatically</li>
-                <li>• Pull requests won't sync with Axon</li>
-                <li>• Commit activity won't be tracked</li>
+                <li>Ticket status won't update automatically</li>
+                <li>Pull requests won't sync with Axon</li>
+                <li>Commit activity won't be tracked</li>
               </ul>
             </div>
 
