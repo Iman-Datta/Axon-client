@@ -33,7 +33,7 @@ const PRIORITY_STYLES = {
   URGENT: "bg-red-500/10 text-red-400 ring-red-500/20",
 };
 
-function EpicDetailModal({ epic: epicSummary, onClose }) {
+function EpicDetailDrawer({ epic: epicSummary, open, onClose }) {
   const [epic, setEpic] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -71,9 +71,9 @@ function EpicDetailModal({ epic: epicSummary, onClose }) {
     return () => {
       cancelled = true;
     };
-  }, [slug, project_slug, epicSummary.id]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [epicSummary.id]);
 
-  // Use fetched detail once available, fall back to the summary card data
   const data = epic || epicSummary;
   const createdDate = new Date(data.created_at).toLocaleDateString("en-IN", {
     day: "numeric",
@@ -90,13 +90,20 @@ function EpicDetailModal({ epic: epicSummary, onClose }) {
   const columnOrder = ["TODO", "IN_PROGRESS", "REVIEW", "DONE"];
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
-      onClick={onClose}
-    >
+    <div className="fixed inset-0 z-50">
+      {/* Backdrop */}
       <div
-        className="flex max-h-[85vh] w-full max-w-2xl flex-col overflow-hidden rounded-xl border border-[#30363d] bg-[#161b22] shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
+        onClick={onClose}
+        className={`absolute inset-0 bg-black/60 backdrop-blur-[2px] transition-opacity duration-250 ${
+          open ? "opacity-100" : "opacity-0"
+        }`}
+      />
+
+      {/* Panel */}
+      <div
+        className={`absolute inset-y-0 right-0 flex h-full w-full max-w-lg transform flex-col border-l border-[#30363d] bg-[#161b22] shadow-2xl transition-transform duration-300 ease-out ${
+          open ? "translate-x-0" : "translate-x-full"
+        }`}
       >
         {/* Header */}
         <div
@@ -274,4 +281,4 @@ function EpicDetailModal({ epic: epicSummary, onClose }) {
   );
 }
 
-export default EpicDetailModal;
+export default EpicDetailDrawer;

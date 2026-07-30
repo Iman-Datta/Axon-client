@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
-import { Calendar, CircleCheck, ListChecks } from "lucide-react";
+import { Calendar, CircleCheck, ListChecks, ChevronRight } from "lucide-react";
 
-function EpicCard({ epic, onClick }) {
+function EpicCard({ epic, onClick, active }) {
   const createdDate = new Date(epic.created_at).toLocaleDateString("en-IN", {
     day: "numeric",
     month: "short",
@@ -14,16 +14,22 @@ function EpicCard({ epic, onClick }) {
   return (
     <div
       onClick={() => onClick(epic)}
-      className="group relative cursor-pointer overflow-hidden rounded-lg border border-[#30363d] bg-[#161b22] transition-colors hover:border-[#3d444d]"
+      className={`group relative cursor-pointer overflow-hidden rounded-lg border bg-[#161b22] transition-all duration-150 active:scale-[0.99] ${
+        active
+          ? "border-[#3d444d] ring-1 ring-[#3d444d]"
+          : "border-[#30363d] hover:border-[#3d444d]"
+      }`}
     >
       <div
         className="absolute inset-y-0 left-0 w-[3px]"
         style={{ backgroundColor: epic.color }}
       />
 
+      <ChevronRight className="absolute right-3 top-3 h-4 w-4 text-[#6e7681] opacity-0 transition-all duration-150 group-hover:translate-x-0.5 group-hover:opacity-100" />
+
       <div className="p-4 pl-5">
         {/* Header */}
-        <div className="flex items-start justify-between gap-3">
+        <div className="flex items-start justify-between gap-3 pr-4">
           <h3 className="truncate text-[15px] font-semibold text-[#e6edf3]">
             {epic.name}
           </h3>

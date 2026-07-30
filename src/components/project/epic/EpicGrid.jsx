@@ -1,10 +1,33 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import EpicCard from "./EpicCard";
-import EpicDetailModal from "./EpicDetailModal";
+import EpicDetailDrawer from "./EpicDetailDrawer";
 import { Layers } from "lucide-react";
+
+const CLOSE_ANIMATION_MS = 250;
 
 function EpicGrid({ epics }) {
   const [selectedEpic, setSelectedEpic] = useState(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  // Open on next frame so the panel actually transitions from off-screen
+  const handleCardClick = useCallback((epic) => {
+    setSelectedEpic(epic);
+    requestAnimationFrame(() => setDrawerOpen(true));
+  }, []);
+
+  const handleClose = useCallback(() => {
+    setDrawerOpen(false);
+    // keep the epic mounted until the close transition finishes
+    setTimeout(() => setSelectedEpic(null), CLOSE_ANIMATION_MS);
+  }, []);
+
+  // Esc to close
+  useEffect(() => {
+    if (!drawerOpen) return;
+    const onKey = (e) => e.key === "Escape" && handleClose();
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [drawerOpen, handleClose]);
 
   if (epics.length === 0) {
     return (
@@ -26,14 +49,20 @@ function EpicGrid({ epics }) {
     <>
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {epics.map((epic) => (
-          <EpicCard key={epic.id} epic={epic} onClick={setSelectedEpic} />
+          <EpicCard
+            key={epic.id}
+            epic={epic}
+            onClick={handleCardClick}
+            active={selectedEpic?.id === epic.id && drawerOpen}
+          />
         ))}
       </div>
 
       {selectedEpic && (
-        <EpicDetailModal
+        <EpicDetailDrawer
           epic={selectedEpic}
-          onClose={() => setSelectedEpic(null)}
+          open={drawerOpen}
+          onClose={handleClose}
         />
       )}
     </>
