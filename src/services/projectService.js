@@ -45,3 +45,25 @@ export const createProject = async (
 
   return data;
 };
+
+export const listMember = async (
+  slug,
+  project_slug,
+  dispatch,
+  accessToken,
+) => {
+  const response = await fetchWithAuth(
+    `${API}/projects/${slug}/${project_slug}/members/`,
+    {},
+    dispatch,
+    accessToken,
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || "Failed to fetch project members.");
+  }
+
+  return data.members;
+};
