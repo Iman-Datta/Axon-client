@@ -1,7 +1,11 @@
+import { useState } from "react";
 import EpicCard from "./EpicCard";
+import EpicDetailModal from "./EpicDetailModal";
 import { Layers } from "lucide-react";
 
 function EpicGrid({ epics }) {
+  const [selectedEpic, setSelectedEpic] = useState(null);
+
   if (epics.length === 0) {
     return (
       <div className="rounded-lg border border-dashed border-[#30363d] bg-[#161b22] p-10 text-center">
@@ -19,11 +23,20 @@ function EpicGrid({ epics }) {
   }
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-      {epics.map((epic) => (
-        <EpicCard key={epic.id} epic={epic} />
-      ))}
-    </div>
+    <>
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        {epics.map((epic) => (
+          <EpicCard key={epic.id} epic={epic} onClick={setSelectedEpic} />
+        ))}
+      </div>
+
+      {selectedEpic && (
+        <EpicDetailModal
+          epic={selectedEpic}
+          onClose={() => setSelectedEpic(null)}
+        />
+      )}
+    </>
   );
 }
 

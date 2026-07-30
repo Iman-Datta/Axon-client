@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
-import { Calendar } from "lucide-react";
+import { Calendar, CircleCheck, ListChecks } from "lucide-react";
 
-function EpicCard({ epic }) {
+function EpicCard({ epic, onClick }) {
   const createdDate = new Date(epic.created_at).toLocaleDateString("en-IN", {
     day: "numeric",
     month: "short",
@@ -9,9 +9,13 @@ function EpicCard({ epic }) {
   });
 
   const user = epic.created_by;
+  const hasTickets = epic.ticket_count > 0;
 
   return (
-    <div className="group relative overflow-hidden rounded-lg border border-[#30363d] bg-[#161b22] transition-colors hover:border-[#3d444d]">
+    <div
+      onClick={() => onClick(epic)}
+      className="group relative cursor-pointer overflow-hidden rounded-lg border border-[#30363d] bg-[#161b22] transition-colors hover:border-[#3d444d]"
+    >
       <div
         className="absolute inset-y-0 left-0 w-[3px]"
         style={{ backgroundColor: epic.color }}
@@ -34,9 +38,43 @@ function EpicCard({ epic }) {
           {epic.description || "No description provided."}
         </p>
 
+        {/* Progress */}
+        <div className="mt-3.5">
+          <div className="flex items-center justify-between text-xs">
+            <div className="flex items-center gap-1.5 text-[#8b949e]">
+              {hasTickets ? (
+                <>
+                  <ListChecks className="h-3.5 w-3.5" />
+                  {epic.completed_count}/{epic.ticket_count} tickets done
+                </>
+              ) : (
+                <span className="text-[#6e7681]">No tickets yet</span>
+              )}
+            </div>
+            {hasTickets && (
+              <span className="font-semibold text-[#e6edf3]">
+                {epic.progress}%
+              </span>
+            )}
+          </div>
+
+          <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-[#21262d]">
+            <div
+              className="h-full rounded-full transition-all duration-500"
+              style={{
+                width: `${epic.progress}%`,
+                backgroundColor: epic.progress === 100 ? "#22C55E" : epic.color,
+              }}
+            />
+          </div>
+        </div>
+
         {/* Footer */}
         <div className="mt-4 flex items-center justify-between border-t border-[#21262d] pt-3">
-          <div className="group/user relative">
+          <div
+            className="group/user relative"
+            onClick={(e) => e.stopPropagation()}
+          >
             <Link to={`/${user.username}`} className="flex items-center gap-2">
               <img
                 src={user.avatar}
@@ -72,7 +110,11 @@ function EpicCard({ epic }) {
           </div>
 
           <div className="flex items-center gap-1 text-[11px] text-[#6e7681]">
-            <Calendar className="h-3 w-3" />
+            {epic.progress === 100 && hasTickets ? (
+              <CircleCheck className="h-3 w-3 text-green-400" />
+            ) : (
+              <Calendar className="h-3 w-3" />
+            )}
             {createdDate}
           </div>
         </div>
