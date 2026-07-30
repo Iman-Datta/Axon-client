@@ -43,11 +43,7 @@ function ProjectsListPage() {
           description="Create your first project to get started."
         />
       ) : (
-        <ResourceList
-          resources={projects}
-          type="project"
-          workspaceSlug={slug}
-        />
+        <ResourceList resources={projects} type="project" />
       )}
     </>
   );

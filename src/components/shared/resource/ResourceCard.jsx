@@ -4,13 +4,12 @@ import { Building2, FolderGit2 } from "lucide-react";
 function ResourceCard({
   resource,
   type = "organization",
-  workspaceSlug,
   actionText,
   onAction,
 }) {
   const href =
     type === "project"
-      ? `/${workspaceSlug}/${resource.slug}`
+      ? `/${resource.workspace_slug}/${resource.slug}`
       : `/${resource.slug}`;
   const Icon = type === "project" ? FolderGit2 : Building2;
 
@@ -36,6 +35,11 @@ function ResourceCard({
           >
             {resource.name}
           </Link>
+          {type === "project" && resource.workspace_type === "personal" && (
+            <p className="mt-1 text-sm text-[#8b949e]">
+              Shared by {resource.workspace_name}
+            </p>
+          )}
 
           {resource.description && (
             <p className="mt-1 text-sm text-[#8b949e] truncate">

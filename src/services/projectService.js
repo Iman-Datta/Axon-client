@@ -3,7 +3,7 @@ import { fetchWithAuth } from "../utils/fetchWithAuth";
 const API = import.meta.env.VITE_API_URL;
 export const getMyProjects = async (workspaceSlug, dispatch, accessToken) => {
   const response = await fetchWithAuth(
-    `${API}/projects/${workspaceSlug}/`,
+    `${API}/projects/${workspaceSlug}/my/`,
     {},
     dispatch,
     accessToken,
