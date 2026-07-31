@@ -10,6 +10,7 @@ const COLUMNS = [
   "Epic",
   "Story Points",
   "Updated",
+  "",
 ];
 
 function TicketTable({ tickets }) {

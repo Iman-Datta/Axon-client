@@ -1,5 +1,6 @@
 // components/project/ticket/TicketRow.jsx
-import { Hash } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { Hash, MoreHorizontal, Pencil, UserPlus, Trash2 } from "lucide-react";
 import {
   getTypeStyle,
   getStatusStyle,
@@ -8,26 +9,49 @@ import {
   formatRelativeTime,
 } from "./ticketBadgeConfig";
 
-function TicketRow({ ticket }) {
+function TicketRow({ ticket, onEdit, onAssign, onDelete }) {
+  const [open, setOpen] = useState(false);
+  const menuRef = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    function handleEsc(e) {
+      if (e.key === "Escape") setOpen(false);
+    }
+
+    if (open) window.addEventListener("keydown", handleEsc);
+    return () => window.removeEventListener("keydown", handleEsc);
+  }, [open]);
+
   return (
-    <tr className="border-b border-[#21262d] transition-colors last:border-0 hover:bg-[#1c2128]">
+    <tr className="group border-b border-[#21262d] transition-colors last:border-0 hover:bg-[#1c2128]">
       {/* Ticket number */}
       <td className="whitespace-nowrap px-5 py-3.5">
-        <span className="font-mono text-xs text-[#6e7681]">
+        <span className="rounded-md bg-[#0d1117] px-2 py-1 font-mono text-[11px] font-medium text-[#6e7681] ring-1 ring-[#30363d]">
           {ticket.ticket_number}
         </span>
       </td>
 
       {/* Title */}
-      <td className="px-5 py-3.5">
-        <div>
-          <h3 className="text-sm font-medium text-[#e6edf3]">{ticket.title}</h3>
-          {ticket.description && (
-            <p className="mt-0.5 line-clamp-1 text-xs text-[#8b949e]">
-              {ticket.description}
-            </p>
-          )}
-        </div>
+      <td className="max-w-[260px] px-5 py-3.5">
+        <h3 className="truncate text-sm font-medium text-[#e6edf3]">
+          {ticket.title}
+        </h3>
+        {ticket.description && (
+          <p className="mt-0.5 truncate text-xs text-[#8b949e]">
+            {ticket.description}
+          </p>
+        )}
       </td>
 
       {/* Type */}
@@ -44,10 +68,11 @@ function TicketRow({ ticket }) {
       {/* Status */}
       <td className="whitespace-nowrap px-5 py-3.5">
         <span
-          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium ring-1 ${getStatusStyle(
+          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-medium ring-1 ${getStatusStyle(
             ticket.status,
           )}`}
         >
+          <span className="h-1.5 w-1.5 rounded-full bg-current" />
           {formatLabel(ticket.status)}
         </span>
       </td>
@@ -98,6 +123,68 @@ function TicketRow({ ticket }) {
         >
           {formatRelativeTime(ticket.updated_at)}
         </span>
+      </td>
+
+      {/* Actions */}
+      <td
+        className="relative whitespace-nowrap px-5 py-3.5 text-right"
+        ref={menuRef}
+      >
+        <button
+          onClick={() => setOpen((v) => !v)}
+          className={`rounded-md p-1.5 text-[#8b949e] transition-all duration-150 hover:bg-[#21262d] hover:text-[#e6edf3] ${
+            open
+              ? "bg-[#21262d] text-[#e6edf3]"
+              : "opacity-0 group-hover:opacity-100"
+          }`}
+        >
+          <MoreHorizontal className="h-4 w-4" />
+        </button>
+
+        {open && (
+          <div className="animate-in fade-in zoom-in-95 absolute right-4 top-full z-50 mt-1.5 w-48 origin-top-right overflow-hidden rounded-xl border border-[#30363d] bg-[#161b22] py-1 shadow-2xl">
+            <button
+              className="flex w-full items-center gap-3 px-3.5 py-2.5 text-left text-sm text-[#c9d1d9] transition hover:bg-[#21262d]"
+              onClick={() => {
+                setOpen(false);
+                onEdit?.(ticket);
+              }}
+            >
+              <span className="flex h-6 w-6 items-center justify-center rounded-md bg-[#388bfd]/10 text-[#58a6ff]">
+                <Pencil className="h-3.5 w-3.5" />
+              </span>
+              Edit ticket
+            </button>
+
+            <button
+              className="flex w-full items-center gap-3 px-3.5 py-2.5 text-left text-sm text-[#c9d1d9] transition hover:bg-[#21262d]"
+              onClick={() => {
+                setOpen(false);
+                onAssign?.(ticket);
+              }}
+            >
+              <span className="flex h-6 w-6 items-center justify-center rounded-md bg-purple-500/10 text-purple-400">
+                <UserPlus className="h-3.5 w-3.5" />
+              </span>
+              Assign
+            </button>
+
+            <div className="mx-2 my-1 border-t border-[#30363d]" />
+
+            <button
+              className="flex w-full items-center gap-3 px-3.5 py-2.5 text-left text-sm text-red-400 transition hover:bg-red-500/10"
+              onClick={() => {
+                setOpen(false);
+                onDelete?.(ticket);
+              }}
+            >
+              <span className="flex h-6 w-6 items-center justify-center rounded-md bg-red-500/10 text-red-400">
+                <Trash2 className="h-3.5 w-3.5" />
+              </span>
+              Delete ticket
+            </button>
+          </div>
+        )}
       </td>
     </tr>
   );

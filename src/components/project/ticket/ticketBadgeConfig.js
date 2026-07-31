@@ -1,4 +1,3 @@
-// components/project/ticket/ticketBadgeConfig.js
 export const TYPE_STYLES = {
   FEATURE: "bg-purple-500/10 text-purple-400 ring-purple-500/30",
   BUG: "bg-red-500/10 text-red-400 ring-red-500/30",
