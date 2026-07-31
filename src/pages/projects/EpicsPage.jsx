@@ -1,5 +1,5 @@
 // pages/project/EpicPage.jsx
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 
@@ -36,11 +36,19 @@ function EpicPage() {
     project_slug,
   );
 
+  const closeModal = useCallback(() => {
+    setSubmitError("");
+    setModalMode("create");
+    setSelectedEpic(null);
+    setModalOpen(false);
+  }, []);
+
   useEffect(() => {
     if (!modalOpen && !deleteTarget) return;
 
     const handleEsc = (e) => {
       if (e.key !== "Escape") return;
+
       if (deleteTarget) {
         setDeleteTarget(null);
         setDeleteError("");
@@ -54,7 +62,7 @@ function EpicPage() {
     return () => {
       window.removeEventListener("keydown", handleEsc);
     };
-  }, [modalOpen, deleteTarget]);
+  }, [modalOpen, deleteTarget, closeModal]);
 
   const openCreateModal = () => {
     setModalMode("create");
@@ -68,13 +76,6 @@ function EpicPage() {
     setSelectedEpic(epic);
     setSubmitError("");
     setModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setSubmitError("");
-    setModalMode("create");
-    setSelectedEpic(null);
-    setModalOpen(false);
   };
 
   const handleFormSubmit = async (formData) => {
