@@ -1,22 +1,103 @@
+// components/project/ticket/TicketRow.jsx
+import { Hash } from "lucide-react";
+import {
+  getTypeStyle,
+  getStatusStyle,
+  getPriorityStyle,
+  formatLabel,
+  formatRelativeTime,
+} from "./ticketBadgeConfig";
+
 function TicketRow({ ticket }) {
   return (
-    <tr className="border-b border-[#21262d] last:border-0">
-      <td className="px-5 py-4">
-        <div>
-          <h3 className="font-medium text-[#e6edf3]">{ticket.title}</h3>
+    <tr className="border-b border-[#21262d] transition-colors last:border-0 hover:bg-[#1c2128]">
+      {/* Ticket number */}
+      <td className="whitespace-nowrap px-5 py-3.5">
+        <span className="font-mono text-xs text-[#6e7681]">
+          {ticket.ticket_number}
+        </span>
+      </td>
 
-          <p className="mt-1 text-sm text-[#8b949e]">{ticket.description}</p>
+      {/* Title */}
+      <td className="px-5 py-3.5">
+        <div>
+          <h3 className="text-sm font-medium text-[#e6edf3]">{ticket.title}</h3>
+          {ticket.description && (
+            <p className="mt-0.5 line-clamp-1 text-xs text-[#8b949e]">
+              {ticket.description}
+            </p>
+          )}
         </div>
       </td>
 
-      <td className="px-5 py-4">{ticket.status}</td>
+      {/* Type */}
+      <td className="whitespace-nowrap px-5 py-3.5">
+        <span
+          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium ring-1 ${getTypeStyle(
+            ticket.type,
+          )}`}
+        >
+          {formatLabel(ticket.type)}
+        </span>
+      </td>
 
-      <td className="px-5 py-4">{ticket.priority}</td>
+      {/* Status */}
+      <td className="whitespace-nowrap px-5 py-3.5">
+        <span
+          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium ring-1 ${getStatusStyle(
+            ticket.status,
+          )}`}
+        >
+          {formatLabel(ticket.status)}
+        </span>
+      </td>
 
-      <td className="px-5 py-4">{ticket.epic?.name || "-"}</td>
+      {/* Priority */}
+      <td className="whitespace-nowrap px-5 py-3.5">
+        <span
+          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium ring-1 ${getPriorityStyle(
+            ticket.priority,
+          )}`}
+        >
+          {formatLabel(ticket.priority)}
+        </span>
+      </td>
 
-      <td className="px-5 py-4">
-        {ticket.due_date ? new Date(ticket.due_date).toLocaleDateString() : "-"}
+      {/* Epic */}
+      <td className="whitespace-nowrap px-5 py-3.5">
+        {ticket.epic ? (
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#0d1117] px-2.5 py-0.5 text-[11px] font-medium text-[#c9d1d9] ring-1 ring-[#30363d]">
+            <span
+              className="h-1.5 w-1.5 shrink-0 rounded-full"
+              style={{ backgroundColor: ticket.epic.color }}
+            />
+            {ticket.epic.name}
+          </span>
+        ) : (
+          <span className="text-xs text-[#6e7681]">-</span>
+        )}
+      </td>
+
+      {/* Story points */}
+      <td className="whitespace-nowrap px-5 py-3.5">
+        {ticket.story_points != null ? (
+          <span className="inline-flex items-center gap-1 rounded-md bg-[#0d1117] px-2 py-0.5 text-xs font-medium text-[#c9d1d9] ring-1 ring-[#30363d]">
+            <Hash className="h-3 w-3 text-[#6e7681]" />
+            {ticket.story_points}
+          </span>
+        ) : (
+          <span className="text-xs text-[#6e7681]">-</span>
+        )}
+      </td>
+
+      {/* Updated */}
+      <td className="whitespace-nowrap px-5 py-3.5">
+        <span
+          className="text-xs text-[#8b949e]"
+          title={new Date(ticket.updated_at).toLocaleString()}
+        >
+          {formatRelativeTime(ticket.updated_at)}
+        </span>
       </td>
     </tr>
   );

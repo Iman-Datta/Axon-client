@@ -1,25 +1,42 @@
+// components/project/ticket/TicketTable.jsx
 import TicketRow from "./TicketRow";
+
+const COLUMNS = [
+  "Ticket",
+  "Title",
+  "Type",
+  "Status",
+  "Priority",
+  "Epic",
+  "Story Points",
+  "Updated",
+];
 
 function TicketTable({ tickets }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-[#30363d] bg-[#161b22]">
-      <table className="w-full">
-        <thead className="border-b border-[#30363d] text-left text-sm text-[#8b949e]">
-          <tr>
-            <th className="px-5 py-4">Title</th>
-            <th className="px-5 py-4">Status</th>
-            <th className="px-5 py-4">Priority</th>
-            <th className="px-5 py-4">Epic</th>
-            <th className="px-5 py-4">Due Date</th>
-          </tr>
-        </thead>
+    <div className="overflow-hidden rounded-2xl border border-[#30363d] bg-[#0d1117] shadow-[0_10px_30px_rgba(0,0,0,0.25)]">
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[980px] border-separate border-spacing-0">
+          <thead className="sticky top-0 z-10 bg-[#161b22]">
+            <tr>
+              {COLUMNS.map((col) => (
+                <th
+                  key={col}
+                  className="border-b border-[#30363d] bg-[#161b22] px-6 py-4 text-left text-[11px] font-semibold uppercase tracking-[0.12em] text-[#8b949e] first:rounded-tl-2xl last:rounded-tr-2xl"
+                >
+                  {col}
+                </th>
+              ))}
+            </tr>
+          </thead>
 
-        <tbody>
-          {tickets.map((ticket) => (
-            <TicketRow key={ticket.id} ticket={ticket} />
-          ))}
-        </tbody>
-      </table>
+          <tbody className="divide-y divide-[#21262d]">
+            {tickets.map((ticket, index) => (
+              <TicketRow key={ticket.id} ticket={ticket} index={index} />
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
