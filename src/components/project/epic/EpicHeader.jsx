@@ -12,7 +12,7 @@ function EpicHeader({ onCreateEpic, count }) {
           <div className="flex items-center gap-2">
             <h1 className="text-xl font-semibold text-[#e6edf3]">Epics</h1>
             {typeof count === "number" && (
-              <span className="rounded-full bg-[#161b22] px-2 py-0.5 text-xs font-medium text-[#8b949e] ring-1 ring-[#30363d]">
+              <span className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-zinc-200 backdrop-blur-md">
                 {count}
               </span>
             )}

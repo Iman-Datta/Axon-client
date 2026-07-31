@@ -150,9 +150,7 @@ function EpicPage() {
 
   return (
     <div className="mt-18 space-y-8">
-      <EpicHeader onCreateEpic={openCreateModal} />
-
-      <h1>Total Epics: {count}</h1>
+      <EpicHeader count={count} onCreateEpic={openCreateModal} />
 
       <EpicGrid
         epics={epics}
