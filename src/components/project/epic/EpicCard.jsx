@@ -1,3 +1,4 @@
+// components/project/epic/EpicCard.jsx
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -12,7 +13,7 @@ import {
   Trash2,
 } from "lucide-react";
 
-function EpicCard({ epic, onClick, active }) {
+function EpicCard({ epic, onClick, active, onEdit, onDelete }) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const createdDate = new Date(epic.created_at).toLocaleDateString("en-IN", {
@@ -71,7 +72,14 @@ function EpicCard({ epic, onClick, active }) {
           onClick={(e) => e.stopPropagation()}
           className="absolute right-0 top-10 z-50 w-52 overflow-hidden rounded-xl border border-[#30363d] bg-[#161b22] shadow-2xl animate-in fade-in zoom-in-95"
         >
-          <button className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-[#c9d1d9] transition hover:bg-[#21262d]">
+          <button
+            className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-[#c9d1d9] transition hover:bg-[#21262d]"
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit(epic);
+              setMenuOpen(false);
+            }}
+          >
             <Pencil size={15} />
             Edit Epic
           </button>
@@ -88,7 +96,14 @@ function EpicCard({ epic, onClick, active }) {
 
           <div className="mx-2 my-1 border-t border-[#30363d]" />
 
-          <button className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-red-400 transition hover:bg-red-500/10">
+          <button
+            className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-red-400 transition hover:bg-red-500/10"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete(epic);
+              setMenuOpen(false);
+            }}
+          >
             <Trash2 size={15} />
             Delete Epic
           </button>

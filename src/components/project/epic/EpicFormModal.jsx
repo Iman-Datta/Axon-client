@@ -1,4 +1,5 @@
-import { useState } from "react";
+// components/project/epic/EpicFormModal.jsx
+import { useState, useEffect } from "react";
 import { X, Layers, AlertCircle } from "lucide-react";
 
 const PRESET_COLORS = [
@@ -14,12 +15,29 @@ const PRESET_COLORS = [
   "#6366F1",
 ];
 
-function CreateEpicModal({ onClose, onSubmit, loading = false, error }) {
+function EpicFormModal({
+  mode = "create",
+  epic = null,
+  onClose,
+  onSubmit,
+  loading = false,
+  error,
+}) {
   const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    color: "#3B82F6",
+    name: epic?.name || "",
+    description: epic?.description || "",
+    color: epic?.color || "#3B82F6",
   });
+
+  useEffect(() => {
+    if (!epic) return;
+
+    setFormData({
+      name: epic.name,
+      description: epic.description,
+      color: epic.color,
+    });
+  }, [epic]);
 
   const handleChange = (e) => {
     setFormData((prev) => ({
@@ -53,12 +71,13 @@ function CreateEpicModal({ onClose, onSubmit, loading = false, error }) {
               <Layers className="h-4 w-4 text-[#8b949e]" />
             </div>
             <h2 className="text-sm font-semibold text-[#e6edf3]">
-              Create New Epic
+              {mode === "create" ? "Create New Epic" : "Update Epic"}
             </h2>
           </div>
 
           <button
             onClick={onClose}
+            type="button"
             className="rounded-md p-1.5 text-[#8b949e] transition hover:bg-[#21262d] hover:text-[#e6edf3]"
           >
             <X size={16} />
@@ -178,7 +197,13 @@ function CreateEpicModal({ onClose, onSubmit, loading = false, error }) {
                   : "bg-[#238636] hover:bg-[#2ea043]"
               }`}
             >
-              {loading ? "Creating..." : "Create Epic"}
+              {loading
+                ? mode === "create"
+                  ? "Creating..."
+                  : "Updating..."
+                : mode === "create"
+                  ? "Create Epic"
+                  : "Save Changes"}
             </button>
           </div>
         </form>
@@ -187,4 +212,4 @@ function CreateEpicModal({ onClose, onSubmit, loading = false, error }) {
   );
 }
 
-export default CreateEpicModal;
+export default EpicFormModal;

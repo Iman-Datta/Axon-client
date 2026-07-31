@@ -1,14 +1,16 @@
+// pages/project/EpicPage.jsx
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 
 import EpicHeader from "../../components/project/epic/EpicHeader";
 import EpicGrid from "../../components/project/epic/EpicGrid";
-import CreateEpicModal from "../../components/project/epic/CreateEpicModal";
+import EpicFormModal from "../../components/project/epic/EpicFormModal";
+import ConfirmDeleteModal from "../../components/project/epic/ConfirmDeleteModal";
 
 import useEpics from "../../hooks/useEpics";
 
-import { createEpic } from "../../services/epicService";
+import { createEpic, updateEpic, deleteEpic } from "../../services/epicService";
 
 function EpicPage() {
   const { slug, project_slug } = useParams();
@@ -16,20 +18,34 @@ function EpicPage() {
   const dispatch = useDispatch();
 
   const accessToken = useSelector((state) => state.auth.accessToken);
+
+  // create / edit modal state
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState("create");
+  const [selectedEpic, setSelectedEpic] = useState(null);
+  const [submitLoading, setSubmitLoading] = useState(false);
   const [submitError, setSubmitError] = useState("");
 
-  const [openModal, setOpenModal] = useState(false);
+  // delete confirm state
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
+
   const { epics, count, loading, error, refetch } = useEpics(
     slug,
     project_slug,
   );
 
   useEffect(() => {
-    if (!openModal) return;
+    if (!modalOpen && !deleteTarget) return;
 
     const handleEsc = (e) => {
-      if (e.key === "Escape") {
-        setOpenModal(false);
+      if (e.key !== "Escape") return;
+      if (deleteTarget) {
+        setDeleteTarget(null);
+        setDeleteError("");
+      } else if (modalOpen) {
+        closeModal();
       }
     };
 
@@ -38,19 +54,88 @@ function EpicPage() {
     return () => {
       window.removeEventListener("keydown", handleEsc);
     };
-  }, [openModal]);
+  }, [modalOpen, deleteTarget]);
 
-  const handleCreateEpic = async (formData) => {
+  const openCreateModal = () => {
+    setModalMode("create");
+    setSelectedEpic(null);
+    setSubmitError("");
+    setModalOpen(true);
+  };
+
+  const openEditModal = (epic) => {
+    setModalMode("edit");
+    setSelectedEpic(epic);
+    setSubmitError("");
+    setModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setSubmitError("");
+    setModalMode("create");
+    setSelectedEpic(null);
+    setModalOpen(false);
+  };
+
+  const handleFormSubmit = async (formData) => {
     try {
       setSubmitError("");
+      setSubmitLoading(true);
 
-      await createEpic(slug, project_slug, formData, dispatch, accessToken);
+      if (modalMode === "edit" && selectedEpic) {
+        await updateEpic(
+          slug,
+          project_slug,
+          selectedEpic.id,
+          formData,
+          dispatch,
+          accessToken,
+        );
+      } else {
+        await createEpic(slug, project_slug, formData, dispatch, accessToken);
+      }
 
-      setOpenModal(false);
-
+      closeModal();
       refetch();
     } catch (err) {
       setSubmitError(err.message);
+    } finally {
+      setSubmitLoading(false);
+    }
+  };
+
+  const openDeleteConfirm = (epic) => {
+    setDeleteError("");
+    setDeleteTarget(epic);
+  };
+
+  const closeDeleteConfirm = () => {
+    if (deleteLoading) return;
+    setDeleteTarget(null);
+    setDeleteError("");
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+
+    try {
+      setDeleteLoading(true);
+      setDeleteError("");
+
+      await deleteEpic(
+        slug,
+        project_slug,
+        deleteTarget.id,
+        dispatch,
+        accessToken,
+      );
+
+      setDeleteTarget(null);
+      refetch();
+    } catch (err) {
+      setDeleteError(err.message);
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -64,20 +149,34 @@ function EpicPage() {
 
   return (
     <div className="mt-18 space-y-8">
-      <EpicHeader onCreateEpic={() => setOpenModal(true)} />
+      <EpicHeader onCreateEpic={openCreateModal} />
 
       <h1>Total Epics: {count}</h1>
 
-      <EpicGrid epics={epics} />
+      <EpicGrid
+        epics={epics}
+        onEdit={openEditModal}
+        onDelete={openDeleteConfirm}
+      />
 
-      {openModal && (
-        <CreateEpicModal
-          onClose={() => {
-            setSubmitError("");
-            setOpenModal(false);
-          }}
-          onSubmit={handleCreateEpic}
+      {modalOpen && (
+        <EpicFormModal
+          mode={modalMode}
+          epic={selectedEpic}
+          onClose={closeModal}
+          onSubmit={handleFormSubmit}
+          loading={submitLoading}
           error={submitError}
+        />
+      )}
+
+      {deleteTarget && (
+        <ConfirmDeleteModal
+          epic={deleteTarget}
+          onCancel={closeDeleteConfirm}
+          onConfirm={handleConfirmDelete}
+          loading={deleteLoading}
+          error={deleteError}
         />
       )}
     </div>

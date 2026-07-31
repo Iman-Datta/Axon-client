@@ -1,3 +1,4 @@
+// components/project/epic/EpicGrid.jsx
 import { useState, useEffect, useCallback } from "react";
 import EpicCard from "./EpicCard";
 import EpicDetailDrawer from "./EpicDetailDrawer";
@@ -5,7 +6,7 @@ import { Layers } from "lucide-react";
 
 const CLOSE_ANIMATION_MS = 250;
 
-function EpicGrid({ epics }) {
+function EpicGrid({ epics, onEdit, onDelete }) {
   const [selectedEpic, setSelectedEpic] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -54,6 +55,8 @@ function EpicGrid({ epics }) {
             epic={epic}
             onClick={handleCardClick}
             active={selectedEpic?.id === epic.id && drawerOpen}
+            onEdit={onEdit}
+            onDelete={onDelete}
           />
         ))}
       </div>
@@ -63,6 +66,8 @@ function EpicGrid({ epics }) {
           epic={selectedEpic}
           open={drawerOpen}
           onClose={handleClose}
+          onEdit={onEdit}
+          onDelete={onDelete}
         />
       )}
     </>

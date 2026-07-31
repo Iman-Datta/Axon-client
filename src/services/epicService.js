@@ -52,3 +52,58 @@ export const createEpic = async (
 
   return responseData;
 };
+
+export const updateEpic = async (
+  workspaceSlug,
+  projectSlug,
+  epic_id,
+  data,
+  dispatch,
+  accessToken,
+) => {
+  const res = await fetchWithAuth(
+    `${API}/tickets/${workspaceSlug}/${projectSlug}/epic/${epic_id}/update/`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    },
+    dispatch,
+    accessToken,
+  );
+
+  const responseData = await res.json();
+
+  if (!res.ok) {
+    throw new Error(responseData.message || "Failed to update epic.");
+  }
+
+  return responseData;
+};
+
+export const deleteEpic = async (
+  workspaceSlug,
+  projectSlug,
+  epic_id,
+  dispatch,
+  accessToken,
+) => {
+  const res = await fetchWithAuth(
+    `${API}/tickets/${workspaceSlug}/${projectSlug}/epic/${epic_id}/delete/`,
+    {
+      method: "DELETE",
+    },
+    dispatch,
+    accessToken,
+  );
+
+  const responseData = await res.json();
+
+  if (!res.ok) {
+    throw new Error(responseData.message || "Failed to delete epic.");
+  }
+
+  return responseData;
+};
