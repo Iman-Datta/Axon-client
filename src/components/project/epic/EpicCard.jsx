@@ -1,7 +1,20 @@
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Calendar, CircleCheck, ListChecks, ChevronRight } from "lucide-react";
+import {
+  Calendar,
+  CircleCheck,
+  ListChecks,
+  ChevronRight,
+  MoreHorizontal,
+  Pencil,
+  Copy,
+  Archive,
+  Trash2,
+} from "lucide-react";
 
 function EpicCard({ epic, onClick, active }) {
+  const [menuOpen, setMenuOpen] = useState(false);
+
   const createdDate = new Date(epic.created_at).toLocaleDateString("en-IN", {
     day: "numeric",
     month: "short",
@@ -11,21 +24,76 @@ function EpicCard({ epic, onClick, active }) {
   const user = epic.created_by;
   const hasTickets = epic.ticket_count > 0;
 
+  useEffect(() => {
+    function close() {
+      setMenuOpen(false);
+    }
+
+    window.addEventListener("click", close);
+
+    return () => window.removeEventListener("click", close);
+  }, []);
+
   return (
     <div
       onClick={() => onClick(epic)}
-      className={`group relative cursor-pointer overflow-hidden rounded-lg border bg-[#161b22] transition-all duration-150 active:scale-[0.99] ${
-        active
-          ? "border-[#3d444d] ring-1 ring-[#3d444d]"
-          : "border-[#30363d] hover:border-[#3d444d]"
-      }`}
+      className={`group relative cursor-pointer overflow-visible rounded-xl border bg-[#161b22]
+          transition-all duration-300 ease-out
+          active:scale-[0.99]
+          hover:-translate-y-1
+          hover:shadow-[0_18px_45px_rgba(0,0,0,0.35)]
+          ${
+            active
+              ? "border-[#3d444d] ring-1 ring-[#3d444d]"
+              : "border-[#30363d] hover:border-[#4a515b]"
+          }`}
     >
       <div
-        className="absolute inset-y-0 left-0 w-[3px]"
+        className="absolute left-0 top-0 bottom-0 w-[3px] rounded-r-full"
         style={{ backgroundColor: epic.color }}
       />
 
-      <ChevronRight className="absolute right-3 top-3 h-4 w-4 text-[#6e7681] opacity-0 transition-all duration-150 group-hover:translate-x-0.5 group-hover:opacity-100" />
+      <div className="absolute right-3 top-3 flex items-center gap-1">
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            setMenuOpen((v) => !v);
+          }}
+          className="rounded-md p-1.5 text-[#8b949e] opacity-0 transition-all duration-200 hover:bg-[#21262d] group-hover:opacity-100"
+        >
+          <MoreHorizontal size={16} />
+        </button>
+
+        <ChevronRight className="h-4 w-4 text-[#6e7681] opacity-0 transition-all duration-200 group-hover:translate-x-1 group-hover:opacity-100" />
+      </div>
+      {menuOpen && (
+        <div
+          onClick={(e) => e.stopPropagation()}
+          className="absolute right-0 top-10 z-50 w-52 overflow-hidden rounded-xl border border-[#30363d] bg-[#161b22] shadow-2xl animate-in fade-in zoom-in-95"
+        >
+          <button className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-[#c9d1d9] transition hover:bg-[#21262d]">
+            <Pencil size={15} />
+            Edit Epic
+          </button>
+
+          <button className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-[#c9d1d9] transition hover:bg-[#21262d]">
+            <Copy size={15} />
+            Duplicate
+          </button>
+
+          <button className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-[#c9d1d9] transition hover:bg-[#21262d]">
+            <Archive size={15} />
+            Archive
+          </button>
+
+          <div className="mx-2 my-1 border-t border-[#30363d]" />
+
+          <button className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-red-400 transition hover:bg-red-500/10">
+            <Trash2 size={15} />
+            Delete Epic
+          </button>
+        </div>
+      )}
 
       <div className="p-4 pl-5">
         {/* Header */}
@@ -33,11 +101,6 @@ function EpicCard({ epic, onClick, active }) {
           <h3 className="truncate text-[15px] font-semibold text-[#e6edf3]">
             {epic.name}
           </h3>
-
-          <span
-            className="mt-1 h-2 w-2 shrink-0 rounded-full"
-            style={{ backgroundColor: epic.color }}
-          />
         </div>
 
         <p className="mt-1.5 line-clamp-2 min-h-[2.5rem] text-xs leading-5 text-[#8b949e]">
