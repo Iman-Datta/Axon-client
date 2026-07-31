@@ -1,36 +1,76 @@
-export const TYPE_STYLES = {
-  FEATURE: "bg-purple-500/10 text-purple-400 ring-purple-500/30",
-  BUG: "bg-red-500/10 text-red-400 ring-red-500/30",
-  TASK: "bg-blue-500/10 text-blue-400 ring-blue-500/30",
-  IMPROVEMENT: "bg-teal-500/10 text-teal-400 ring-teal-500/30",
-};
+// components/project/ticket/ticketBadgeConfig.js
+import {
+  Bug,
+  Sparkles,
+  ListTodo,
+  TrendingUp,
+  SignalLow,
+  SignalMedium,
+  SignalHigh,
+  AlertTriangle,
+} from "lucide-react";
 
+// Status keeps the pill treatment — it's a state indicator, that's the
+// one place a badge reads as "status", not decoration.
 export const STATUS_STYLES = {
+  DRAFT: "bg-[#6e7681]/10 text-[#8b949e] ring-[#6e7681]/30",
   OPEN: "bg-[#238636]/10 text-[#3fb950] ring-[#238636]/30",
-  IN_PROGRESS: "bg-[#388bfd]/10 text-[#58a6ff] ring-[#388bfd]/30",
-  IN_REVIEW: "bg-yellow-500/10 text-yellow-400 ring-yellow-500/30",
-  RESOLVED: "bg-[#238636]/10 text-[#3fb950] ring-[#238636]/30",
-  CLOSED: "bg-[#6e7681]/10 text-[#8b949e] ring-[#6e7681]/30",
+  BLOCKED: "bg-red-500/10 text-red-400 ring-red-500/30",
+  DONE: "bg-[#388bfd]/10 text-[#58a6ff] ring-[#388bfd]/30",
+  CANCELLED: "bg-[#6e7681]/10 text-[#8b949e] ring-[#6e7681]/30",
 };
 
-export const PRIORITY_STYLES = {
-  LOW: "bg-[#6e7681]/10 text-[#8b949e] ring-[#6e7681]/30",
-  MEDIUM: "bg-yellow-500/10 text-yellow-400 ring-yellow-500/30",
-  HIGH: "bg-orange-500/10 text-orange-400 ring-orange-500/30",
-  URGENT: "bg-red-500/10 text-red-400 ring-red-500/30",
-  CRITICAL: "bg-red-500/10 text-red-400 ring-red-500/30",
+// Type — plain text + icon, colored, no pill. Reads like a Jira/Linear
+// issue-type column, not a "tag".
+export const TYPE_TEXT_STYLES = {
+  TASK: "text-[#8b949e]",
+  FEATURE: "text-[#a371f7]",
+  IMPROVEMENT: "text-[#3fb950]",
+  BUG: "text-[#f85149]",
 };
 
-const FALLBACK_STYLE = "bg-[#6e7681]/10 text-[#8b949e] ring-[#6e7681]/30";
+export const TYPE_ICONS = {
+  TASK: ListTodo,
+  FEATURE: Sparkles,
+  IMPROVEMENT: TrendingUp,
+  BUG: Bug,
+};
 
-export const getTypeStyle = (type) => TYPE_STYLES[type] || FALLBACK_STYLE;
+// Priority — plain text + signal icon, colored by severity, no pill.
+export const PRIORITY_TEXT_STYLES = {
+  LOW: "text-[#6e7681]",
+  MEDIUM: "text-[#8b949e]",
+  HIGH: "text-[#e3b341]",
+  URGENT: "text-[#f85149]",
+  CRITICAL: "text-[#f85149]",
+};
+
+export const PRIORITY_ICONS = {
+  LOW: SignalLow,
+  MEDIUM: SignalMedium,
+  HIGH: SignalHigh,
+  URGENT: AlertTriangle,
+  CRITICAL: AlertTriangle,
+};
+
+const FALLBACK_STYLE = "bg-[#161b22] text-[#8b949e] ring-[#30363d]";
+const FALLBACK_TEXT = "text-[#8b949e]";
+
 export const getStatusStyle = (status) =>
   STATUS_STYLES[status] || FALLBACK_STYLE;
-export const getPriorityStyle = (priority) =>
-  PRIORITY_STYLES[priority] || FALLBACK_STYLE;
+
+export const getTypeTextStyle = (type) =>
+  TYPE_TEXT_STYLES[type] || FALLBACK_TEXT;
+export const getTypeIcon = (type) => TYPE_ICONS[type] || ListTodo;
+
+export const getPriorityTextStyle = (priority) =>
+  PRIORITY_TEXT_STYLES[priority] || FALLBACK_TEXT;
+export const getPriorityIcon = (priority) =>
+  PRIORITY_ICONS[priority] || SignalMedium;
 
 export const formatLabel = (value) => {
   if (!value) return "-";
+
   return value
     .toLowerCase()
     .split("_")

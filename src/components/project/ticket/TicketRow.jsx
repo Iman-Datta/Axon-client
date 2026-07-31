@@ -1,37 +1,72 @@
 // components/project/ticket/TicketRow.jsx
 import { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { Hash, MoreHorizontal, Pencil, UserPlus, Trash2 } from "lucide-react";
 import {
-  getTypeStyle,
   getStatusStyle,
-  getPriorityStyle,
+  getTypeTextStyle,
+  getTypeIcon,
+  getPriorityTextStyle,
+  getPriorityIcon,
   formatLabel,
   formatRelativeTime,
 } from "./ticketBadgeConfig";
 
+const MENU_WIDTH = 192; // w-48
+
 function TicketRow({ ticket, onEdit, onAssign, onDelete }) {
   const [open, setOpen] = useState(false);
+  const [menuPos, setMenuPos] = useState({ top: 0, left: 0 });
+  const buttonRef = useRef(null);
   const menuRef = useRef(null);
 
+  const openMenu = () => {
+    const rect = buttonRef.current.getBoundingClientRect();
+    const left = Math.max(
+      8,
+      Math.min(rect.right - MENU_WIDTH, window.innerWidth - MENU_WIDTH - 8),
+    );
+    setMenuPos({ top: rect.bottom + 6, left });
+    setOpen(true);
+  };
+
+  // click outside — check both the button and the portaled menu
   useEffect(() => {
     function handleClickOutside(e) {
-      if (menuRef.current && !menuRef.current.contains(e.target)) {
-        setOpen(false);
+      if (
+        buttonRef.current?.contains(e.target) ||
+        menuRef.current?.contains(e.target)
+      ) {
+        return;
       }
+      setOpen(false);
     }
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Esc to close
   useEffect(() => {
     function handleEsc(e) {
       if (e.key === "Escape") setOpen(false);
     }
-
     if (open) window.addEventListener("keydown", handleEsc);
     return () => window.removeEventListener("keydown", handleEsc);
   }, [open]);
+
+  // close on scroll (fixed-position menu would drift from the button)
+  useEffect(() => {
+    if (!open) return;
+    function handleScroll() {
+      setOpen(false);
+    }
+    window.addEventListener("scroll", handleScroll, true);
+    return () => window.removeEventListener("scroll", handleScroll, true);
+  }, [open]);
+
+  const TypeIcon = getTypeIcon(ticket.type);
+  const PriorityIcon = getPriorityIcon(ticket.priority);
 
   return (
     <tr className="group border-b border-[#21262d] transition-colors last:border-0 hover:bg-[#1c2128]">
@@ -54,18 +89,19 @@ function TicketRow({ ticket, onEdit, onAssign, onDelete }) {
         )}
       </td>
 
-      {/* Type */}
+      {/* Type — plain text + icon, no pill */}
       <td className="whitespace-nowrap px-5 py-3.5">
         <span
-          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium ring-1 ${getTypeStyle(
+          className={`inline-flex items-center gap-1.5 text-[13px] font-medium ${getTypeTextStyle(
             ticket.type,
           )}`}
         >
+          <TypeIcon className="h-3.5 w-3.5" strokeWidth={2} />
           {formatLabel(ticket.type)}
         </span>
       </td>
 
-      {/* Status */}
+      {/* Status — pill retained, it's a state */}
       <td className="whitespace-nowrap px-5 py-3.5">
         <span
           className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-medium ring-1 ${getStatusStyle(
@@ -77,13 +113,14 @@ function TicketRow({ ticket, onEdit, onAssign, onDelete }) {
         </span>
       </td>
 
-      {/* Priority */}
+      {/* Priority — plain text + signal icon, no pill */}
       <td className="whitespace-nowrap px-5 py-3.5">
         <span
-          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium ring-1 ${getPriorityStyle(
+          className={`inline-flex items-center gap-1.5 text-[13px] font-medium ${getPriorityTextStyle(
             ticket.priority,
           )}`}
         >
+          <PriorityIcon className="h-3.5 w-3.5" strokeWidth={2} />
           {formatLabel(ticket.priority)}
         </span>
       </td>
@@ -126,12 +163,13 @@ function TicketRow({ ticket, onEdit, onAssign, onDelete }) {
       </td>
 
       {/* Actions */}
-      <td
-        className="relative whitespace-nowrap px-5 py-3.5 text-right"
-        ref={menuRef}
-      >
+      <td className="whitespace-nowrap px-5 py-3.5 text-right">
         <button
-          onClick={() => setOpen((v) => !v)}
+          ref={buttonRef}
+          onClick={(e) => {
+            e.stopPropagation();
+            open ? setOpen(false) : openMenu();
+          }}
           className={`rounded-md p-1.5 text-[#8b949e] transition-all duration-150 hover:bg-[#21262d] hover:text-[#e6edf3] ${
             open
               ? "bg-[#21262d] text-[#e6edf3]"
@@ -141,50 +179,60 @@ function TicketRow({ ticket, onEdit, onAssign, onDelete }) {
           <MoreHorizontal className="h-4 w-4" />
         </button>
 
-        {open && (
-          <div className="animate-in fade-in zoom-in-95 absolute right-4 top-full z-50 mt-1.5 w-48 origin-top-right overflow-hidden rounded-xl border border-[#30363d] bg-[#161b22] py-1 shadow-2xl">
-            <button
-              className="flex w-full items-center gap-3 px-3.5 py-2.5 text-left text-sm text-[#c9d1d9] transition hover:bg-[#21262d]"
-              onClick={() => {
-                setOpen(false);
-                onEdit?.(ticket);
+        {open &&
+          createPortal(
+            <div
+              ref={menuRef}
+              style={{
+                top: menuPos.top,
+                left: menuPos.left,
+                width: MENU_WIDTH,
               }}
+              className="animate-in fade-in zoom-in-95 fixed z-[100] origin-top-right overflow-hidden rounded-xl border border-[#30363d] bg-[#161b22] py-1 shadow-2xl"
             >
-              <span className="flex h-6 w-6 items-center justify-center rounded-md bg-[#388bfd]/10 text-[#58a6ff]">
-                <Pencil className="h-3.5 w-3.5" />
-              </span>
-              Edit ticket
-            </button>
+              <button
+                className="flex w-full items-center gap-3 px-3.5 py-2.5 text-left text-sm text-[#c9d1d9] transition hover:bg-[#21262d]"
+                onClick={() => {
+                  setOpen(false);
+                  onEdit?.(ticket);
+                }}
+              >
+                <span className="flex h-6 w-6 items-center justify-center rounded-md bg-[#388bfd]/10 text-[#58a6ff]">
+                  <Pencil className="h-3.5 w-3.5" />
+                </span>
+                Edit ticket
+              </button>
 
-            <button
-              className="flex w-full items-center gap-3 px-3.5 py-2.5 text-left text-sm text-[#c9d1d9] transition hover:bg-[#21262d]"
-              onClick={() => {
-                setOpen(false);
-                onAssign?.(ticket);
-              }}
-            >
-              <span className="flex h-6 w-6 items-center justify-center rounded-md bg-purple-500/10 text-purple-400">
-                <UserPlus className="h-3.5 w-3.5" />
-              </span>
-              Assign
-            </button>
+              <button
+                className="flex w-full items-center gap-3 px-3.5 py-2.5 text-left text-sm text-[#c9d1d9] transition hover:bg-[#21262d]"
+                onClick={() => {
+                  setOpen(false);
+                  onAssign?.(ticket);
+                }}
+              >
+                <span className="flex h-6 w-6 items-center justify-center rounded-md bg-purple-500/10 text-purple-400">
+                  <UserPlus className="h-3.5 w-3.5" />
+                </span>
+                Assign
+              </button>
 
-            <div className="mx-2 my-1 border-t border-[#30363d]" />
+              <div className="mx-2 my-1 border-t border-[#30363d]" />
 
-            <button
-              className="flex w-full items-center gap-3 px-3.5 py-2.5 text-left text-sm text-red-400 transition hover:bg-red-500/10"
-              onClick={() => {
-                setOpen(false);
-                onDelete?.(ticket);
-              }}
-            >
-              <span className="flex h-6 w-6 items-center justify-center rounded-md bg-red-500/10 text-red-400">
-                <Trash2 className="h-3.5 w-3.5" />
-              </span>
-              Delete ticket
-            </button>
-          </div>
-        )}
+              <button
+                className="flex w-full items-center gap-3 px-3.5 py-2.5 text-left text-sm text-red-400 transition hover:bg-red-500/10"
+                onClick={() => {
+                  setOpen(false);
+                  onDelete?.(ticket);
+                }}
+              >
+                <span className="flex h-6 w-6 items-center justify-center rounded-md bg-red-500/10 text-red-400">
+                  <Trash2 className="h-3.5 w-3.5" />
+                </span>
+                Delete ticket
+              </button>
+            </div>,
+            document.body,
+          )}
       </td>
     </tr>
   );
