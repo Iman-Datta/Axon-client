@@ -7,9 +7,11 @@ function ConfirmDeleteTicketModal({
   loading,
   error,
 }) {
+  console.log("Delete clicked", ticket);
+
   return (
     <div
-      className="fixed inset-0 -z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
       onClick={onCancel}
     >
       <div

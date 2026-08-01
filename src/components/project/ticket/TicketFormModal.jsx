@@ -1,3 +1,4 @@
+// components/project/ticket/TicketFormModal.jsx
 import { useEffect, useRef, useState } from "react";
 import { X, ChevronDown, Plus, Minus } from "lucide-react";
 
@@ -7,15 +8,16 @@ function TicketFormModal({
   mode = "create",
   ticket = null,
   epics,
-  members,
+  members = [],
   onClose,
   onSubmit,
   loading = false,
   error,
 }) {
   const modalRef = useRef(null);
+  const isEdit = mode === "edit";
 
-  const [showAdvanced, setShowAdvanced] = useState(mode === "edit");
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   const buildInitialState = (t) => ({
     title: t?.title || "",
@@ -36,6 +38,7 @@ function TicketFormModal({
   useEffect(() => {
     if (!ticket) return;
     setFormData(buildInitialState(ticket));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ticket]);
 
   useEffect(() => {
@@ -65,8 +68,8 @@ function TicketFormModal({
     }));
   };
 
-  // Status has a side effect: leaving Draft auto-opens Advanced Options
-  // so priority/type/etc. (which meaningfully matter once work starts) are visible.
+  // Status has a side effect only in create mode: leaving Draft auto-opens
+  // Advanced Options so priority/type/etc. are visible.
   const handleStatusChange = (e) => {
     const value = e.target.value;
 
@@ -125,6 +128,12 @@ function TicketFormModal({
 
   const selectClass = `${inputClass} appearance-none pr-10`;
 
+  // ---- compact variants used only in edit mode ----
+  const compactInputClass =
+    "mt-1.5 w-full rounded-lg border border-[#30363d] bg-[#0d1117] px-3.5 py-2.5 text-sm text-[#e6edf3] placeholder:text-[#6e7681] outline-none transition-all focus:border-[#58a6ff] focus:ring-2 focus:ring-[#58a6ff]/20";
+  const compactSelectClass = `${compactInputClass} appearance-none pr-9`;
+  const compactLabelClass = "text-xs font-medium text-[#8b949e]";
+
   return (
     <div
       onMouseDown={handleBackdropClick}
@@ -133,36 +142,52 @@ function TicketFormModal({
       <div
         ref={modalRef}
         onMouseDown={(e) => e.stopPropagation()}
-        className="flex max-h-[92vh] w-full max-w-3xl flex-col overflow-hidden rounded-3xl border border-[#30363d] bg-[#161b22] shadow-[0_20px_80px_rgba(0,0,0,0.65)]"
+        className={`flex flex-col overflow-hidden border border-[#30363d] bg-[#161b22] shadow-[0_20px_80px_rgba(0,0,0,0.65)] ${
+          isEdit
+            ? "max-h-[90vh] w-full max-w-lg rounded-2xl"
+            : "max-h-[92vh] w-full max-w-3xl rounded-3xl"
+        }`}
       >
         {/* Header */}
-        <div className="flex items-start justify-between border-b border-[#30363d] px-6 py-5">
+        <div
+          className={`flex items-start justify-between border-b border-[#30363d] ${
+            isEdit ? "px-5 py-4" : "px-6 py-5"
+          }`}
+        >
           <div>
-            <div className="flex items-center gap-3">
-              <h2 className="text-xl font-semibold text-[#e6edf3]">
-                {mode === "create" ? "Create Ticket" : "Edit Ticket"}
+            <div className="flex items-center gap-2.5">
+              <h2
+                className={
+                  isEdit
+                    ? "text-base font-semibold text-[#e6edf3]"
+                    : "text-xl font-semibold text-[#e6edf3]"
+                }
+              >
+                {isEdit ? "Edit Ticket" : "Create Ticket"}
               </h2>
 
-              {mode === "edit" && ticket?.ticket_number && (
-                <span className="rounded-md bg-[#0d1117] px-2 py-1 font-mono text-[11px] font-medium text-[#6e7681] ring-1 ring-[#30363d]">
+              {isEdit && ticket?.ticket_number && (
+                <span className="rounded-md bg-[#0d1117] px-2 py-0.5 font-mono text-[11px] font-medium text-[#6e7681] ring-1 ring-[#30363d]">
                   {ticket.ticket_number}
                 </span>
               )}
             </div>
 
-            <p className="mt-1 text-sm text-[#8b949e]">
-              {mode === "create"
-                ? "Add a new work item to your project."
-                : "Update the details of this work item."}
-            </p>
+            {!isEdit && (
+              <p className="mt-1 text-sm text-[#8b949e]">
+                Add a new work item to your project.
+              </p>
+            )}
           </div>
 
           <button
             type="button"
             onClick={onClose}
-            className="rounded-xl p-2 text-[#8b949e] transition-colors hover:bg-[#21262d] hover:text-[#e6edf3]"
+            className={`text-[#8b949e] transition-colors hover:bg-[#21262d] hover:text-[#e6edf3] ${
+              isEdit ? "rounded-lg p-1.5" : "rounded-xl p-2"
+            }`}
           >
-            <X size={20} />
+            <X size={isEdit ? 18 : 20} />
           </button>
         </div>
 
@@ -170,63 +195,267 @@ function TicketFormModal({
           onSubmit={handleSubmit}
           className="flex flex-1 flex-col overflow-hidden"
         >
-          <div className="custom-scrollbar flex-1 space-y-8 overflow-y-auto px-6 py-6">
-            {/* Basic */}
-            <section>
-              <h3 className="mb-5 text-xs font-semibold uppercase tracking-[0.2em] text-[#6e7681]">
-                Basic Information
-              </h3>
+          {isEdit ? (
+            /* ---------------- EDIT MODE — flat, compact, no sections ---------------- */
+            <div className="custom-scrollbar flex-1 space-y-4 overflow-y-auto px-5 py-5">
+              <div>
+                <label className={compactLabelClass}>
+                  Title <span className="text-red-400">*</span>
+                </label>
 
-              <div className="space-y-5">
+                <input
+                  required
+                  name="title"
+                  value={formData.title}
+                  onChange={handleChange}
+                  placeholder="Implement authentication flow"
+                  className={compactInputClass}
+                />
+              </div>
+
+              <div>
+                <label className={compactLabelClass}>Description</label>
+
+                <textarea
+                  rows={3}
+                  name="description"
+                  value={formData.description}
+                  onChange={handleChange}
+                  placeholder="Add details about this ticket..."
+                  className={`${compactInputClass} resize-none`}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-[#8b949e]">
-                    Title <span className="text-red-400">*</span>
-                  </label>
+                  <label className={compactLabelClass}>Epic</label>
 
-                  <input
-                    required
-                    name="title"
-                    value={formData.title}
-                    onChange={handleChange}
-                    placeholder="Implement authentication flow"
-                    className={inputClass}
-                  />
+                  <div className="relative">
+                    <select
+                      name="epic"
+                      value={formData.epic}
+                      onChange={handleChange}
+                      className={compactSelectClass}
+                    >
+                      <option value="">Select Epic</option>
+
+                      {epics.map((epic) => (
+                        <option key={epic.id} value={epic.id}>
+                          {epic.name}
+                        </option>
+                      ))}
+                    </select>
+
+                    <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#6e7681]" />
+                  </div>
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-[#8b949e]">
-                    Description
-                  </label>
+                  <label className={compactLabelClass}>Story Points</label>
 
-                  <textarea
-                    rows={5}
-                    name="description"
-                    value={formData.description}
-                    onChange={handleChange}
-                    placeholder="Add details about this ticket..."
-                    className={`${inputClass} resize-none`}
-                  />
+                  <div className="mt-1.5">
+                    <StoryPointStepper
+                      value={formData.story_points}
+                      onChange={(value) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          story_points: value,
+                        }))
+                      }
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className={compactLabelClass}>Priority</label>
+
+                  <div className="relative">
+                    <select
+                      name="priority"
+                      value={formData.priority}
+                      onChange={handleChange}
+                      className={compactSelectClass}
+                    >
+                      <option value="LOW">Low</option>
+                      <option value="MEDIUM">Medium</option>
+                      <option value="HIGH">High</option>
+                      <option value="URGENT">Urgent</option>
+                    </select>
+
+                    <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#6e7681]" />
+                  </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-5">
-                  {/* Epic */}
+                <div>
+                  <label className={compactLabelClass}>Type</label>
+
+                  <div className="relative">
+                    <select
+                      name="type"
+                      value={formData.type}
+                      onChange={handleChange}
+                      className={compactSelectClass}
+                    >
+                      <option value="TASK">Task</option>
+                      <option value="BUG">Bug</option>
+                      <option value="STORY">Story</option>
+                      <option value="FEATURE">Feature</option>
+                    </select>
+
+                    <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#6e7681]" />
+                  </div>
+                </div>
+              </div>
+
+              {error && (
+                <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-3.5 py-2.5 text-sm text-red-400">
+                  {error}
+                </div>
+              )}
+            </div>
+          ) : (
+            /* ---------------- CREATE MODE — original sectioned layout ---------------- */
+            <div className="custom-scrollbar flex-1 space-y-8 overflow-y-auto px-6 py-6">
+              <section>
+                <h3 className="mb-5 text-xs font-semibold uppercase tracking-[0.2em] text-[#6e7681]">
+                  Basic Information
+                </h3>
+
+                <div className="space-y-5">
                   <div>
                     <label className="text-sm font-medium text-[#8b949e]">
-                      Epic
+                      Title <span className="text-red-400">*</span>
+                    </label>
+
+                    <input
+                      required
+                      name="title"
+                      value={formData.title}
+                      onChange={handleChange}
+                      placeholder="Implement authentication flow"
+                      className={inputClass}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-[#8b949e]">
+                      Description
+                    </label>
+
+                    <textarea
+                      rows={5}
+                      name="description"
+                      value={formData.description}
+                      onChange={handleChange}
+                      placeholder="Add details about this ticket..."
+                      className={`${inputClass} resize-none`}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-5">
+                    <div>
+                      <label className="text-sm font-medium text-[#8b949e]">
+                        Epic
+                      </label>
+
+                      <div className="relative">
+                        <select
+                          name="epic"
+                          value={formData.epic}
+                          onChange={handleChange}
+                          className={selectClass}
+                        >
+                          <option value="">Select Epic</option>
+
+                          {epics.map((epic) => (
+                            <option key={epic.id} value={epic.id}>
+                              {epic.name}
+                            </option>
+                          ))}
+                        </select>
+
+                        <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6e7681]" />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="text-sm font-medium text-[#8b949e]">
+                        Story Points
+                      </label>
+
+                      <div className="mt-3">
+                        <StoryPointStepper
+                          value={formData.story_points}
+                          onChange={(value) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              story_points: value,
+                            }))
+                          }
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <div>
+                <label className="text-sm font-medium text-[#8b949e]">
+                  Status
+                </label>
+
+                <div className="relative">
+                  <select
+                    name="status"
+                    value={formData.status}
+                    onChange={handleStatusChange}
+                    className={selectClass}
+                  >
+                    <option value="DRAFT">Draft</option>
+                    <option value="OPEN">Open</option>
+                    <option value="BLOCKED">Blocked</option>
+                    <option value="DONE">Done</option>
+                    <option value="CANCELLED">Cancelled</option>
+                  </select>
+
+                  <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6e7681]" />
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setShowAdvanced((prev) => !prev)}
+                className="flex w-fit items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-[#58a6ff] transition-colors hover:bg-[#21262d]"
+              >
+                <ChevronDown
+                  className={`h-4 w-4 transition-transform ${
+                    showAdvanced ? "rotate-180" : ""
+                  }`}
+                />
+                Advanced Options
+              </button>
+
+              {showAdvanced && (
+                <div className="grid grid-cols-2 gap-5 rounded-2xl border border-[#30363d] bg-[#0d1117]/50 p-5">
+                  <div>
+                    <label className="text-sm font-medium text-[#8b949e]">
+                      Assignee
                     </label>
 
                     <div className="relative">
                       <select
-                        name="epic"
-                        value={formData.epic}
+                        name="assignee"
+                        value={formData.assignee}
                         onChange={handleChange}
                         className={selectClass}
                       >
-                        <option value="">Select Epic</option>
+                        <option value="">Unassigned</option>
 
-                        {epics.map((epic) => (
-                          <option key={epic.id} value={epic.id}>
-                            {epic.name}
+                        {members.map((member) => (
+                          <option key={member.id} value={member.id}>
+                            {member.username}
                           </option>
                         ))}
                       </select>
@@ -235,221 +464,144 @@ function TicketFormModal({
                     </div>
                   </div>
 
-                  {/* Story Points */}
                   <div>
                     <label className="text-sm font-medium text-[#8b949e]">
-                      Story Points
+                      Kanban Column
                     </label>
 
-                    <div className="mt-3">
-                      <StoryPointStepper
-                        value={formData.story_points}
-                        onChange={(value) =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            story_points: value,
-                          }))
-                        }
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            <div>
-              <label className="text-sm font-medium text-[#8b949e]">
-                Status
-              </label>
-
-              <div className="relative">
-                <select
-                  name="status"
-                  value={formData.status}
-                  onChange={handleStatusChange}
-                  className={selectClass}
-                >
-                  <option value="DRAFT">Draft</option>
-                  <option value="OPEN">Open</option>
-                  <option value="BLOCKED">Blocked</option>
-                  <option value="DONE">Done</option>
-                  <option value="CANCELLED">Cancelled</option>
-                </select>
-
-                <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6e7681]" />
-              </div>
-            </div>
-
-            {/* Advanced */}
-            <button
-              type="button"
-              onClick={() => setShowAdvanced((prev) => !prev)}
-              className="flex w-fit items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-[#58a6ff] transition-colors hover:bg-[#21262d]"
-            >
-              <ChevronDown
-                className={`h-4 w-4 transition-transform ${
-                  showAdvanced ? "rotate-180" : ""
-                }`}
-              />
-              Advanced Options
-            </button>
-
-            {showAdvanced && (
-              <div className="grid grid-cols-2 gap-5 rounded-2xl border border-[#30363d] bg-[#0d1117]/50 p-5">
-                <div>
-                  <label className="text-sm font-medium text-[#8b949e]">
-                    Assignee
-                  </label>
-
-                  <div className="relative">
                     <select
-                      name="assignee"
-                      value={formData.assignee}
+                      name="kanban_column"
+                      value={formData.kanban_column}
                       onChange={handleChange}
                       className={selectClass}
                     >
-                      <option value="">Unassigned</option>
-
-                      {members.map((member) => (
-                        <option key={member.id} value={member.id}>
-                          {member.username}
-                        </option>
-                      ))}
+                      <option value="BACKLOG">Backlog</option>
+                      <option value="TODO">To Do</option>
+                      <option value="IN_PROGRESS">In Progress</option>
+                      <option value="REVIEW">Review</option>
+                      <option value="DONE">Done</option>
                     </select>
-
-                    <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6e7681]" />
                   </div>
-                </div>
 
-                <div>
-                  <label className="text-sm font-medium text-[#8b949e]">
-                    Kanban Column
-                  </label>
+                  <div>
+                    <label className="text-sm font-medium text-[#8b949e]">
+                      Priority
+                    </label>
 
-                  <select
-                    name="kanban_column"
-                    value={formData.kanban_column}
-                    onChange={handleChange}
-                    className={selectClass}
-                  >
-                    <option value="BACKLOG">Backlog</option>
-                    <option value="TODO">To Do</option>
-                    <option value="IN_PROGRESS">In Progress</option>
-                    <option value="REVIEW">Review</option>
-                    <option value="DONE">Done</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium text-[#8b949e]">
-                    Priority
-                  </label>
-
-                  <select
-                    name="priority"
-                    value={formData.priority}
-                    onChange={handleChange}
-                    className={selectClass}
-                  >
-                    <option value="LOW">Low</option>
-                    <option value="MEDIUM">Medium</option>
-                    <option value="HIGH">High</option>
-                    <option value="URGENT">Urgent</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium text-[#8b949e]">
-                    Type
-                  </label>
-
-                  <select
-                    name="type"
-                    value={formData.type}
-                    onChange={handleChange}
-                    className={selectClass}
-                  >
-                    <option value="TASK">Task</option>
-                    <option value="BUG">Bug</option>
-                    <option value="STORY">Story</option>
-                    <option value="FEATURE">Feature</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium text-[#8b949e]">
-                    Estimated Hours
-                  </label>
-
-                  <div className="mt-2 flex items-stretch overflow-hidden rounded-xl border border-[#30363d] bg-[#0d1117] transition-all focus-within:border-[#58a6ff] focus-within:ring-2 focus-within:ring-[#58a6ff]/20">
-                    <button
-                      type="button"
-                      onClick={() => handleEstimatedHoursStep(-1)}
-                      disabled={
-                        formData.estimated_hours === "" ||
-                        Number(formData.estimated_hours) <= 0
-                      }
-                      className="flex w-10 shrink-0 items-center justify-center text-[#8b949e] transition-colors hover:bg-[#21262d] hover:text-[#e6edf3] disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent"
+                    <select
+                      name="priority"
+                      value={formData.priority}
+                      onChange={handleChange}
+                      className={selectClass}
                     >
-                      <Minus className="h-3.5 w-3.5" />
-                    </button>
+                      <option value="LOW">Low</option>
+                      <option value="MEDIUM">Medium</option>
+                      <option value="HIGH">High</option>
+                      <option value="URGENT">Urgent</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-[#8b949e]">
+                      Type
+                    </label>
+
+                    <select
+                      name="type"
+                      value={formData.type}
+                      onChange={handleChange}
+                      className={selectClass}
+                    >
+                      <option value="TASK">Task</option>
+                      <option value="BUG">Bug</option>
+                      <option value="STORY">Story</option>
+                      <option value="FEATURE">Feature</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-[#8b949e]">
+                      Estimated Hours
+                    </label>
+
+                    <div className="mt-2 flex items-stretch overflow-hidden rounded-xl border border-[#30363d] bg-[#0d1117] transition-all focus-within:border-[#58a6ff] focus-within:ring-2 focus-within:ring-[#58a6ff]/20">
+                      <button
+                        type="button"
+                        onClick={() => handleEstimatedHoursStep(-1)}
+                        disabled={
+                          formData.estimated_hours === "" ||
+                          Number(formData.estimated_hours) <= 0
+                        }
+                        className="flex w-10 shrink-0 items-center justify-center text-[#8b949e] transition-colors hover:bg-[#21262d] hover:text-[#e6edf3] disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent"
+                      >
+                        <Minus className="h-3.5 w-3.5" />
+                      </button>
+
+                      <input
+                        type="number"
+                        inputMode="numeric"
+                        step={1}
+                        min={0}
+                        name="estimated_hours"
+                        value={formData.estimated_hours}
+                        onChange={handleEstimatedHoursInput}
+                        onKeyDown={(e) => {
+                          if (e.key === "-" || e.key === "." || e.key === "e") {
+                            e.preventDefault();
+                          }
+                        }}
+                        placeholder="0"
+                        className="w-full border-x border-[#30363d] bg-transparent px-3 py-3 text-center text-sm text-[#e6edf3] outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                      />
+
+                      <button
+                        type="button"
+                        onClick={() => handleEstimatedHoursStep(1)}
+                        className="flex w-10 shrink-0 items-center justify-center text-[#8b949e] transition-colors hover:bg-[#21262d] hover:text-[#e6edf3]"
+                      >
+                        <Plus className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-[#8b949e]">
+                      Due Date
+                    </label>
 
                     <input
-                      type="number"
-                      inputMode="numeric"
-                      step={1}
-                      min={0}
-                      name="estimated_hours"
-                      value={formData.estimated_hours}
-                      onChange={handleEstimatedHoursInput}
-                      onKeyDown={(e) => {
-                        if (e.key === "-" || e.key === "." || e.key === "e") {
-                          e.preventDefault();
-                        }
-                      }}
-                      placeholder="0"
-                      className="w-full border-x border-[#30363d] bg-transparent px-3 py-3 text-center text-sm text-[#e6edf3] outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                      type="date"
+                      name="due_date"
+                      value={formData.due_date}
+                      onChange={handleChange}
+                      className={inputClass}
                     />
-
-                    <button
-                      type="button"
-                      onClick={() => handleEstimatedHoursStep(1)}
-                      className="flex w-10 shrink-0 items-center justify-center text-[#8b949e] transition-colors hover:bg-[#21262d] hover:text-[#e6edf3]"
-                    >
-                      <Plus className="h-3.5 w-3.5" />
-                    </button>
                   </div>
                 </div>
+              )}
 
-                <div>
-                  <label className="text-sm font-medium text-[#8b949e]">
-                    Due Date
-                  </label>
-
-                  <input
-                    type="date"
-                    name="due_date"
-                    value={formData.due_date}
-                    onChange={handleChange}
-                    className={inputClass}
-                  />
+              {error && (
+                <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
+                  {error}
                 </div>
-              </div>
-            )}
-
-            {error && (
-              <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
-                {error}
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          )}
 
           {/* Footer */}
-          <div className="flex justify-end gap-3 border-t border-[#30363d] bg-[#0d1117] px-6 py-5">
+          <div
+            className={`flex justify-end gap-2.5 border-t border-[#30363d] bg-[#0d1117] ${
+              isEdit ? "px-5 py-4" : "px-6 py-5"
+            }`}
+          >
             <button
               type="button"
               onClick={onClose}
-              className="rounded-xl border border-[#30363d] bg-[#161b22] px-5 py-2.5 text-sm font-medium text-[#c9d1d9] transition-all hover:border-[#484f58] hover:bg-[#21262d]"
+              className={`border border-[#30363d] bg-[#161b22] font-medium text-[#c9d1d9] transition-all hover:border-[#484f58] hover:bg-[#21262d] ${
+                isEdit
+                  ? "rounded-lg px-4 py-2 text-sm"
+                  : "rounded-xl px-5 py-2.5 text-sm"
+              }`}
             >
               Cancel
             </button>
@@ -457,19 +609,23 @@ function TicketFormModal({
             <button
               type="submit"
               disabled={loading}
-              className={`rounded-xl px-5 py-2.5 text-sm font-semibold text-white transition-all ${
+              className={`font-semibold text-white transition-all ${
+                isEdit
+                  ? "rounded-lg px-4 py-2 text-sm"
+                  : "rounded-xl px-5 py-2.5 text-sm hover:shadow-[0_0_20px_rgba(46,160,67,0.3)]"
+              } ${
                 loading
                   ? "cursor-not-allowed bg-[#30363d] text-[#8b949e]"
-                  : "bg-[#238636] hover:bg-[#2ea043] hover:shadow-[0_0_20px_rgba(46,160,67,0.3)]"
+                  : "bg-[#238636] hover:bg-[#2ea043]"
               }`}
             >
               {loading
-                ? mode === "create"
-                  ? "Creating..."
-                  : "Saving..."
-                : mode === "create"
-                  ? "Create Ticket"
-                  : "Save Changes"}
+                ? isEdit
+                  ? "Saving..."
+                  : "Creating..."
+                : isEdit
+                  ? "Save Changes"
+                  : "Create Ticket"}
             </button>
           </div>
         </form>

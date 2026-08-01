@@ -59,7 +59,7 @@ function TicketRow({ ticket, onEdit, onDelete }) {
     setOpen(true);
   };
 
-  // click outside — check both the button and the portaled menu
+  // click outside
   useEffect(() => {
     function handleClickOutside(e) {
       if (
@@ -84,7 +84,7 @@ function TicketRow({ ticket, onEdit, onDelete }) {
     return () => window.removeEventListener("keydown", handleEsc);
   }, [open]);
 
-  // close on scroll (fixed-position menu would drift from the button)
+  // close on scroll
   useEffect(() => {
     if (!open) return;
     function handleScroll() {
