@@ -1,7 +1,7 @@
 // components/project/ticket/TicketRow.jsx
 import { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { Hash, MoreHorizontal, Pencil, UserPlus, Trash2 } from "lucide-react";
+import { Hash, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import {
   getStatusStyle,
   getTypeTextStyle,
@@ -13,8 +13,11 @@ import {
 } from "./ticketBadgeConfig";
 
 const MENU_WIDTH = 192; // w-48
+const MENU_HEIGHT = 166; // Approx height of your menu
+const GAP = 6;
+const PADDING = 8;
 
-function TicketRow({ ticket, onEdit, onAssign, onDelete }) {
+function TicketRow({ ticket, onEdit, onDelete }) {
   const [open, setOpen] = useState(false);
   const [menuPos, setMenuPos] = useState({ top: 0, left: 0 });
   const buttonRef = useRef(null);
@@ -22,11 +25,37 @@ function TicketRow({ ticket, onEdit, onAssign, onDelete }) {
 
   const openMenu = () => {
     const rect = buttonRef.current.getBoundingClientRect();
+
+    // Horizontal position
     const left = Math.max(
-      8,
-      Math.min(rect.right - MENU_WIDTH, window.innerWidth - MENU_WIDTH - 8),
+      PADDING,
+      Math.min(
+        rect.right - MENU_WIDTH,
+        window.innerWidth - MENU_WIDTH - PADDING,
+      ),
     );
-    setMenuPos({ top: rect.bottom + 6, left });
+
+    // Space available
+    const spaceBelow = window.innerHeight - rect.bottom;
+    const spaceAbove = rect.top;
+
+    let top;
+
+    if (spaceBelow >= MENU_HEIGHT + GAP) {
+      // Open downward
+      top = rect.bottom + GAP;
+    } else if (spaceAbove >= MENU_HEIGHT + GAP) {
+      // Open upward
+      top = rect.top - MENU_HEIGHT - GAP;
+    } else {
+      // Not enough room either side -> keep inside viewport
+      top = Math.max(
+        PADDING,
+        Math.min(rect.bottom + GAP, window.innerHeight - MENU_HEIGHT - PADDING),
+      );
+    }
+
+    setMenuPos({ top, left });
     setOpen(true);
   };
 
@@ -201,19 +230,6 @@ function TicketRow({ ticket, onEdit, onAssign, onDelete }) {
                   <Pencil className="h-3.5 w-3.5" />
                 </span>
                 Edit ticket
-              </button>
-
-              <button
-                className="flex w-full items-center gap-3 px-3.5 py-2.5 text-left text-sm text-[#c9d1d9] transition hover:bg-[#21262d]"
-                onClick={() => {
-                  setOpen(false);
-                  onAssign?.(ticket);
-                }}
-              >
-                <span className="flex h-6 w-6 items-center justify-center rounded-md bg-purple-500/10 text-purple-400">
-                  <UserPlus className="h-3.5 w-3.5" />
-                </span>
-                Assign
               </button>
 
               <div className="mx-2 my-1 border-t border-[#30363d]" />
