@@ -220,7 +220,7 @@ const KanbanBoard = ({ tickets, setTickets }) => {
         [&::-webkit-scrollbar-thumb]:bg-[#30363d]
         hover:[&::-webkit-scrollbar-thumb]:bg-[#484f58]"
       >
-        <div className="flex h-full items-stretch gap-6 pt-6">
+        <div className="flex h-full items-stretch gap-4 pt-4">
           {COLUMN_ORDER.map((column) => (
             <KanbanColumn
               key={column}
