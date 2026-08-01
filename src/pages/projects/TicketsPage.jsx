@@ -51,9 +51,7 @@ function TicketsPage() {
 
   return (
     <div className="mt-18 space-y-8">
-      <TicketHeader onCreateTicket={() => setOpenModal(true)} />
-
-      <h1 className="text-sm text-[#8b949e]">Total Tickets: {count}</h1>
+      <TicketHeader onCreateTicket={() => setOpenModal(true)} count={count} />
 
       {tickets.length === 0 ? (
         <div className="rounded-2xl border border-[#30363d] bg-[#161b22] p-10 text-center">

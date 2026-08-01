@@ -1,4 +1,3 @@
-// components/project/ticket/TicketRow.jsx
 import { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { Hash, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
