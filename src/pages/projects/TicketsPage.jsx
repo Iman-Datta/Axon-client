@@ -4,12 +4,17 @@ import { useDispatch, useSelector } from "react-redux";
 
 import TicketHeader from "../../components/project/ticket/TicketHeader";
 import TicketTable from "../../components/project/ticket/TicketTable";
-import CreateTicketModal from "../../components/project/ticket/CreateTicketModal";
+import TicketFormModal from "../../components/project/ticket/TicketFormModal";
+import ConfirmDeleteTicketModal from "../../components/project/ticket/ConfirmDeleteTicketModal";
 
 import useTickets from "../../hooks/useTickets";
 import useEpics from "../../hooks/useEpics";
 
-import { createTicket } from "../../services/ticketService";
+import {
+  createTicket,
+  updateTicket,
+  deleteTicket,
+} from "../../services/ticketService";
 
 function TicketsPage() {
   const { slug, project_slug } = useParams();
@@ -17,7 +22,17 @@ function TicketsPage() {
   const dispatch = useDispatch();
   const accessToken = useSelector((state) => state.auth.accessToken);
 
-  const [openModal, setOpenModal] = useState(false);
+  // create / edit modal state
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState("create");
+  const [selectedTicket, setSelectedTicket] = useState(null);
+  const [submitLoading, setSubmitLoading] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+
+  // delete confirm state
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
 
   const { tickets, count, loading, error, refetch } = useTickets(
     slug,
@@ -29,15 +44,86 @@ function TicketsPage() {
   // Temporary until project members API is built TODO
   const members = [];
 
-  const handleCreateTicket = async (formData) => {
+  const openCreateModal = () => {
+    setModalMode("create");
+    setSelectedTicket(null);
+    setSubmitError("");
+    setModalOpen(true);
+  };
+
+  const openEditModal = (ticket) => {
+    setModalMode("edit");
+    setSelectedTicket(ticket);
+    setSubmitError("");
+    setModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setSubmitError("");
+    setModalMode("create");
+    setSelectedTicket(null);
+    setModalOpen(false);
+  };
+
+  const handleFormSubmit = async (formData) => {
     try {
-      await createTicket(slug, project_slug, formData, dispatch, accessToken);
+      setSubmitError("");
+      setSubmitLoading(true);
 
-      setOpenModal(false);
+      if (modalMode === "edit" && selectedTicket) {
+        await updateTicket(
+          slug,
+          project_slug,
+          selectedTicket.id,
+          formData,
+          dispatch,
+          accessToken,
+        );
+      } else {
+        await createTicket(slug, project_slug, formData, dispatch, accessToken);
+      }
 
+      closeModal();
       await refetch();
-    } catch (error) {
-      console.log(error);
+    } catch (err) {
+      setSubmitError(err.message);
+    } finally {
+      setSubmitLoading(false);
+    }
+  };
+
+  const openDeleteConfirm = (ticket) => {
+    setDeleteError("");
+    setDeleteTarget(ticket);
+  };
+
+  const closeDeleteConfirm = () => {
+    if (deleteLoading) return;
+    setDeleteTarget(null);
+    setDeleteError("");
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+
+    try {
+      setDeleteLoading(true);
+      setDeleteError("");
+
+      await deleteTicket(
+        slug,
+        project_slug,
+        deleteTarget.id,
+        dispatch,
+        accessToken,
+      );
+
+      setDeleteTarget(null);
+      await refetch();
+    } catch (err) {
+      setDeleteError(err.message);
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -51,7 +137,7 @@ function TicketsPage() {
 
   return (
     <div className="mt-18 space-y-8">
-      <TicketHeader onCreateTicket={() => setOpenModal(true)} count={count} />
+      <TicketHeader onCreateTicket={openCreateModal} count={count} />
 
       {tickets.length === 0 ? (
         <div className="rounded-2xl border border-[#30363d] bg-[#161b22] p-10 text-center">
@@ -64,15 +150,33 @@ function TicketsPage() {
           </p>
         </div>
       ) : (
-        <TicketTable tickets={tickets} />
+        <TicketTable
+          tickets={tickets}
+          onEdit={openEditModal}
+          onDelete={openDeleteConfirm}
+        />
       )}
 
-      {openModal && (
-        <CreateTicketModal
+      {modalOpen && (
+        <TicketFormModal
+          mode={modalMode}
+          ticket={selectedTicket}
           epics={epics}
           members={members}
-          onClose={() => setOpenModal(false)}
-          onSubmit={handleCreateTicket}
+          onClose={closeModal}
+          onSubmit={handleFormSubmit}
+          loading={submitLoading}
+          error={submitError}
+        />
+      )}
+
+      {deleteTarget && (
+        <ConfirmDeleteTicketModal
+          ticket={deleteTarget}
+          onCancel={closeDeleteConfirm}
+          onConfirm={handleConfirmDelete}
+          loading={deleteLoading}
+          error={deleteError}
         />
       )}
     </div>

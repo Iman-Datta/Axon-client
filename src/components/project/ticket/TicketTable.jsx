@@ -1,4 +1,3 @@
-// components/project/ticket/TicketTable.jsx
 import TicketRow from "./TicketRow";
 
 const COLUMNS = [
@@ -13,7 +12,7 @@ const COLUMNS = [
   "",
 ];
 
-function TicketTable({ tickets }) {
+function TicketTable({ tickets, onEdit, onDelete }) {
   return (
     <div className="overflow-hidden rounded-2xl border border-[#30363d] bg-[#0d1117] shadow-[0_10px_30px_rgba(0,0,0,0.25)]">
       <div className="overflow-x-auto">
@@ -32,8 +31,13 @@ function TicketTable({ tickets }) {
           </thead>
 
           <tbody className="divide-y divide-[#21262d]">
-            {tickets.map((ticket, index) => (
-              <TicketRow key={ticket.id} ticket={ticket} index={index} />
+            {tickets.map((ticket) => (
+              <TicketRow
+                key={ticket.id}
+                ticket={ticket}
+                onEdit={onEdit}
+                onDelete={onDelete}
+              />
             ))}
           </tbody>
         </table>

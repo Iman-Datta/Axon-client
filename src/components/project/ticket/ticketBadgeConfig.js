@@ -1,4 +1,3 @@
-// components/project/ticket/ticketBadgeConfig.js
 import {
   Bug,
   Sparkles,

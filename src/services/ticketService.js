@@ -115,3 +115,28 @@ export const updateKanbanBoard = async (
 
   return data;
 };
+
+export const deleteTicket = async (
+  workspaceSlug,
+  projectSlug,
+  ticket_id,
+  dispatch,
+  accessToken,
+) => {
+  const res = await fetchWithAuth(
+    `${API}/tickets/${workspaceSlug}/${projectSlug}/${ticket_id}/delete/`,
+    {
+      method: "DELETE",
+    },
+    dispatch,
+    accessToken,
+  );
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.message || "Failed to delete ticket.");
+  }
+
+  return data;
+};

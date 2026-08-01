@@ -3,24 +3,40 @@ import { X, ChevronDown, Plus, Minus } from "lucide-react";
 
 import StoryPointStepper from "./StoryPointStepper";
 
-function CreateTicketModal({ epics, members, onClose, onSubmit }) {
+function TicketFormModal({
+  mode = "create",
+  ticket = null,
+  epics,
+  members,
+  onClose,
+  onSubmit,
+  loading = false,
+  error,
+}) {
   const modalRef = useRef(null);
 
-  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [showAdvanced, setShowAdvanced] = useState(mode === "edit");
 
-  const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    epic: "",
-    story_points: 1,
-    assignee: "",
-    status: "DRAFT",
-    kanban_column: "TODO",
-    priority: "MEDIUM",
-    type: "TASK",
-    estimated_hours: "",
-    due_date: "",
+  const buildInitialState = (t) => ({
+    title: t?.title || "",
+    description: t?.description || "",
+    epic: t?.epic?.id ? String(t.epic.id) : "",
+    story_points: t?.story_points ?? 1,
+    assignee: t?.assignee?.id ? String(t.assignee.id) : "",
+    status: t?.status || "DRAFT",
+    kanban_column: t?.kanban_column || "TODO",
+    priority: t?.priority || "MEDIUM",
+    type: t?.type || "TASK",
+    estimated_hours: t?.estimated_hours ?? "",
+    due_date: t?.due_date ? t.due_date.slice(0, 10) : "",
   });
+
+  const [formData, setFormData] = useState(buildInitialState(ticket));
+
+  useEffect(() => {
+    if (!ticket) return;
+    setFormData(buildInitialState(ticket));
+  }, [ticket]);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -99,6 +115,8 @@ function CreateTicketModal({ epics, members, onClose, onSubmit }) {
       due_date: formData.due_date || null,
     };
 
+    delete payload.epic;
+
     onSubmit(payload);
   };
 
@@ -120,12 +138,22 @@ function CreateTicketModal({ epics, members, onClose, onSubmit }) {
         {/* Header */}
         <div className="flex items-start justify-between border-b border-[#30363d] px-6 py-5">
           <div>
-            <h2 className="text-xl font-semibold text-[#e6edf3]">
-              Create Ticket
-            </h2>
+            <div className="flex items-center gap-3">
+              <h2 className="text-xl font-semibold text-[#e6edf3]">
+                {mode === "create" ? "Create Ticket" : "Edit Ticket"}
+              </h2>
+
+              {mode === "edit" && ticket?.ticket_number && (
+                <span className="rounded-md bg-[#0d1117] px-2 py-1 font-mono text-[11px] font-medium text-[#6e7681] ring-1 ring-[#30363d]">
+                  {ticket.ticket_number}
+                </span>
+              )}
+            </div>
 
             <p className="mt-1 text-sm text-[#8b949e]">
-              Add a new work item to your project.
+              {mode === "create"
+                ? "Add a new work item to your project."
+                : "Update the details of this work item."}
             </p>
           </div>
 
@@ -179,6 +207,7 @@ function CreateTicketModal({ epics, members, onClose, onSubmit }) {
                     className={`${inputClass} resize-none`}
                   />
                 </div>
+
                 <div className="grid grid-cols-2 gap-5">
                   {/* Epic */}
                   <div>
@@ -207,7 +236,7 @@ function CreateTicketModal({ epics, members, onClose, onSubmit }) {
                   </div>
 
                   {/* Story Points */}
-                  <div className="ml-32">
+                  <div>
                     <label className="text-sm font-medium text-[#8b949e]">
                       Story Points
                     </label>
@@ -407,6 +436,12 @@ function CreateTicketModal({ epics, members, onClose, onSubmit }) {
                 </div>
               </div>
             )}
+
+            {error && (
+              <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
+                {error}
+              </div>
+            )}
           </div>
 
           {/* Footer */}
@@ -421,9 +456,20 @@ function CreateTicketModal({ epics, members, onClose, onSubmit }) {
 
             <button
               type="submit"
-              className="rounded-xl bg-[#238636] px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-[#2ea043] hover:shadow-[0_0_20px_rgba(46,160,67,0.3)]"
+              disabled={loading}
+              className={`rounded-xl px-5 py-2.5 text-sm font-semibold text-white transition-all ${
+                loading
+                  ? "cursor-not-allowed bg-[#30363d] text-[#8b949e]"
+                  : "bg-[#238636] hover:bg-[#2ea043] hover:shadow-[0_0_20px_rgba(46,160,67,0.3)]"
+              }`}
             >
-              Create Ticket
+              {loading
+                ? mode === "create"
+                  ? "Creating..."
+                  : "Saving..."
+                : mode === "create"
+                  ? "Create Ticket"
+                  : "Save Changes"}
             </button>
           </div>
         </form>
@@ -432,4 +478,4 @@ function CreateTicketModal({ epics, members, onClose, onSubmit }) {
   );
 }
 
-export default CreateTicketModal;
+export default TicketFormModal;

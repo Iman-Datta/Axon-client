@@ -11,8 +11,9 @@ import {
   formatRelativeTime,
 } from "./ticketBadgeConfig";
 
-const MENU_WIDTH = 192; // w-48
-const MENU_HEIGHT = 166; // Approx height of your menu
+// Approx
+const MENU_WIDTH = 192;
+const MENU_HEIGHT = 166;
 const GAP = 6;
 const PADDING = 8;
 
