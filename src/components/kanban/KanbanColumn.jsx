@@ -22,7 +22,7 @@ function EndDropZone({ column, active }) {
     <div ref={setNodeRef} className={active ? "" : "h-6"}>
       {active && <DropPlaceholder />}
       {!active && isOver && (
-        <div className="h-6 rounded-lg border border-dashed border-[#30363d]/60" />
+        <div className="h-6 rounded-lg border border-dashed border-[#388bfd]/30" />
       )}
     </div>
   );
@@ -35,8 +35,7 @@ const KanbanColumn = ({ column, tickets, placeholder }) => {
 
   const showPlaceholderHere = placeholder?.column === column;
   const showEmptyPlaceholder = showPlaceholderHere && tickets.length === 0;
-  const showBeforeTicketPlaceholder =
-    showPlaceholderHere && placeholder.beforeTicketId !== null;
+
   const showEndPlaceholder =
     showPlaceholderHere &&
     tickets.length > 0 &&
@@ -74,7 +73,7 @@ const KanbanColumn = ({ column, tickets, placeholder }) => {
         >
           {tickets.length === 0 ? (
             showEmptyPlaceholder ? (
-              <DropPlaceholder />
+              <DropPlaceholder variant="empty" />
             ) : (
               <div className="rounded-xl border border-dashed border-[#30363d] py-8 text-center text-xs text-[#6e7681]">
                 No tickets
@@ -84,7 +83,7 @@ const KanbanColumn = ({ column, tickets, placeholder }) => {
             <>
               {tickets.map((ticket) => (
                 <div key={ticket.id}>
-                  {showBeforeTicketPlaceholder &&
+                  {showPlaceholderHere &&
                     placeholder.beforeTicketId === ticket.id && (
                       <DropPlaceholder />
                     )}
