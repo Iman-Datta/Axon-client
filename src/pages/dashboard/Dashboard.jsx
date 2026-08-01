@@ -24,10 +24,12 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="mt-14 w-full max-w-full overflow-hidden p-6">
-      <KanbanHeader />
+    <div className="mt-14 flex h-[calc(100dvh-56px)] w-full max-w-full flex-col overflow-hidden p-6">
+      <div className="flex-shrink-0">
+        <KanbanHeader />
+      </div>
 
-      <div>
+      <div className="min-h-0 flex-1">
         <KanbanBoard tickets={tickets} setTickets={setTickets} />
       </div>
     </div>

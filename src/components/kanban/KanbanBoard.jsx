@@ -1,13 +1,33 @@
+// components/kanban/KanbanBoard.jsx
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { DndContext, closestCorners, DragOverlay } from "@dnd-kit/core";
+import {
+  DndContext,
+  closestCorners,
+  DragOverlay,
+  defaultDropAnimationSideEffects,
+} from "@dnd-kit/core";
 
 import KanbanColumn from "./KanbanColumn";
 import TicketCardPreview from "./TicketCardPreview";
 import { updateKanbanBoard } from "../../services/ticketService";
 
 const COLUMN_ORDER = ["TODO", "IN_PROGRESS", "REVIEW", "DONE"];
+
+// Custom drop animation — the overlay eases back into its slot instead of
+// snapping, and the original card fades in underneath it as it lands.
+const dropAnimationConfig = {
+  duration: 280,
+  easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+  sideEffects: defaultDropAnimationSideEffects({
+    styles: {
+      active: {
+        opacity: "0.4",
+      },
+    },
+  }),
+};
 
 const KanbanBoard = ({ tickets, setTickets }) => {
   const [activeTicket, setActiveTicket] = useState(null);
@@ -54,6 +74,8 @@ const KanbanBoard = ({ tickets, setTickets }) => {
 
       updated.splice(insertIndex, 0, draggedTicket);
     } else {
+      // Dropped directly on a column — empty column, or the gap below
+      // the last card. Goes to the end of that column.
       draggedTicket.kanban_column = overId;
       updated.push(draggedTicket);
     }
@@ -85,15 +107,30 @@ const KanbanBoard = ({ tickets, setTickets }) => {
       return;
     }
 
-    const ticket = tickets.find((t) => String(t.id) === String(over.id));
+    const overId = String(over.id);
 
-    if (!ticket) return;
+    // Hovering over another ticket — placeholder lands right before it
+    const overTicket = tickets.find((t) => String(t.id) === overId);
 
-    setPlaceholder({
-      column: ticket.kanban_column,
-      beforeTicketId: ticket.id,
-      beforeOrder: ticket.order,
-    });
+    if (overTicket) {
+      setPlaceholder({
+        column: overTicket.kanban_column,
+        beforeTicketId: overTicket.id,
+      });
+      return;
+    }
+
+    // Hovering the column itself (empty column, or the space below the
+    // last card) — placeholder goes to the end of that column
+    if (COLUMN_ORDER.includes(overId)) {
+      setPlaceholder({
+        column: overId,
+        beforeTicketId: null,
+      });
+      return;
+    }
+
+    setPlaceholder(null);
   };
 
   const handleDragEnd = async (event) => {
@@ -105,7 +142,7 @@ const KanbanBoard = ({ tickets, setTickets }) => {
       return;
     }
 
-    if (active.id === over.id) {
+    if (String(active.id) === String(over.id)) {
       setActiveTicket(null);
       setPlaceholder(null);
       return;
@@ -150,15 +187,21 @@ const KanbanBoard = ({ tickets, setTickets }) => {
     }
   };
 
+  const handleDragCancel = () => {
+    setActiveTicket(null);
+    setPlaceholder(null);
+  };
+
   return (
     <DndContext
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
+      onDragCancel={handleDragCancel}
       collisionDetection={closestCorners}
     >
       <div
-        className="w-full overflow-x-auto overflow-y-hidden pb-4
+        className="h-full w-full overflow-x-auto overflow-y-hidden pb-4
         [scrollbar-width:thin] [scrollbar-color:#30363d_transparent]
         [&::-webkit-scrollbar]:h-2
         [&::-webkit-scrollbar-track]:bg-transparent
@@ -166,7 +209,7 @@ const KanbanBoard = ({ tickets, setTickets }) => {
         [&::-webkit-scrollbar-thumb]:bg-[#30363d]
         hover:[&::-webkit-scrollbar-thumb]:bg-[#484f58]"
       >
-        <div className="flex items-start gap-6 pt-6">
+        <div className="flex h-full items-stretch gap-6 pt-6">
           {COLUMN_ORDER.map((column) => (
             <KanbanColumn
               key={column}
@@ -177,7 +220,7 @@ const KanbanBoard = ({ tickets, setTickets }) => {
           ))}
         </div>
 
-        <DragOverlay>
+        <DragOverlay dropAnimation={dropAnimationConfig}>
           {activeTicket ? <TicketCardPreview ticket={activeTicket} /> : null}
         </DragOverlay>
       </div>

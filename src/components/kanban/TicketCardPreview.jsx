@@ -1,3 +1,6 @@
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+
 import { CalendarDays } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -8,7 +11,23 @@ const priorityColors = {
   URGENT: "text-[#f85149] bg-[#f85149]/15",
 };
 
-const TicketCardPreview = ({ ticket }) => {
+const TicketCard = ({ ticket }) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: ticket.id,
+  });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
   const navigate = useNavigate();
   const { slug, project_slug } = useParams();
 
@@ -18,14 +37,25 @@ const TicketCardPreview = ({ ticket }) => {
 
   return (
     <div
-      onClick={() => navigate(`/${slug}/${project_slug}/tickets/${ticket.id}`)}
-      className="group w-[320px] rotate-2 scale-105 cursor-pointer rounded-xl border border-[#30363d] bg-[#0d1117] p-4 opacity-95 shadow-2xl"
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      onClick={() => {
+        if (isDragging) return;
+        navigate(`/${slug}/${project_slug}/tickets/${ticket.id}`);
+      }}
+      className={`group rounded-xl border p-4 transition-all duration-200 ${
+        isDragging
+          ? "cursor-grabbing border-dashed border-[#58a6ff]/50 bg-[#0d1117]/40 opacity-40"
+          : "cursor-pointer border-[#30363d] bg-[#0d1117] hover:border-[#388bfd]/40 hover:bg-[#111827]"
+      }`}
     >
       <div className="mb-2 text-[11px] font-medium tracking-wide text-[#6e7681]">
         {ticket.ticket_number}
       </div>
 
-      <h3 className="mb-3 line-clamp-2 text-[14px] font-medium leading-snug text-[#e6edf3]">
+      <h3 className="mb-3 line-clamp-2 text-[14px] font-medium leading-snug text-[#e6edf3] transition-colors group-hover:text-[#58a6ff]">
         {ticket.title}
       </h3>
 
@@ -72,4 +102,4 @@ const TicketCardPreview = ({ ticket }) => {
   );
 };
 
-export default TicketCardPreview;
+export default TicketCard;
