@@ -1,3 +1,4 @@
+// components/kanban/TicketCard.jsx
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
@@ -12,10 +13,16 @@ const priorityColors = {
 };
 
 const TicketCard = ({ ticket }) => {
-  const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({
-      id: ticket.id,
-    });
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: ticket.id,
+  });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -28,6 +35,13 @@ const TicketCard = ({ ticket }) => {
   const priorityClass =
     priorityColors[ticket.priority?.toUpperCase()] ||
     "text-[#8b949e] bg-[#8b949e]/10";
+
+  // While dragging, the DragOverlay clone is what's visible under the
+  // cursor — the original slot goes fully invisible but keeps its space
+  // reserved so the list doesn't jump/reflow.
+  if (isDragging) {
+    return <div ref={setNodeRef} style={style} className="h-[142px]" />;
+  }
 
   return (
     <div
