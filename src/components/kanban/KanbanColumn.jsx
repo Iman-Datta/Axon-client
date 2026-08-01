@@ -6,6 +6,7 @@ import {
 
 import TicketCard from "./TicketCard";
 import DropPlaceholder from "./DropPlaceholder";
+import { toEndId } from "./kanbanDnd";
 
 const titles = {
   TODO: "To Do",
@@ -14,6 +15,19 @@ const titles = {
   DONE: "Done",
 };
 
+function EndDropZone({ column, active }) {
+  const { setNodeRef, isOver } = useDroppable({ id: toEndId(column) });
+
+  return (
+    <div ref={setNodeRef} className={active ? "" : "h-6"}>
+      {active && <DropPlaceholder />}
+      {!active && isOver && (
+        <div className="h-6 rounded-lg border border-dashed border-[#30363d]/60" />
+      )}
+    </div>
+  );
+}
+
 const KanbanColumn = ({ column, tickets, placeholder }) => {
   const { setNodeRef, isOver } = useDroppable({
     id: column,
@@ -21,6 +35,8 @@ const KanbanColumn = ({ column, tickets, placeholder }) => {
 
   const showPlaceholderHere = placeholder?.column === column;
   const showEmptyPlaceholder = showPlaceholderHere && tickets.length === 0;
+  const showBeforeTicketPlaceholder =
+    showPlaceholderHere && placeholder.beforeTicketId !== null;
   const showEndPlaceholder =
     showPlaceholderHere &&
     tickets.length > 0 &&
@@ -68,7 +84,7 @@ const KanbanColumn = ({ column, tickets, placeholder }) => {
             <>
               {tickets.map((ticket) => (
                 <div key={ticket.id}>
-                  {showPlaceholderHere &&
+                  {showBeforeTicketPlaceholder &&
                     placeholder.beforeTicketId === ticket.id && (
                       <DropPlaceholder />
                     )}
@@ -77,7 +93,7 @@ const KanbanColumn = ({ column, tickets, placeholder }) => {
                 </div>
               ))}
 
-              {showEndPlaceholder && <DropPlaceholder />}
+              <EndDropZone column={column} active={showEndPlaceholder} />
             </>
           )}
         </div>

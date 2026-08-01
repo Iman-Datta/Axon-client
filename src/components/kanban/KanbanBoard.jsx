@@ -1,4 +1,3 @@
-// components/kanban/KanbanBoard.jsx
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -12,11 +11,10 @@ import {
 import KanbanColumn from "./KanbanColumn";
 import TicketCardPreview from "./TicketCardPreview";
 import { updateKanbanBoard } from "../../services/ticketService";
+import { isEndId, fromEndId } from "./kanbanDnd";
 
 const COLUMN_ORDER = ["TODO", "IN_PROGRESS", "REVIEW", "DONE"];
 
-// Custom drop animation — the overlay eases back into its slot instead of
-// snapping, and the original card fades in underneath it as it lands.
 const dropAnimationConfig = {
   duration: 280,
   easing: "cubic-bezier(0.22, 1, 0.36, 1)",
@@ -50,7 +48,12 @@ const KanbanBoard = ({ tickets, setTickets }) => {
     }
   });
 
-  const moveTicket = (tickets, activeId, overId) => {
+  // rawOverId may be a ticket id, a column id (empty column), or an
+  // "__end" id (explicit end-of-column drop zone) — normalize the last
+  // case down to the plain column id before doing any list surgery.
+  const moveTicket = (tickets, activeId, rawOverId) => {
+    const overId = isEndId(rawOverId) ? fromEndId(rawOverId) : rawOverId;
+
     const updated = tickets.map((ticket) => ({ ...ticket }));
 
     const activeIndex = updated.findIndex(
@@ -66,6 +69,7 @@ const KanbanBoard = ({ tickets, setTickets }) => {
     );
 
     if (overTicket) {
+      // Hovering a real card — insert right before it
       draggedTicket.kanban_column = overTicket.kanban_column;
 
       const insertIndex = updated.findIndex(
@@ -74,8 +78,7 @@ const KanbanBoard = ({ tickets, setTickets }) => {
 
       updated.splice(insertIndex, 0, draggedTicket);
     } else {
-      // Dropped directly on a column — empty column, or the gap below
-      // the last card. Goes to the end of that column.
+      // Empty column OR the explicit end-drop-zone — append to the end
       draggedTicket.kanban_column = overId;
       updated.push(draggedTicket);
     }
@@ -109,6 +112,15 @@ const KanbanBoard = ({ tickets, setTickets }) => {
 
     const overId = String(over.id);
 
+    // Explicit end-of-column zone — unambiguous "append to end"
+    if (isEndId(overId)) {
+      setPlaceholder({
+        column: fromEndId(overId),
+        beforeTicketId: null,
+      });
+      return;
+    }
+
     // Hovering over another ticket — placeholder lands right before it
     const overTicket = tickets.find((t) => String(t.id) === overId);
 
@@ -120,8 +132,7 @@ const KanbanBoard = ({ tickets, setTickets }) => {
       return;
     }
 
-    // Hovering the column itself (empty column, or the space below the
-    // last card) — placeholder goes to the end of that column
+    // Hovering an empty column's own droppable region
     if (COLUMN_ORDER.includes(overId)) {
       setPlaceholder({
         column: overId,
@@ -160,7 +171,7 @@ const KanbanBoard = ({ tickets, setTickets }) => {
 
     const previousTickets = tickets.map((ticket) => ({ ...ticket }));
 
-    const updatedTickets = moveTicket(tickets, active.id, over.id);
+    const updatedTickets = moveTicket(tickets, active.id, String(over.id));
 
     setTickets(updatedTickets);
     setActiveTicket(null);
