@@ -121,7 +121,7 @@ const TicketCard = ({ ticket }) => {
 
           {ticket.story_points && (
             <span className="shrink-0 text-[10.5px] font-medium text-[#6e7681]">
-              · {ticket.story_points} pt
+              · {ticket.story_points} SP
             </span>
           )}
         </div>
