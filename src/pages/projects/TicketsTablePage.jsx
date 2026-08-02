@@ -16,7 +16,7 @@ import {
   deleteTicket,
 } from "../../services/ticketService";
 
-function TicketsPage() {
+function TicketsTablePage() {
   const { slug, project_slug } = useParams();
 
   const dispatch = useDispatch();
@@ -183,4 +183,5 @@ function TicketsPage() {
   );
 }
 
-export default TicketsPage;
+
+export default TicketsTablePage;

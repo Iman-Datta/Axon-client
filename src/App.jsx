@@ -18,7 +18,7 @@ import ProjectsListPage from "./pages/projects/ProjectsListPage";
 import CreateProject from "./pages/projects/CreateProject";
 import OverviewPage from "./pages/projects/OverviewPage";
 import EpicsPage from "./pages/projects/EpicsPage";
-import TicketsPage from "./pages/projects/TicketsPage";
+import TicketsTablePage from "./pages/projects/TicketsTablePage";
 import IntegrationsPage from "./pages/projects/IntegrationsPage";
 import MembersPage from "./pages/projects/MembersPage";
 
@@ -174,7 +174,7 @@ function App() {
         >
           <Route index element={<OverviewPage />} />
           <Route path="board" element={<Dashboard />} />
-          <Route path="tickets" element={<TicketsPage />} />
+          <Route path="tickets" element={<TicketsTablePage />} />
           <Route path="epics" element={<EpicsPage />} />
           <Route path="integrations" element={<IntegrationsPage />} />
           <Route path="members" element={<MembersPage />} />
