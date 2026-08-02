@@ -1,4 +1,5 @@
 import { Search, ChevronDown, LayoutDashboard } from "lucide-react";
+import TicketLegend from "./TicketLegend";
 
 const KanbanHeader = () => {
   return (
@@ -26,6 +27,10 @@ const KanbanHeader = () => {
             Epic
             <ChevronDown className="h-4 w-4 text-[#8b949e]" />
           </button>
+
+          <div className="h-6 w-px bg-[#21262d]" />
+
+          <TicketLegend />
         </div>
       </div>
     </header>

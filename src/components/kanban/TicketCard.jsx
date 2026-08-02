@@ -1,32 +1,10 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
-import {
-  ArrowUp,
-  BookOpen,
-  Bug,
-  CalendarDays,
-  CheckSquare,
-  ChevronsUp,
-  Minus,
-  Signal,
-  Sparkles,
-} from "lucide-react";
+import { CalendarDays } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 
-const priorityConfig = {
-  LOW: { icon: Minus, color: "#8b949e", label: "Low priority" },
-  MEDIUM: { icon: Signal, color: "#d29922", label: "Medium priority" },
-  HIGH: { icon: ArrowUp, color: "#f0883e", label: "High priority" },
-  URGENT: { icon: ChevronsUp, color: "#f85149", label: "Urgent priority" },
-};
-
-const typeConfig = {
-  TASK: { icon: CheckSquare, color: "#8b949e", label: "Task" },
-  BUG: { icon: Bug, color: "#f85149", label: "Bug" },
-  STORY: { icon: BookOpen, color: "#58a6ff", label: "Story" },
-  FEATURE: { icon: Sparkles, color: "#a855f7", label: "Feature" },
-};
+import { priorityConfig, typeConfig } from "../../components/kanban/ticketmeta";
 
 const CARD_HEIGHT = "h-[104px]";
 
@@ -106,7 +84,6 @@ const TicketCard = ({ ticket }) => {
         {ticket.title}
       </h3>
 
-      {/* Bottom row: epic + story points on the left, due date on the right */}
       <div className="flex items-center justify-between gap-2">
         <div className="flex min-w-0 items-center gap-1.5">
           {ticket.epic && (
