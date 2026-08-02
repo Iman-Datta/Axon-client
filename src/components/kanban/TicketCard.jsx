@@ -1,17 +1,34 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
-import { CalendarDays } from "lucide-react";
+import {
+  ArrowUp,
+  BookOpen,
+  Bug,
+  CalendarDays,
+  CheckSquare,
+  ChevronsUp,
+  Minus,
+  Signal,
+  Sparkles,
+} from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 
-const priorityColors = {
-  LOW: "text-[#8b949e] bg-[#8b949e]/10",
-  MEDIUM: "text-[#d29922] bg-[#d29922]/10",
-  HIGH: "text-[#f85149] bg-[#f85149]/10",
-  URGENT: "text-[#f85149] bg-[#f85149]/15",
+const priorityConfig = {
+  LOW: { icon: Minus, color: "#8b949e", label: "Low priority" },
+  MEDIUM: { icon: Signal, color: "#d29922", label: "Medium priority" },
+  HIGH: { icon: ArrowUp, color: "#f0883e", label: "High priority" },
+  URGENT: { icon: ChevronsUp, color: "#f85149", label: "Urgent priority" },
 };
 
-const CARD_HEIGHT = "h-[88px]";
+const typeConfig = {
+  TASK: { icon: CheckSquare, color: "#8b949e", label: "Task" },
+  BUG: { icon: Bug, color: "#f85149", label: "Bug" },
+  STORY: { icon: BookOpen, color: "#58a6ff", label: "Story" },
+  FEATURE: { icon: Sparkles, color: "#a855f7", label: "Feature" },
+};
+
+const CARD_HEIGHT = "h-[104px]";
 
 const TicketCard = ({ ticket }) => {
   const {
@@ -33,13 +50,12 @@ const TicketCard = ({ ticket }) => {
   const navigate = useNavigate();
   const { slug, project_slug } = useParams();
 
-  const priorityClass =
-    priorityColors[ticket.priority?.toUpperCase()] ||
-    "text-[#8b949e] bg-[#8b949e]/10";
+  const priority =
+    priorityConfig[ticket.priority?.toUpperCase()] || priorityConfig.LOW;
+  const type = typeConfig[ticket.type?.toUpperCase()] || typeConfig.TASK;
+  const PriorityIcon = priority.icon;
+  const TypeIcon = type.icon;
 
-  // While dragging, the DragOverlay clone is what's visible under the
-  // cursor — the original slot goes fully invisible but keeps its space
-  // reserved so the list doesn't jump/reflow.
   if (isDragging) {
     return <div ref={setNodeRef} style={style} className={CARD_HEIGHT} />;
   }
@@ -51,53 +67,72 @@ const TicketCard = ({ ticket }) => {
       {...attributes}
       {...listeners}
       onClick={() => navigate(`/${slug}/${project_slug}/tickets/${ticket.id}`)}
-      className="group cursor-pointer rounded-lg border border-[#30363d] bg-[#0d1117] p-2.5 transition-all duration-200 hover:border-[#388bfd]/40 hover:bg-[#111827]"
+      className={`group flex ${CARD_HEIGHT} cursor-pointer flex-col justify-between rounded-lg border border-[#30363d] bg-[#0d1117] p-3 transition-all duration-200 hover:border-[#388bfd]/40 hover:bg-[#111827]`}
     >
-      <div className="mb-1 flex items-center justify-between gap-2">
-        <span className="text-[10.5px] font-medium tracking-wide text-[#6e7681]">
-          {ticket.ticket_number}
-        </span>
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-1.5">
+          <span className="text-[10.5px] font-semibold tracking-wide text-[#6e7681]">
+            {ticket.ticket_number}
+          </span>
+          <span className="text-[#30363d]">·</span>
+          <div className="flex items-center gap-1" title={type.label}>
+            <TypeIcon
+              className="h-3 w-3"
+              style={{ color: type.color }}
+              strokeWidth={2.25}
+            />
+          </div>
+          <div className="flex items-center" title={priority.label}>
+            <PriorityIcon
+              className="h-3 w-3"
+              style={{ color: priority.color }}
+              strokeWidth={2.5}
+            />
+          </div>
+        </div>
 
         {ticket.assignee && (
           <img
             src={ticket.assignee.avatar}
             alt=""
-            className="h-4.5 w-4.5 shrink-0 rounded-full border border-[#30363d] object-cover"
+            title={`Assigned to ${ticket.assignee.username}`}
+            className="h-5 w-5 shrink-0 rounded-full border border-[#30363d] object-cover"
           />
         )}
       </div>
 
-      <h3 className="mb-1.5 line-clamp-2 text-[13px] font-medium leading-snug text-[#e6edf3] transition-colors group-hover:text-[#58a6ff]">
+      {/* Title */}
+      <h3 className="line-clamp-2 text-[13px] font-medium leading-snug text-[#e6edf3] transition-colors group-hover:text-[#58a6ff]">
         {ticket.title}
       </h3>
 
-      <div className="flex flex-wrap items-center gap-1">
-        <span
-          className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${priorityClass}`}
-        >
-          {ticket.priority}
-        </span>
+      {/* Bottom row: epic + story points on the left, due date on the right */}
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex min-w-0 items-center gap-1.5">
+          {ticket.epic && (
+            <span className="inline-flex min-w-0 max-w-[110px] items-center gap-1 truncate text-[10.5px] font-medium text-[#8b949e]">
+              <span
+                className="h-1.5 w-1.5 shrink-0 rounded-full"
+                style={{ backgroundColor: ticket.epic.color }}
+              />
+              <span className="truncate">{ticket.epic.name}</span>
+            </span>
+          )}
 
-        <span className="rounded bg-[#388bfd]/10 px-1.5 py-0.5 text-[10px] font-medium text-[#58a6ff]">
-          {ticket.type}
-        </span>
+          {ticket.story_points && (
+            <span className="shrink-0 text-[10.5px] font-medium text-[#6e7681]">
+              · {ticket.story_points} pt
+            </span>
+          )}
+        </div>
 
-        {ticket.epic && (
-          <span
-            className="ml-auto inline-flex max-w-[100px] items-center truncate rounded px-1.5 py-0.5 text-[10px] font-medium text-white"
-            style={{ backgroundColor: ticket.epic.color }}
-          >
-            {ticket.epic.name}
-          </span>
+        {ticket.due_date && (
+          <div className="flex shrink-0 items-center gap-1 text-[10px] text-[#6e7681]">
+            <CalendarDays className="h-3 w-3" />
+            {new Date(ticket.due_date).toLocaleDateString()}
+          </div>
         )}
       </div>
-
-      {ticket.due_date && (
-        <div className="mt-1.5 flex items-center gap-1 text-[10px] text-[#6e7681]">
-          <CalendarDays className="h-3 w-3" />
-          {new Date(ticket.due_date).toLocaleDateString()}
-        </div>
-      )}
     </div>
   );
 };
