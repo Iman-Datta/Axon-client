@@ -17,7 +17,7 @@ const MENU_HEIGHT = 166;
 const GAP = 6;
 const PADDING = 8;
 
-function TicketRow({ ticket, onEdit, onDelete }) {
+function TicketRow({ ticket, onEdit, onDelete, onSelect }) {
   const [open, setOpen] = useState(false);
   const [menuPos, setMenuPos] = useState({ top: 0, left: 0 });
   const buttonRef = useRef(null);
@@ -95,7 +95,10 @@ function TicketRow({ ticket, onEdit, onDelete }) {
   const PriorityIcon = getPriorityIcon(ticket.priority);
 
   return (
-    <tr className="group border-b border-[#21262d] transition-colors last:border-0 hover:bg-[#1c2128]">
+    <tr
+      onClick={() => onSelect?.(ticket)}
+      className="group cursor-pointer border-b border-[#21262d] transition-colors last:border-0 hover:bg-[#1c2128]"
+    >
       {/* Ticket number */}
       <td className="whitespace-nowrap px-5 py-3.5">
         <span className="rounded-md bg-[#0d1117] px-2 py-1 font-mono text-[11px] font-medium text-[#6e7681] ring-1 ring-[#30363d]">

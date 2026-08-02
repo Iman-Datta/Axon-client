@@ -12,7 +12,7 @@ const COLUMNS = [
   "",
 ];
 
-function TicketTable({ tickets, onEdit, onDelete }) {
+function TicketTable({ tickets, onEdit, onDelete, onSelect }) {
   return (
     <div className="overflow-hidden rounded-2xl border border-[#30363d] bg-[#0d1117] shadow-[0_10px_30px_rgba(0,0,0,0.25)]">
       <div className="overflow-x-auto">
@@ -37,6 +37,7 @@ function TicketTable({ tickets, onEdit, onDelete }) {
                 ticket={ticket}
                 onEdit={onEdit}
                 onDelete={onDelete}
+                onSelect={onSelect}
               />
             ))}
           </tbody>
