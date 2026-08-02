@@ -42,13 +42,10 @@ function TicketRow({ ticket, onEdit, onDelete }) {
     let top;
 
     if (spaceBelow >= MENU_HEIGHT + GAP) {
-      // Open downward
       top = rect.bottom + GAP;
     } else if (spaceAbove >= MENU_HEIGHT + GAP) {
-      // Open upward
       top = rect.top - MENU_HEIGHT - GAP;
     } else {
-      // Not enough room either side -> keep inside viewport
       top = Math.max(
         PADDING,
         Math.min(rect.bottom + GAP, window.innerHeight - MENU_HEIGHT - PADDING),
@@ -226,7 +223,7 @@ function TicketRow({ ticket, onEdit, onDelete }) {
                   onEdit?.(ticket);
                 }}
               >
-                <span className="flex h-6 w-6 items-center justify-center rounded-md bg-[#388bfd]/10 text-[#58a6ff]">
+                <span className="flex h-6 w-6 items-center justify-center rounded-md">
                   <Pencil className="h-3.5 w-3.5" />
                 </span>
                 Edit ticket
