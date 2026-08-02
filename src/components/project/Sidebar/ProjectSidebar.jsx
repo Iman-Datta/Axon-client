@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FolderGit2, Menu } from "lucide-react";
+import { FolderGit2, Menu, ChevronRight } from "lucide-react";
 import { useParams } from "react-router-dom";
 
 import ProjectSidebarItem from "./ProjectSidebarItem";
@@ -45,27 +45,47 @@ function ProjectSidebar() {
 
       {/* Top Header */}
       <div className="border-b border-[#21262d] p-4">
-        <div className="mb-4 flex items-center justify-between">
+        <div
+          className={`mb-4 flex items-center ${collapsed ? "justify-center" : "justify-between"}`}
+        >
           {!collapsed && (
             <span className="text-sm font-semibold text-[#e6edf3]">
               Project
             </span>
           )}
 
-          <button
-            onClick={() => setCollapsed((prev) => !prev)}
-            className="rounded-xl p-2 text-[#8b949e] transition-all duration-200 hover:bg-[#161b22] hover:text-white"
-          >
-            <Menu size={18} />
-          </button>
+          {/* Hamburger only exists in the expanded state now */}
+          {!collapsed && (
+            <button
+              onClick={() => setCollapsed(true)}
+              className="rounded-xl p-2 text-[#8b949e] transition-all duration-200 hover:bg-[#161b22] hover:text-white"
+              title="Collapse sidebar"
+            >
+              <Menu size={18} />
+            </button>
+          )}
         </div>
 
-        {/* Project Card */}
-        <div
-          className={`group rounded-2xl border border-[#30363d] bg-linear-to-b from-[#161b22] to-[#11161d] p-4 transition-all duration-300 hover:border-[#3d444d] hover:shadow-[0_8px_24px_rgba(0,0,0,0.35)] ${collapsed ? "flex justify-center" : "flex items-center gap-4"}`}
+        {/* Project Card / Logo — doubles as the expand control when collapsed */}
+        <button
+          type="button"
+          onClick={() => collapsed && setCollapsed(false)}
+          title={collapsed ? "Expand sidebar" : undefined}
+          className={
+            collapsed
+              ? "group flex w-full justify-center"
+              : "group relative flex w-full cursor-default items-center gap-4 rounded-2xl border border-[#30363d] bg-linear-to-b from-[#161b22] to-[#11161d] p-4 transition-all duration-300 hover:border-[#388bfd66] hover:shadow-[0_8px_24px_rgba(56,139,253,0.18)]"
+          }
         >
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-[#30363d] bg-[#0d1117] transition-transform duration-300 group-hover:scale-105">
+          <div className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-[#30363d] bg-[#0d1117] transition-all duration-300 group-hover:scale-105 group-hover:border-[#388bfd88]">
             <FolderGit2 size={22} className="text-[#58a6ff]" />
+
+            {/* Chevron badge — only appears (on hover) when the logo is actually clickable */}
+            {collapsed && (
+              <span className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full border border-[#0d1117] bg-[#21262d] text-[#8b949e] opacity-0 shadow-md transition-all duration-200 group-hover:translate-x-0.5 group-hover:bg-[#1f6feb] group-hover:text-white group-hover:opacity-100">
+                <ChevronRight size={12} />
+              </span>
+            )}
           </div>
 
           {!collapsed && (
@@ -77,7 +97,7 @@ function ProjectSidebar() {
               <p className="mt-0.5 text-xs text-[#8b949e]">Project Workspace</p>
             </div>
           )}
-        </div>
+        </button>
       </div>
 
       {/* Scrollable Content */}
