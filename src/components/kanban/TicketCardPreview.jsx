@@ -14,7 +14,6 @@ import {
 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 
-// Priority: one small icon + accent color. No filled text badge.
 const priorityConfig = {
   LOW: { icon: Minus, color: "#8b949e", label: "Low priority" },
   MEDIUM: { icon: Signal, color: "#d29922", label: "Medium priority" },
@@ -22,7 +21,6 @@ const priorityConfig = {
   URGENT: { icon: ChevronsUp, color: "#f85149", label: "Urgent priority" },
 };
 
-// Type: icon only, same treatment as priority.
 const typeConfig = {
   TASK: { icon: CheckSquare, color: "#8b949e", label: "Task" },
   BUG: { icon: Bug, color: "#f85149", label: "Bug" },
@@ -30,10 +28,7 @@ const typeConfig = {
   FEATURE: { icon: Sparkles, color: "#a855f7", label: "Feature" },
 };
 
-// Tailwind's build-time scanner needs literal class strings — it can't
-// resolve `group-hover/${groupId}` at runtime. So each supported group
-// gets its own fully-literal class set here instead of being interpolated.
-const TOOLTIP_GROUP_CLASSES = {
+const TOOLTIP_CLASSES = {
   type: {
     wrapper: "group/type",
     icon: "group-hover/type:scale-110",
@@ -46,28 +41,29 @@ const TOOLTIP_GROUP_CLASSES = {
   },
 };
 
-/**
- * Small icon with a custom-styled tooltip that appears above it on hover.
- * groupId must be one of the keys in TOOLTIP_GROUP_CLASSES.
- */
-const IconTooltip = ({ Icon, color, label, groupId }) => {
-  const g = TOOLTIP_GROUP_CLASSES[groupId];
+const IconTooltip = ({ Icon, color, label, group }) => {
+  const cls = TOOLTIP_CLASSES[group];
+
   return (
-    <div className={`relative flex items-center ${g.wrapper}`}>
+    <div className={`relative flex items-center ${cls.wrapper}`}>
       <Icon
-        className={`h-3.5 w-3.5 transition-transform duration-150 ${g.icon}`}
+        className={`h-3.5 w-3.5 transition-transform duration-150 ${cls.icon}`}
         style={{ color }}
         strokeWidth={2.25}
       />
-      <span
-        className={`pointer-events-none absolute -top-8 left-1/2 z-20 -translate-x-1/2 scale-90 whitespace-nowrap rounded-md border border-[#30363d] bg-[#161b22] px-2 py-1 text-[10px] font-medium text-[#e6edf3] opacity-0 shadow-lg transition-all duration-150 ${g.tooltip}`}
+
+      <div
+        className={`pointer-events-none absolute -top-8 left-1/2 z-50 -translate-x-1/2 scale-95 whitespace-nowrap rounded-md border border-[#30363d] bg-[#161b22] px-2 py-1 text-[10px] font-medium text-[#e6edf3] opacity-0 shadow-xl transition-all duration-150 ${cls.tooltip}`}
       >
         {label}
+
         <span className="absolute left-1/2 top-full -translate-x-1/2 border-4 border-transparent border-t-[#161b22]" />
-      </span>
+      </div>
     </div>
   );
 };
+
+const CARD_HEIGHT = "h-[104px]";
 
 const TicketCardPreview = ({ ticket }) => {
   const {
@@ -91,7 +87,18 @@ const TicketCardPreview = ({ ticket }) => {
 
   const priority =
     priorityConfig[ticket.priority?.toUpperCase()] || priorityConfig.LOW;
+
   const type = typeConfig[ticket.type?.toUpperCase()] || typeConfig.TASK;
+
+  if (isDragging) {
+    return (
+      <div
+        ref={setNodeRef}
+        style={style}
+        className={`${CARD_HEIGHT} rounded-lg border-2 border-dashed border-[#388bfd]/50 bg-[#0d1117]/40`}
+      />
+    );
+  }
 
   return (
     <div
@@ -99,79 +106,75 @@ const TicketCardPreview = ({ ticket }) => {
       style={style}
       {...attributes}
       {...listeners}
-      onClick={() => {
-        if (isDragging) return;
-        navigate(`/${slug}/${project_slug}/tickets/${ticket.id}`);
-      }}
-      className={`group rounded-xl border p-4 transition-all duration-200 ${
-        isDragging
-          ? "cursor-grabbing border-dashed border-[#58a6ff]/50 bg-[#0d1117]/40 opacity-40"
-          : "cursor-pointer border-[#30363d] bg-[#0d1117] hover:border-[#388bfd]/40 hover:bg-[#111827]"
-      }`}
+      onClick={() => navigate(`/${slug}/${project_slug}/tickets/${ticket.id}`)}
+      className={`group flex ${CARD_HEIGHT} cursor-pointer flex-col justify-between rounded-lg border border-[#30363d] bg-[#0d1117] p-3 shadow-sm transition-all duration-200 hover:border-[#388bfd]/40 hover:bg-[#111827] hover:shadow-lg hover:shadow-[#388bfd]/5`}
     >
-      {/* Top row: ticket number on the left, type + priority icons on the right */}
-      <div className="mb-2 flex items-center justify-between">
-        <span className="text-[11px] font-medium tracking-wide text-[#6e7681]">
-          {ticket.ticket_number}
-        </span>
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-1.5">
+          <span className="text-[10.5px] font-semibold tracking-wide text-[#6e7681]">
+            {ticket.ticket_number}
+          </span>
 
-        <div className="flex items-center gap-2.5">
+          <span className="text-[#30363d]">·</span>
+
           <IconTooltip
             Icon={type.icon}
             color={type.color}
             label={type.label}
-            groupId="type"
+            group="type"
           />
+
           <IconTooltip
             Icon={priority.icon}
             color={priority.color}
             label={priority.label}
-            groupId="priority"
+            group="priority"
           />
         </div>
-      </div>
-
-      {/* Title */}
-      <h3 className="mb-3 line-clamp-2 text-[14px] font-medium leading-snug text-[#e6edf3] transition-colors group-hover:text-[#58a6ff]">
-        {ticket.title}
-      </h3>
-
-      {/* Epic — small dot + label, no solid color block */}
-      {ticket.epic && (
-        <div className="mb-3 inline-flex max-w-full items-center gap-1.5 truncate">
-          <span
-            className="h-1.5 w-1.5 shrink-0 rounded-full"
-            style={{ backgroundColor: ticket.epic.color }}
-          />
-          <span className="truncate text-[11px] font-medium text-[#8b949e]">
-            {ticket.epic.name}
-          </span>
-          {ticket.story_points && (
-            <span className="shrink-0 text-[11px] font-medium text-[#6e7681]">
-              · {ticket.story_points} pt
-            </span>
-          )}
-        </div>
-      )}
-
-      {/* Footer: due date left, assignee right */}
-      <div className="mt-3 flex items-center justify-between border-t border-[#21262d] pt-3">
-        {ticket.due_date ? (
-          <div className="flex items-center gap-1.5 text-[11px] text-[#6e7681]">
-            <CalendarDays className="h-3.5 w-3.5" />
-            {new Date(ticket.due_date).toLocaleDateString()}
-          </div>
-        ) : (
-          <div />
-        )}
 
         {ticket.assignee && (
           <img
             src={ticket.assignee.avatar}
             alt=""
-            title={`Assigned to ${ticket.assignee.username}`}
-            className="h-6 w-6 rounded-full border border-[#30363d] object-cover"
+            title={ticket.assignee.username}
+            className="h-6 w-6 rounded-full border border-[#30363d] object-cover transition-transform duration-200 group-hover:scale-105"
           />
+        )}
+      </div>
+
+      {/* Title */}
+      <h3 className="line-clamp-2 text-[13px] font-medium leading-snug text-[#e6edf3] transition-colors group-hover:text-[#58a6ff]">
+        {ticket.title}
+      </h3>
+
+      {/* Footer */}
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex min-w-0 items-center gap-1.5">
+          {ticket.epic && (
+            <span className="inline-flex max-w-[110px] min-w-0 items-center gap-1 truncate text-[10.5px] font-medium text-[#8b949e]">
+              <span
+                className="h-1.5 w-1.5 shrink-0 rounded-full"
+                style={{
+                  backgroundColor: ticket.epic.color,
+                }}
+              />
+              <span className="truncate">{ticket.epic.name}</span>
+            </span>
+          )}
+
+          {ticket.story_points && (
+            <span className="shrink-0 text-[10.5px] font-medium text-[#6e7681]">
+              · {ticket.story_points} pt
+            </span>
+          )}
+        </div>
+
+        {ticket.due_date && (
+          <div className="flex shrink-0 items-center gap-1 text-[10px] text-[#6e7681]">
+            <CalendarDays className="h-3 w-3" />
+            {new Date(ticket.due_date).toLocaleDateString()}
+          </div>
         )}
       </div>
     </div>
