@@ -178,7 +178,7 @@ function TicketsTablePage() {
   }
 
   return (
-    <div className="mt-18 space-y-8">
+    <div className="mt-18 space-y-8 px-5">
       <TicketHeader onCreateTicket={openCreateModal} count={count} />
 
       {tickets.length === 0 ? (

@@ -50,7 +50,7 @@ function ProjectSidebar() {
         >
           {!collapsed && (
             <span className="text-sm font-semibold text-[#e6edf3]">
-              Project
+              Projects
             </span>
           )}
 
