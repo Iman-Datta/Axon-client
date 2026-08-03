@@ -3,7 +3,7 @@ import TicketLegend from "./TicketLegend";
 
 const KanbanHeader = () => {
   return (
-    <header className="-mt-2 mb-5 border-b border-[#21262d] pb-3">
+    <header className="pt-2.5  border-b border-[#21262d] pb-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-[#30363d] bg-[#161b22]">
