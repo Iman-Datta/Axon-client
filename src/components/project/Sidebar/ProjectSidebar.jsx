@@ -17,7 +17,7 @@ function ProjectSidebar() {
 
   return (
     <aside
-      className={`sticky top-18 h-[calc(100vh-4.5rem)] shrink-0 border-r border-[#21262d] bg-linear-to-b from-[#0d1117]/98 via-[#0d1117]/95 to-[#0d1117]/98 backdrop-blur-md flex flex-col transition-all duration-300 ${collapsed ? "w-20" : "w-72"}`}
+      className={`sticky top-18 h-[calc(100vh-4.5rem)] shrink-0 border-r border-[#21262d] bg-linear-to-b from-[#0d1117]/98 via-[#0d1117]/95 to-[#0d1117]/98 backdrop-blur-md flex flex-col transition-all duration-300 ${collapsed ? "w-20" : "w-62"}`}
     >
       <style>{`
         .axon-sidebar-scroll::-webkit-scrollbar {
