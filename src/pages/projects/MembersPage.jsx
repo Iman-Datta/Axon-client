@@ -8,6 +8,7 @@ import EmptyState from "../../components/shared/resource/EmptyState";
 import MembersTable from "../../components/project/members/MembersTable";
 import MemberToolbar from "../../components/project/members/MemberToolbar";
 import AddMemberModal from "../../components/project/members/AddMemberModal";
+import MembersHeader from "../../components/project/members/MembersHeader";
 
 function MembersPage() {
   const [members, setMembers] = useState([]);
@@ -93,18 +94,9 @@ function MembersPage() {
   });
 
   return (
-    <div className="mt-18">
-      <div className="mb-3 flex items-start justify-between">
-        <div>
-          <h1 className="text-4xl font-bold text-[#e6edf3]">Project Members</h1>
-
-          <p className="mt-2 text-[#8b949e]">
-            Manage your project members and permissions.
-          </p>
-        </div>
-      </div>
-
-      <MemberToolbar
+    <div className="mt-21 px-2">
+      <MembersHeader
+        count={members.length}
         search={search}
         setSearch={setSearch}
         onAddMember={() => setInviteOpen(true)}
