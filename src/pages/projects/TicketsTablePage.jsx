@@ -178,9 +178,8 @@ function TicketsTablePage() {
   }
 
   return (
-    <div className="mt-18 space-y-8 px-5">
+    <div className="mt-18 px-2">
       <TicketHeader onCreateTicket={openCreateModal} count={count} />
-
       {tickets.length === 0 ? (
         <div className="rounded-2xl border border-[#30363d] bg-[#161b22] p-10 text-center">
           <h2 className="text-lg font-semibold text-[#e6edf3]">
