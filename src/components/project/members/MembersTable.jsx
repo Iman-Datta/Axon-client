@@ -2,7 +2,7 @@ import MemberRow from "./MemberRow";
 
 function MembersTable({ members }) {
   return (
-    <div className="overflow-hidden rounded-xl border border-[#30363d] bg-[#0d1117] ">
+    <div className="overflow-hidden rounded-xl border border-[#30363d] bg-[#0d1117]">
       <table className="w-full">
         <thead className="bg-[#161b22]">
           <tr className="border-b border-[#30363d] text-left text-xs uppercase tracking-wider text-[#8b949e]">

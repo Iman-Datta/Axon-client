@@ -6,7 +6,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { listMember, addMember } from "../../services/projectService";
 import EmptyState from "../../components/shared/resource/EmptyState";
 import MembersTable from "../../components/project/members/MembersTable";
-import MemberToolbar from "../../components/project/members/MemberToolbar";
 import AddMemberModal from "../../components/project/members/AddMemberModal";
 import MembersHeader from "../../components/project/members/MembersHeader";
 
@@ -101,9 +100,8 @@ function MembersPage() {
         setSearch={setSearch}
         onAddMember={() => setInviteOpen(true)}
       />
-      <div className="mt-3">
-        <MembersTable members={filteredMembers} />
-      </div>
+
+      <MembersTable members={filteredMembers} />
 
       <AddMemberModal
         open={inviteOpen}

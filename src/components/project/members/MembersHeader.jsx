@@ -1,13 +1,8 @@
 import { Search, UserPlus, Users } from "lucide-react";
 
-function MembersHeader({
-  count,
-  search,
-  setSearch,
-  onAddMember,
-}) {
+function MembersHeader({ count, search, setSearch, onAddMember }) {
   return (
-    <div className="mb-5 border-b border-[#21262d] pb-4">
+    <div className="mb-2.5 border-b border-[#21262d] pb-3">
       <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
         {/* Left */}
         <div className="flex items-center gap-3">
