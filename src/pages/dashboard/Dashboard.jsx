@@ -24,8 +24,8 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="mt-14 flex h-[calc(100dvh-56px)] w-full max-w-full flex-col overflow-hidden p-6">
-      <div className="flex-shrink-0">
+    <div className="mt-14 flex h-[calc(100dvh-56px)] w-full max-w-full flex-col overflow-hidden p-2">
+      <div className="flex-shrink-0 pt-3">
         <KanbanHeader />
       </div>
 
