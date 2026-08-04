@@ -212,7 +212,7 @@ const KanbanBoard = ({ tickets, setTickets }) => {
       collisionDetection={closestCorners}
     >
       <div
-        className="h-full w-full overflow-x-auto overflow-y-hidden pb-4
+        className="h-full w-full overflow-x-auto overflow-y-hidden
         [scrollbar-width:thin] [scrollbar-color:#30363d_transparent]
         [&::-webkit-scrollbar]:h-2
         [&::-webkit-scrollbar-track]:bg-transparent
@@ -220,7 +220,7 @@ const KanbanBoard = ({ tickets, setTickets }) => {
         [&::-webkit-scrollbar-thumb]:bg-[#30363d]
         hover:[&::-webkit-scrollbar-thumb]:bg-[#484f58]"
       >
-        <div className="flex h-full items-stretch gap-4 pt-4">
+        <div className="flex h-full items-stretch gap-2 pt-3">
           {COLUMN_ORDER.map((column) => (
             <KanbanColumn
               key={column}
