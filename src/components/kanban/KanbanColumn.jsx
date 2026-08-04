@@ -1,4 +1,3 @@
-// components/kanban/KanbanColumn.jsx
 import { useDroppable } from "@dnd-kit/core";
 import {
   SortableContext,
@@ -45,7 +44,7 @@ const KanbanColumn = ({ column, tickets, placeholder }) => {
   return (
     <div
       ref={setNodeRef}
-      className={`flex h-full w-[280px]  flex-shrink-0 flex-col overflow-hidden rounded-2xl border bg-[#161b22] shadow-lg shadow-black/20 transition-colors duration-200 ${
+      className={`flex h-full w-64  flex-shrink-0 flex-col overflow-hidden rounded-2xl border bg-[#161b22] shadow-lg shadow-black/20 transition-colors duration-200 ${
         isOver ? "border-[#388bfd]/50" : "border-[#30363d]"
       }`}
     >
