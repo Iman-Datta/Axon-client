@@ -1,4 +1,3 @@
-// pages/project/EpicPage.jsx
 import { useState, useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
@@ -149,7 +148,7 @@ function EpicPage() {
   }
 
   return (
-    <div className="mt-18 space-y-8">
+    <div className="mt-22 space-y-8 px-2">
       <EpicHeader count={count} onCreateEpic={openCreateModal} />
 
       <EpicGrid
