@@ -148,7 +148,7 @@ function EpicPage() {
   }
 
   return (
-    <div className="mt-22 space-y-8 px-2">
+    <div className="mt-22 space-y-3 px-2">
       <EpicHeader count={count} onCreateEpic={openCreateModal} />
 
       <EpicGrid
