@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useOutletContext } from "react-router-dom";
-import { Lock, Globe, Copy, Check } from "lucide-react";
+import { Lock, Globe } from "lucide-react";
 
 function SectionCard({ title, description, children }) {
   return (
@@ -21,19 +21,12 @@ function GeneralSetting() {
   const [description, setDescription] = useState(project.description || "");
   const [website, setWebsite] = useState(project.website || "");
   const [visibility, setVisibility] = useState(project.visibility || "public");
-  const [copied, setCopied] = useState(false);
 
   const isDirty =
     name !== (project.name || "") ||
     description !== (project.description || "") ||
     website !== (project.website || "") ||
     visibility !== (project.visibility || "public");
-
-  const handleCopySlug = () => {
-    navigator.clipboard?.writeText(project.slug || "");
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1500);
-  };
 
   const handleSave = () => {
     // Wire this up to your update-project mutation.
@@ -59,26 +52,6 @@ function GeneralSetting() {
           placeholder="e.g. Axon Backend V2"
           className="w-full rounded-lg border border-[#30363d] bg-[#0d1117] px-3 py-2 text-[#f0f6fc] outline-none transition focus:border-[#388bfd]"
         />
-      </SectionCard>
-
-      {/* Slug (read-only) */}
-      <SectionCard
-        title="Project slug"
-        description="The unique identifier used in URLs. Slugs can't be changed after a project is created."
-      >
-        <div className="flex items-center justify-between gap-3 rounded-lg border border-[#30363d] bg-[#0d1117]/60 px-3 py-2">
-          <code className="truncate text-sm text-[#8b949e]">
-            {project.slug || "—"}
-          </code>
-          <button
-            type="button"
-            onClick={handleCopySlug}
-            className="flex shrink-0 items-center gap-1.5 rounded-md px-2 py-1 text-xs text-[#8b949e] transition hover:bg-[#21262d] hover:text-[#c9d1d9]"
-          >
-            {copied ? <Check size={13} /> : <Copy size={13} />}
-            {copied ? "Copied" : "Copy"}
-          </button>
-        </div>
       </SectionCard>
 
       {/* Description */}

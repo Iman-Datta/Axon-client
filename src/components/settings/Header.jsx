@@ -1,12 +1,13 @@
 import {
   CalendarDays,
   Clock,
-  GitBranch,
   Globe,
   Lock,
   Archive,
   Building2,
+  ArrowUpRight,
 } from "lucide-react";
+import { FaGithub } from "react-icons/fa";
 
 // Formats an ISO date string into "3 days ago" / "just now" / "2 months ago"
 function timeAgo(dateString) {
@@ -51,8 +52,8 @@ function VisibilityBadge({ visibility }) {
     <span
       className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${
         isPublic
-          ? "border-[#2ea043]/40 bg-[#238636]/15 text-[#3fb950]"
-          : "border-[#8b949e]/40 bg-[#8b949e]/10 text-[#8b949e]"
+          ? "border-[#3fb950]/30 bg-[#238636]/10 text-[#3fb950]"
+          : "border-[#8b949e]/30 bg-[#8b949e]/10 text-[#8b949e]"
       }`}
     >
       <Icon size={12} />
@@ -61,7 +62,7 @@ function VisibilityBadge({ visibility }) {
   );
 }
 
-function Header({ title, description, outletContext }) {
+function Header({ description, outletContext }) {
   const project = outletContext || {};
   const {
     name,
@@ -75,104 +76,133 @@ function Header({ title, description, outletContext }) {
     updated_at,
   } = project;
 
+  const githubUrl = created_by?.github_username
+    ? `https://github.com/${created_by.github_username}`
+    : null;
+
+  const displayName = created_by?.first_name
+    ? `${created_by.first_name} ${created_by.last_name ?? ""}`.trim()
+    : created_by?.username;
+
   return (
-    <div className="border-b border-[#21262d] px-6 py-6">
-      {/* Page title */}
-      <h1 className="text-3xl font-bold text-white">{title}</h1>
-      {description && (
-        <p className="mt-2 text-sm text-gray-400">{description}</p>
-      )}
-
-      {/* Project summary card */}
-      <div className="mt-6 rounded-xl border border-[#30363d] bg-[#161b22] p-5">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          {/* Left: identity */}
-          <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-2">
-              <h2 className="truncate text-xl font-semibold text-[#f0f6fc]">
-                {name || "Untitled project"}
-              </h2>
-              {is_archived && (
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-[#d29922]/40 bg-[#d29922]/10 px-2.5 py-1 text-xs font-medium text-[#e3b341]">
-                  <Archive size={12} />
-                  Archived
-                </span>
-              )}
-              {visibility && <VisibilityBadge visibility={visibility} />}
-            </div>
-
-            <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-[#8b949e]">
-              <span className="inline-flex items-center gap-1.5">
-                <GitBranch size={14} />
-                <code className="rounded bg-[#0d1117] px-1.5 py-0.5 text-xs text-[#79c0ff]">
-                  {slug || "—"}
-                </code>
+    <div className="border-b border-[#21262d] bg-[#0d1117] px-6 py-7">
+      <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+        {/* Left: identity */}
+        <div className="min-w-0 flex-1">
+          {/* workspace / slug breadcrumb */}
+          <div className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-[#6e7681]">
+            {workspace_type && (
+              <span className="flex items-center gap-1.5">
+                <Building2 size={12} />
+                {workspace_type}
               </span>
+            )}
+            <span className="text-[#30363d]">/</span>
+            <code className="text-[#79c0ff]">{slug}</code>
+          </div>
 
-              {workspace_type && (
-                <span className="inline-flex items-center gap-1.5 capitalize">
-                  <Building2 size={14} />
-                  {workspace_type}
-                </span>
-              )}
+          {/* title + badges */}
+          <div className="mt-2 flex flex-wrap items-center gap-3">
+            <h1 className="truncate text-3xl font-bold text-[#f0f6fc]">
+              {name}
+            </h1>
+            {visibility && <VisibilityBadge visibility={visibility} />}
+            {is_archived && (
+              <span className="inline-flex items-center gap-1 rounded-full border border-[#d29922]/40 bg-[#d29922]/10 px-2.5 py-1 text-xs font-medium text-[#e3b341]">
+                <Archive size={12} />
+                Archived
+              </span>
+            )}
+          </div>
 
-              {website && (
+          {description && (
+            <p className="mt-2.5 max-w-2xl text-sm leading-relaxed text-[#8b949e]">
+              {description}
+            </p>
+          )}
+
+          {/* meta row */}
+          <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-[#8b949e]">
+            <span className="flex items-center gap-1.5">
+              <CalendarDays size={14} />
+              Created&nbsp;
+              <span className="text-[#c9d1d9]">{formatDate(created_at)}</span>
+            </span>
+
+            <span className="text-[#30363d]">•</span>
+
+            <span className="flex items-center gap-1.5">
+              <Clock size={14} />
+              Updated&nbsp;
+              <span className="text-[#c9d1d9]">{timeAgo(updated_at)}</span>
+            </span>
+
+            {website && (
+              <>
+                <span className="text-[#30363d]">•</span>
                 <a
                   href={website}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-[#58a6ff] hover:underline"
+                  className="flex items-center gap-1.5 text-[#58a6ff] hover:underline"
                 >
                   <Globe size={14} />
                   {website.replace(/^https?:\/\//, "")}
                 </a>
-              )}
-            </div>
+              </>
+            )}
           </div>
+        </div>
 
-          {/* Right: created by */}
-          {created_by && (
-            <div className="flex items-center gap-2.5 rounded-lg border border-[#30363d] bg-[#0d1117] px-3 py-2">
-              {created_by.avatar && (
-                <img
-                  src={created_by.avatar}
-                  alt={created_by.username}
-                  className="h-8 w-8 rounded-full border border-[#30363d]"
-                />
-              )}
-              <div className="leading-tight">
-                <p className="text-xs text-[#8b949e]">Created by</p>
-                <p className="text-sm font-medium text-[#f0f6fc]">
-                  {created_by.first_name
-                    ? `${created_by.first_name} ${created_by.last_name || ""}`.trim()
-                    : created_by.username}
-                </p>
+        {created_by && (
+          <a
+            href={githubUrl || undefined}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`group inline-flex items-center gap-3 transition-colors ${
+              githubUrl ? "hover:text-[#58a6ff]" : "cursor-default"
+            }`}
+          >
+            {created_by.avatar ? (
+              <img
+                src={created_by.avatar}
+                alt={created_by.username}
+                className="h-10 w-10 rounded-full border border-[#30363d]"
+              />
+            ) : (
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#1f6feb]/15 font-semibold text-[#58a6ff]">
+                {created_by.username?.charAt(0).toUpperCase()}
+              </div>
+            )}
+
+            <div className="leading-tight">
+              <div className="flex items-center gap-2">
+                <span className="font-medium text-[#f0f6fc]">
+                  {displayName}
+                </span>
+
+                {githubUrl && (
+                  <ArrowUpRight
+                    size={13}
+                    className="opacity-0 transition-all duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:opacity-100"
+                  />
+                )}
+              </div>
+
+              <div className="flex items-center gap-1 text-sm text-[#8b949e]">
+                <span>Owner</span>
+
+                {githubUrl && (
+                  <>
+                    <span>•</span>
+                    <FaGithub size={12} />
+                    <span>{created_by.github_username}</span>
+                  </>
+                )}
               </div>
             </div>
-          )}
-        </div>
-
-        {/* Divider */}
-        <div className="my-4 h-px bg-[#21262d]" />
-
-        {/* Timestamps */}
-        <div className="flex flex-wrap gap-x-8 gap-y-2 text-sm">
-          <div className="flex items-center gap-2 text-[#8b949e]">
-            <CalendarDays size={15} />
-            <span>
-              Created{" "}
-              <span className="text-[#c9d1d9]">{formatDate(created_at)}</span>
-            </span>
-          </div>
-
-          <div className="flex items-center gap-2 text-[#8b949e]">
-            <Clock size={15} />
-            <span>
-              Updated{" "}
-              <span className="text-[#c9d1d9]">{timeAgo(updated_at)}</span>
-            </span>
-          </div>
-        </div>
+          </a>
+        )}
       </div>
     </div>
   );
