@@ -5,32 +5,38 @@ function NavBar({ type = "project" }) {
   const items = SETTINGS_NAV[type] ?? [];
 
   return (
-    <nav className="w-2xl border-b border-[#21262d]">
-      <div className="flex w-full overflow-x-auto">
-        {items.map(({ name, icon: Icon, path, danger }) => (
-          <NavLink
-            key={path}
-            to={path}
-            end
-            className={({ isActive }) =>
-              [
-                "flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-medium transition-colors duration-150",
-                isActive
-                  ? danger
-                    ? "border-[#f85149] text-[#f85149]"
-                    : "border-[var(--accent)] text-[var(--accent)]"
-                  : danger
-                    ? "border-transparent text-[#f85149]/70 hover:border-[#f85149]/30 hover:text-[#f85149]"
-                    : "border-transparent text-[#8b949e] hover:border-[#8b949e]/30 hover:text-[#c9d1d9]",
-              ].join(" ")
-            }
-          >
-            <Icon size={16} />
-            {name}
-          </NavLink>
-        ))}
-      </div>
-    </nav>
+    <div>
+      <h2 className="pt-2 text-sm font-bold uppercase tracking-wider text-gray-300">
+        Project Settings
+      </h2>
+
+      <nav className="w-full border-b border-[#21262d]">
+        <div className="flex items-center gap-2 overflow-x-auto pb-2">
+          {items.map(({ name, icon: Icon, path, danger }) => (
+            <NavLink
+              key={path}
+              to={path}
+              end
+              className={({ isActive }) =>
+                [
+                  "flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-all duration-200",
+                  isActive
+                    ? danger
+                      ? "bg-[#f85149]/10 text-[#f85149] ring-1 ring-[#f85149]/30"
+                      : "bg-[#1f6feb]/10 text-[#58a6ff] ring-1 ring-[#58a6ff]/25"
+                    : danger
+                      ? "text-[#f85149]/75 hover:bg-[#f85149]/8 hover:text-[#f85149]"
+                      : "text-[#8b949e] hover:bg-[#161b22] hover:text-[#f0f6fc]",
+                ].join(" ")
+              }
+            >
+              <Icon size={16} strokeWidth={2} />
+              <span>{name}</span>
+            </NavLink>
+          ))}
+        </div>
+      </nav>
+    </div>
   );
 }
 
