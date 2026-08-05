@@ -1,0 +1,32 @@
+import { Outlet } from "react-router-dom";
+
+import Header from "../settings/Header";
+import NavBar from "../settings/NavBar";
+
+function SettingsLayout({
+  title = "Settings",
+  description = "",
+  type = "project",
+  context,
+}) {
+  return (
+    <section className="min-h-screen bg-[#0d1117] pt-15">
+      <Header
+        title={title}
+        description={description}
+        type={type}
+        outletContext={context.project}
+      />
+
+      <div className="mx-auto w-full px-4 sm:px-8">
+        <NavBar type={type} />
+
+        <main className="py-10">
+          <Outlet context={context.project}/>
+        </main>
+      </div>
+    </section>
+  );
+}
+
+export default SettingsLayout;

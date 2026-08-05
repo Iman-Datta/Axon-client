@@ -22,6 +22,9 @@ import TicketsTablePage from "./pages/projects/TicketsTablePage";
 import IntegrationsPage from "./pages/projects/IntegrationsPage";
 import MembersPage from "./pages/projects/MembersPage";
 
+import ProjectSettings from "./pages/projects/ProjectSettings";
+import GeneralSetting from "./pages/settings/GeneralSetting";
+
 import Dashboard from "./pages/dashboard/Dashboard";
 
 import WorkspaceResolver from "./components/routing/WorkspaceResolver";
@@ -178,8 +181,15 @@ function App() {
           <Route path="epics" element={<EpicsPage />} />
           <Route path="integrations" element={<IntegrationsPage />} />
           <Route path="members" element={<MembersPage />} />
-          {/* <Route path="activity" element={<ActivityPage />} />
-          <Route path="settings" element={<SettingsPage />} /> */}
+          <Route path="settings" element={<ProjectSettings />}>
+            <Route index element={<GeneralSetting />} />
+            {/* <Route path="general" element={<ProjectGeneralSettings />} /> */}
+            {/* <Route path="workflow" element={<WorkflowSettings />} /> */}
+            {/* <Route path="labels" element={<LabelSettings />} /> */}
+            {/* <Route path="priorities" element={<PrioritySettings />} /> */}
+            {/* <Route path="danger" element={<DangerZone />} /> */}
+          </Route>
+          {/* <Route path="activity" element={<ActivityPage />} /> */}
         </Route>
       </Routes>
     </div>
