@@ -15,7 +15,6 @@ export const SETTINGS_NAV = {
     { name: "General", icon: Settings, path: "" },
     { name: "Workflow", icon: Workflow, path: "workflow" },
     { name: "Labels", icon: Tags, path: "labels" },
-    { name: "Priorities", icon: Flag, path: "priorities" },
     { name: "Danger Zone", icon: TriangleAlert, path: "danger", danger: true },
   ],
 

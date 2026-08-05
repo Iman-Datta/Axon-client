@@ -24,6 +24,9 @@ import MembersPage from "./pages/projects/MembersPage";
 
 import ProjectSettings from "./pages/projects/ProjectSettings";
 import GeneralSetting from "./pages/settings/GeneralSetting";
+import WorkflowSettings from "./pages/settings/WorkflowSettings";
+import LabelsSetting from "./pages/settings/LabelsSetting";
+import Danger from "./pages/settings/Danger";
 
 import Dashboard from "./pages/dashboard/Dashboard";
 
@@ -183,11 +186,9 @@ function App() {
           <Route path="members" element={<MembersPage />} />
           <Route path="settings" element={<ProjectSettings />}>
             <Route index element={<GeneralSetting />} />
-            {/* <Route path="general" element={<ProjectGeneralSettings />} /> */}
-            {/* <Route path="workflow" element={<WorkflowSettings />} /> */}
-            {/* <Route path="labels" element={<LabelSettings />} /> */}
-            {/* <Route path="priorities" element={<PrioritySettings />} /> */}
-            {/* <Route path="danger" element={<DangerZone />} /> */}
+            <Route path="workflow" element={<WorkflowSettings />} />
+            <Route path="labels" element={<LabelsSetting />} />
+            <Route path="danger" element={<Danger />} />
           </Route>
           {/* <Route path="activity" element={<ActivityPage />} /> */}
         </Route>
