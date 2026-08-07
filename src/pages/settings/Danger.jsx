@@ -1,16 +1,41 @@
 import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate, useParams } from "react-router-dom";
+
+import { leaveProject } from "../../services/projectService";
 import { TriangleAlert, X } from "lucide-react";
 
 function Danger() {
   const [open, setOpen] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const [confirmText, setConfirmText] = useState("");
+
+  const navigate = useNavigate();
+  const { slug, project_slug } = useParams();
+
+  const dispatch = useDispatch();
+  const accessToken = useSelector((state) => state.auth.accessToken);
 
   const canLeave = confirmText === "CONFIRM";
 
-  const handleLeave = () => {
-    console.log("Leaving project...");
-    setOpen(false);
-    setConfirmText("");
+  const handleLeave = async () => {
+    try {
+      setLoading(true);
+      setError("");
+
+      await leaveProject(slug, project_slug, dispatch, accessToken);
+
+      setOpen(false);
+      setConfirmText("");
+
+      navigate(`/${slug}/projects`);
+    } catch (err) {
+      console.error(err);
+      setError(err.message || "Failed to leave project.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -45,7 +70,11 @@ function Danger() {
               </p>
 
               <button
-                onClick={() => setOpen(true)}
+                onClick={() => {
+                  setOpen(true);
+                  setConfirmText("");
+                  setError("");
+                }}
                 className="mt-5 rounded-md border border-[#f85149]/50 bg-[#da3633]/10 px-4 py-2 text-sm font-medium text-[#f85149] transition hover:bg-[#da3633]/20"
               >
                 Leave Project
@@ -68,6 +97,7 @@ function Danger() {
                 onClick={() => {
                   setOpen(false);
                   setConfirmText("");
+                  setError("");
                 }}
                 className="rounded-md p-1 text-[#8b949e] transition hover:bg-[#21262d] hover:text-white"
               >
@@ -81,13 +111,21 @@ function Danger() {
                 <span className="font-semibold text-[#f85149]">CONFIRM</span>{" "}
                 below to leave this project.
               </p>
-
+              {error && (
+                <div className="rounded-md border border-[#f85149]/30 bg-[#f85149]/10 px-3 py-2 text-sm text-[#f85149]">
+                  {error}
+                </div>
+              )}
               <input
                 type="text"
                 value={confirmText}
-                onChange={(e) => setConfirmText(e.target.value)}
+                disabled={loading}
+                onChange={(e) => {
+                  setConfirmText(e.target.value);
+                  if (error) setError("");
+                }}
                 placeholder="Type CONFIRM"
-                className="w-full rounded-md border border-[#30363d] bg-[#0d1117] px-3 py-2 text-sm text-[#f0f6fc] outline-none transition focus:border-[#f85149]"
+                className="w-full rounded-md border border-[#30363d] bg-[#0d1117] px-3 py-2 text-sm text-[#f0f6fc] outline-none transition focus:border-[#f85149] disabled:cursor-not-allowed disabled:opacity-60"
               />
             </div>
 
@@ -96,6 +134,7 @@ function Danger() {
                 onClick={() => {
                   setOpen(false);
                   setConfirmText("");
+                  setError("");
                 }}
                 className="rounded-md border border-[#30363d] px-4 py-2 text-sm text-[#c9d1d9] transition hover:bg-[#21262d]"
               >
@@ -103,11 +142,11 @@ function Danger() {
               </button>
 
               <button
-                disabled={!canLeave}
+                disabled={!canLeave || loading}
                 onClick={handleLeave}
                 className="rounded-md bg-[#da3633] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#f85149] disabled:cursor-not-allowed disabled:opacity-50"
               >
-                Leave Project
+                {loading ? "Leaving..." : "Leave Project"}
               </button>
             </div>
           </div>

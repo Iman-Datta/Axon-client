@@ -137,10 +137,11 @@ export const leaveProject = async (
     accessToken,
   );
 
+  const data = await res.json();
+
   if (!res.ok) {
-    const responseData = await res.json();
-    throw new Error(responseData.message || "Failed to leave project.");
+    throw data;
   }
 
-  return res.status === 204 ? null : await res.json();
+  return data;
 };
