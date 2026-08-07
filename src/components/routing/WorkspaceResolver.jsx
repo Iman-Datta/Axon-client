@@ -31,18 +31,15 @@ function WorkspaceResolver() {
     const loadWorkspace = async () => {
       try {
         setLoading(true);
-        // 1. Current workspace already correct
         if (currentWorkspace?.slug === slug) {
           return;
         }
-        // 2. Check cache first
         const cachedWorkspace = workspaceCache[slug];
 
         if (cachedWorkspace) {
           dispatch(setCurrentWorkspace(cachedWorkspace));
           return;
         }
-        // 3. API call
         const data = await getWorkspaceType(slug, dispatch, accessToken);
 
         const workspace = {
