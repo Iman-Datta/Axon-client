@@ -34,9 +34,7 @@ function ProfileHeader({ user }) {
 
               <p className="mt-1 text-base text-[#8b949e]">@{user.username}</p>
 
-              <p className="mt-3 text-sm text-[#8b949e]">
-                {user.bio || "Building with Axon"}
-              </p>
+              
             </div>
           </div>
         </div>
