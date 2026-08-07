@@ -101,9 +101,9 @@ export const updateProject = async (
   accessToken,
 ) => {
   const res = await fetchWithAuth(
-    `${API}/projects/${slug}/${project_slug}/update`,
+    `${API}/projects/${slug}/${project_slug}/update/`,
     {
-      method: "POST",
+      method: "PATCH",
       headers: {
         "Content-Type": "application/json",
       },

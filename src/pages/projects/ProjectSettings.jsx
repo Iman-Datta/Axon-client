@@ -33,7 +33,7 @@ function ProjectSettings() {
         }
 
         const data = await res.json();
-        setProject(data);
+        setProject(data.project);
       } catch (err) {
         setError(err.message || "Something went wrong.");
       } finally {
@@ -57,7 +57,10 @@ function ProjectSettings() {
       title="Project Settings"
       description="Manage your project's configuration and preferences."
       type="project"
-      context={project}
+      context={{
+        project,
+        setProject,
+      }}
     />
   );
 }

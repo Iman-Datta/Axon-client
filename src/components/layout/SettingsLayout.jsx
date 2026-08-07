@@ -22,7 +22,7 @@ function SettingsLayout({
         <NavBar type={type} />
 
         <main className="py-10">
-          <Outlet context={context.project}/>
+          <Outlet context={context} />
         </main>
       </div>
     </section>
