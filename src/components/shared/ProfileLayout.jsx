@@ -2,6 +2,7 @@ import ProfileHeader from "../profile/ProfileHeader";
 import ProfileSidebar from "../profile/Profilesidebar";
 
 function ProfileLayout({ user, children }) {
+  
   return (
     <main className="min-h-screen bg-[#0d1117] text-[#c9d1d9]">
       <ProfileHeader user={user} />
