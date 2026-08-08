@@ -34,6 +34,7 @@ import Danger from "./pages/settings/project/Danger";
 import WorkspaceSettings from "./components/routing/WorkspaceSettings";
 import Dashboard from "./pages/dashboard/Dashboard";
 import GeneralSettings from "./pages/settings/workspace/Generalsettings";
+import Account from "./pages/settings/workspace/Account";
 
 // Workspace
 import WorkspaceResolver from "./components/routing/WorkspaceResolver";
@@ -175,6 +176,7 @@ function App() {
           <Route index element={<GeneralSettings />} />
           <Route path="permissions" element={<ComingSoon />} />
           <Route path="integrations" element={<ComingSoon />} />
+          <Route path="account" element={<Account />} />
         </Route>
 
         <Route
