@@ -35,6 +35,8 @@ import WorkspaceSettings from "./components/routing/WorkspaceSettings";
 import Dashboard from "./pages/dashboard/Dashboard";
 import GeneralSettings from "./pages/settings/workspace/Generalsettings";
 import Account from "./pages/settings/workspace/Account";
+import Security from "./pages/settings/workspace/Security";
+import DangerOrg from "./pages/settings/workspace/DangerOrg";
 
 // Workspace
 import WorkspaceResolver from "./components/routing/WorkspaceResolver";
@@ -177,6 +179,9 @@ function App() {
           <Route path="permissions" element={<ComingSoon />} />
           <Route path="integrations" element={<ComingSoon />} />
           <Route path="account" element={<Account />} />
+          <Route path="security" element={<Security />} />
+          <Route path="danger" element={<DangerOrg />} />
+          <Route path="connections" element={<ComingSoon />} />
         </Route>
 
         <Route
