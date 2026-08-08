@@ -3,7 +3,7 @@ import { Outlet } from "react-router-dom";
 import Header from "../settings/Header";
 import NavBar from "../settings/NavBar";
 
-function SettingsLayout({
+function ProjectSettingsLayout({
   title = "Settings",
   description = "",
   type = "project",
@@ -29,4 +29,4 @@ function SettingsLayout({
   );
 }
 
-export default SettingsLayout;
+export default ProjectSettingsLayout;

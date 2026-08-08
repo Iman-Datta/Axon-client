@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
 import { fetchWithAuth } from "../../utils/fetchWithAuth";
-import SettingsLayout from "../../components/layout/SettingsLayout";
+import ProjectSettingsLayout from "../../components/layout/ProjectSettingsLayout";
 
 function ProjectSettings() {
   const API = import.meta.env.VITE_API_URL;
@@ -53,7 +53,7 @@ function ProjectSettings() {
   }
 
   return (
-    <SettingsLayout
+    <ProjectSettingsLayout
       title="Project Settings"
       description="Manage your project's configuration and preferences."
       type="project"

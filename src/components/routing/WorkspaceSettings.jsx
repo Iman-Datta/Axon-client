@@ -1,5 +1,7 @@
 import { useSelector } from "react-redux";
 
+import ProfileSettings from "../../pages/settings/personal/ProfileSettings";
+
 function WorkspaceSettings() {
   console.log("Setting");
   const workspace = useSelector((state) => state.workspace.currentWorkspace);
@@ -14,9 +16,9 @@ function WorkspaceSettings() {
   }
 
   if (workspace.type === "personal") {
-    console.log("personal");
+    return <ProfileSettings />;
   } else {
-    return console.log("Org");
+    <div className="text-white">Organization settings coming soon.</div>;
   }
 }
 
