@@ -2,7 +2,6 @@ import {
   MapPin,
   Calendar,
   Code2,
-  Link as LinkIcon,
   Mail,
   Globe,
   ArrowUpRight,
@@ -10,84 +9,109 @@ import {
 import { FaGithub, FaLinkedin } from "react-icons/fa";
 
 function ProfileSidebar() {
-  const badge = "Axon Founder";
-
   const bio =
     "Building Axon: a Git-aware developer collaboration platform with tickets, projects, teams and automation.";
 
-  // Plain facts — not clickable
   const metaDetails = [
     { icon: MapPin, label: "Location", value: "Kolkata, India" },
     { icon: Calendar, label: "Joined", value: "June 2026" },
-    { icon: Code2, label: "Stack", value: "Django • React • DRF" },
+    { icon: Code2, label: "Stack", value: "Django · React · DRF" },
   ];
 
-  // Clickable — every entry renders as a real <a href>
   const socialLinks = [
-    { icon: Mail, label: "Email", href: "mailto:iman@axon.dev" },
-    { icon: LinkIcon, label: "Website", href: "https://iman.dev" },
-    { icon: FaGithub, label: "GitHub", href: "https://github.com/iman" },
+    {
+      icon: FaGithub,
+      label: "GitHub",
+      handle: "Iman-Datta",
+      href: "https://github.com/Iman-Datta",
+    },
     {
       icon: FaLinkedin,
       label: "LinkedIn",
+      handle: "iman",
       href: "https://linkedin.com/in/iman",
+    },
+    {
+      icon: Globe,
+      label: "Website",
+      handle: "iman.dev",
+      href: "https://iman.dev",
+    },
+    {
+      icon: Mail,
+      label: "Email",
+      handle: "iman@axon.dev",
+      href: "mailto:iman@axon.dev",
     },
   ];
 
-  const portfolioUrl = "https://iman.dev";
-
   return (
-    <div className="border border-[#30363d] bg-[#161b22] rounded-2xl p-6 shadow-sm">
-      {/* Badge */}
-      <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-[#2f81f7]/10 border border-[#2f81f7]/20 text-[#2f81f7] text-xs font-semibold">
-        {badge}
-      </span>
+    <aside className="relative pr-5">
+      <div className="pointer-events-none absolute right-0 top-1 bottom-1 w-px bg-gradient-to-b from-transparent via-[#30363d] to-transparent" />
 
-      {/* Bio */}
-      <p className="mt-4 text-[15px] leading-relaxed text-[#c9d1d9]">{bio}</p>
+      {/* Identity */}
 
-      {/* Meta facts — refined, minimal layout */}
-      <dl className="mt-6 flex flex-col gap-3.5">
-        {metaDetails.map(({ icon: Icon, label, value }) => (
-          <div key={label} className="flex items-center gap-3">
-            <Icon size={16} className="text-[#8b949e]" />
-            <div className="flex flex-col">
-              <dt className="sr-only">{label}</dt>
-              <dd className="text-sm font-medium text-[#c9d1d9]">{value}</dd>
-            </div>
-          </div>
-        ))}
-      </dl>
-
-      {/* Social icon row — sleek hover transitions */}
-      <div className="mt-6 pt-6 border-t border-[#30363d] flex flex-wrap gap-3">
-        {socialLinks.map(({ icon: Icon, label, href }) => (
-          <a
-            key={label}
-            href={href}
-            target="_blank"
-            rel="noopener noreferrer"
-            title={label}
-            aria-label={label}
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-[#21262d] text-[#8b949e] hover:bg-[#30363d] hover:text-[#c9d1d9] transition-all"
-          >
-            <Icon size={16} />
-          </a>
-        ))}
+      {/* About */}
+      <div className="mt-6">
+        <h2 className="text-xs font-semibold uppercase tracking-wider text-[#8b949e]">
+          About
+        </h2>
+        <p className="mt-3 text-[14px] leading-relaxed text-[#c9d1d9]">{bio}</p>
       </div>
 
-      {/* Portfolio CTA — Unboxed, clean text link */}
-      <a
-        href={portfolioUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-[#2f81f7] hover:text-[#58a6ff] hover:underline transition-all w-fit"
-      >
-        <Globe size={15} />
-        View Portfolio
-        <ArrowUpRight size={14} className="ml-0.5" />
-      </a>
-    </div>
+      {/* Profile details */}
+      <div className="mt-6 border-t border-[#21262d] pt-6">
+        <dl className="space-y-3.5">
+          {metaDetails.map(({ icon: Icon, label, value }) => (
+            <div key={label} className="flex items-center gap-3">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-[#161b22] ring-1 ring-[#21262d]">
+                <Icon size={14} className="text-[#8b949e]" />
+              </span>
+              <div className="min-w-0 leading-tight">
+                <dt className="text-[11px] text-[#6e7681]">{label}</dt>
+                <dd className="truncate text-sm text-[#c9d1d9]">{value}</dd>
+              </div>
+            </div>
+          ))}
+        </dl>
+      </div>
+
+      {/* Links */}
+      <div className="mt-6 border-t border-[#21262d] pt-6">
+        <h2 className="text-xs font-semibold uppercase tracking-wider text-[#8b949e]">
+          Links
+        </h2>
+
+        <div className="mt-3 space-y-1">
+          {socialLinks.map(({ icon: Icon, label, handle, href }) => (
+            <a
+              key={label}
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group -mx-2 flex items-center gap-3 rounded-md px-2 py-2 transition-colors hover:bg-[#161b22]"
+            >
+              <Icon
+                size={16}
+                className="shrink-0 text-[#8b949e] transition-colors group-hover:text-[#e6edf3]"
+              />
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm text-[#c9d1d9] group-hover:text-[#e6edf3]">
+                  {label}
+                </span>
+                <span className="block truncate text-xs text-[#6e7681]">
+                  {handle}
+                </span>
+              </span>
+              <ArrowUpRight
+                size={13}
+                className="shrink-0 text-[#6e7681] opacity-0 transition-opacity group-hover:opacity-100"
+              />
+            </a>
+          ))}
+        </div>
+      </div>
+    </aside>
   );
 }
 
