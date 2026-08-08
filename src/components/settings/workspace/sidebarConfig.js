@@ -5,7 +5,6 @@ import {
   Link2,
   TriangleAlert,
   Settings,
-  Users,
   ShieldCheck,
   Plug,
 } from "lucide-react";
@@ -20,7 +19,6 @@ export const personalItems = [
 
 export const organizationItems = [
   { label: "General", path: "", icon: Settings },
-  { label: "Members", path: "members", icon: Users },
   { label: "Permissions", path: "permissions", icon: ShieldCheck },
   { label: "Integrations", path: "integrations", icon: Plug },
   { label: "Danger Zone", path: "danger", icon: TriangleAlert, isDanger: true },

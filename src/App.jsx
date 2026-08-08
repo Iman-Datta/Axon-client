@@ -4,6 +4,8 @@ import { useDispatch, useSelector } from "react-redux";
 
 import Navbar from "./components/shared/navbar/Navbar";
 import LandingPage from "./pages/LandingPage";
+
+// Auth
 import AuthPage from "./pages/Auth";
 import CheckEmail from "./pages/CheckEmail";
 import EmailCallback from "./pages/EmailCallback";
@@ -14,6 +16,7 @@ import OnboardingGuard from "./components/onboarding/OnboardingGuard";
 import OrganizationsPage from "./pages/organizations/OrganizationsPage";
 import CreateOrganization from "./pages/organizations/CreateOrganization";
 
+// Project
 import ProjectsListPage from "./pages/projects/ProjectsListPage";
 import CreateProject from "./pages/projects/CreateProject";
 import OverviewPage from "./pages/projects/OverviewPage";
@@ -22,6 +25,7 @@ import TicketsTablePage from "./pages/projects/TicketsTablePage";
 import IntegrationsPage from "./pages/projects/IntegrationsPage";
 import MembersPage from "./pages/projects/MembersPage";
 
+// Settings
 import ProjectSettings from "./pages/projects/ProjectSettings";
 import GeneralSetting from "./pages/settings/project/GeneralSetting";
 import WorkflowSettings from "./pages/settings/project/WorkflowSettings";
@@ -31,10 +35,15 @@ import WorkspaceSettings from "./components/routing/WorkspaceSettings";
 import Dashboard from "./pages/dashboard/Dashboard";
 import GeneralSettings from "./pages/settings/workspace/Generalsettings";
 
+// Workspace
 import WorkspaceResolver from "./components/routing/WorkspaceResolver";
 import WorkspaceLoader from "./components/routing/WorkspaceLoader";
 
+// Layout
 import ProjectLayout from "./components/layout/ProjectLayout";
+
+// Comming soon
+import ComingSoon from "./components/shared/ComingSoon";
 
 import { setUser, setAuthLoading, clearUser } from "./redux/slices/authSlice";
 
@@ -164,6 +173,8 @@ function App() {
           }
         >
           <Route index element={<GeneralSettings />} />
+          <Route path="permissions" element={<ComingSoon />} />
+          <Route path="integrations" element={<ComingSoon />} />
         </Route>
 
         <Route
