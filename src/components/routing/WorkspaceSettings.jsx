@@ -27,28 +27,24 @@ function WorkspaceSettings() {
       try {
         setLoading(true);
 
-        // 1. If it's already the active workspace in Redux, skip fetching
         if (currentWorkspace?.slug === slug) {
           return;
         }
 
-        // 2. Check if we already cached it previously
         const cachedWorkspace = workspaceCache[slug];
         if (cachedWorkspace) {
           dispatch(setCurrentWorkspace(cachedWorkspace));
           return;
         }
 
-        // 3. Otherwise, fetch it from the API
         const data = await getWorkspaceType(slug, dispatch, accessToken);
 
         const workspace = {
           slug,
           type: data.workspace.type,
-          ...data.workspace, // Spread any extra data you might need later
+          ...data.workspace,
         };
 
-        // 4. Save to Redux
         dispatch(cacheWorkspace(workspace));
         dispatch(setCurrentWorkspace(workspace));
       } catch (error) {
@@ -63,7 +59,6 @@ function WorkspaceSettings() {
     }
   }, [slug, dispatch, accessToken, currentWorkspace?.slug, workspaceCache]);
 
-  // Use the currently resolved workspace
   const workspace =
     currentWorkspace?.slug === slug ? currentWorkspace : workspaceCache[slug];
 
