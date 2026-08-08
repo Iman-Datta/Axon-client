@@ -1,7 +1,9 @@
 import { NavLink } from "react-router-dom";
 import { personalItems, organizationItems } from "./sidebarConfig";
 
-const Sidebar = ({ type = "personal" }) => {
+const Sidebar = ({ type }) => {
+//   console.log(type);
+  console.log("Inside sidebar");
   // Select the correct data array based on the type prop
   const items = type === "organization" ? organizationItems : personalItems;
 

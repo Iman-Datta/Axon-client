@@ -7,9 +7,8 @@ import Sidebar from "../settings/workspace/Sidebar";
 
 const API = import.meta.env.VITE_API_URL;
 
-function WorkspaceSettingsLayout({ type = "personal" }) {
-  console.log("WorkspaceSettingsLayout loaded, type:", type);
-
+function WorkspaceSettingsLayout({ type }) {
+  console.log("Inside workspace setting layout");
   const [details, setDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");

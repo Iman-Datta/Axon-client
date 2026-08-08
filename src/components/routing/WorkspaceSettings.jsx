@@ -66,7 +66,6 @@ function WorkspaceSettings() {
   // Use the currently resolved workspace
   const workspace =
     currentWorkspace?.slug === slug ? currentWorkspace : workspaceCache[slug];
-  console.log(workspace);
 
   if (loading || !workspace) {
     return (
@@ -76,13 +75,9 @@ function WorkspaceSettings() {
     );
   }
 
-  if (workspace.type === "personal") {
-    // Passed the workspace data as a prop here so your layout can use it!
-    return <WorkspaceSettingsLayout type="personal" workspace={workspace} />;
-  } else {
-    // Fixed a bug here: you were missing the `return` keyword
-    return <div className="text-white">Organization settings coming soon.</div>;
-  }
+  return (
+    <WorkspaceSettingsLayout type={workspace.type} workspace={workspace} />
+  );
 }
 
 export default WorkspaceSettings;
