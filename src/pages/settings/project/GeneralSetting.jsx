@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 import { Type, Hash, FileText, Globe, Lock, Users } from "lucide-react";
 
-import { updateProject } from "../../services/projectService";
+import { updateProject } from "../../../services/projectService";
 
 const DESCRIPTION_LIMIT = 280;
 const MESSAGE_TIMEOUT = 3000;

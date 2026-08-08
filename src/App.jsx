@@ -23,10 +23,11 @@ import IntegrationsPage from "./pages/projects/IntegrationsPage";
 import MembersPage from "./pages/projects/MembersPage";
 
 import ProjectSettings from "./pages/projects/ProjectSettings";
-import GeneralSetting from "./pages/settings/GeneralSetting";
-import WorkflowSettings from "./pages/settings/WorkflowSettings";
-import LabelsSetting from "./pages/settings/LabelsSetting";
-import Danger from "./pages/settings/Danger";
+import GeneralSetting from "./pages/settings/project/GeneralSetting";
+import WorkflowSettings from "./pages/settings/project/WorkflowSettings";
+import LabelsSetting from "./pages/settings/project/LabelsSetting";
+import Danger from "./pages/settings/project/Danger";
+import WorkspaceSettings from "./components/routing/WorkspaceSettings";
 
 import Dashboard from "./pages/dashboard/Dashboard";
 
@@ -100,7 +101,6 @@ function App() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/auth" element={<AuthPage />} />
-
         <Route path="/checkEmail" element={<CheckEmail />} />
         <Route path="/callback" element={<EmailCallback />} />
 
@@ -151,6 +151,14 @@ function App() {
               <WorkspaceLoader>
                 <OrganizationMembersPage />
               </WorkspaceLoader>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/:slug/settings"
+          element={
+            <ProtectedRoute>
+              <WorkspaceSettings />
             </ProtectedRoute>
           }
         />

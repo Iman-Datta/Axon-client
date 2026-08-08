@@ -61,6 +61,7 @@ function WorkspaceResolver() {
 
   const workspace =
     currentWorkspace?.slug === slug ? currentWorkspace : workspaceCache[slug];
+  console.log(workspace);
 
   if (loading || !workspace) {
     return (
