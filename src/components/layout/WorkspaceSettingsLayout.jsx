@@ -3,6 +3,7 @@ import { Outlet } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
 import { fetchWithAuth } from "../../utils/fetchWithAuth";
+import Sidebar from "../settings/workspace/Sidebar";
 
 const API = import.meta.env.VITE_API_URL;
 
@@ -66,8 +67,13 @@ function WorkspaceSettingsLayout({ type = "personal" }) {
   return (
     <main className="min-h-screen bg-[#0d1117] text-[#c9d1d9]">
       <div className="max-w-6xl mx-auto px-6 py-10">
+        {/* The grid creates the 220px left column and a flexible right column */}
         <div className="grid grid-cols-1 md:grid-cols-[220px_minmax(0,1fr)] gap-10">
-          <section className="min-w-0">
+          {/* 1. Attached Sidebar */}
+          <Sidebar type={type} />
+
+          {/* 2. Main Content Area */}
+          <section className="min-w-0 bg-[#0d1117] md:border-l md:border-[#30363d] md:pl-10">
             <Outlet context={{ details, type }} />
           </section>
         </div>

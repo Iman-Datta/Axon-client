@@ -1,0 +1,27 @@
+import {
+  UserRound,
+  UserCog,
+  Shield,
+  Link2,
+  TriangleAlert,
+  Settings,
+  Users,
+  ShieldCheck,
+  Plug,
+} from "lucide-react";
+
+export const personalItems = [
+  { label: "Profile", path: "profile", icon: UserRound },
+  { label: "Account", path: "account", icon: UserCog },
+  { label: "Security", path: "security", icon: Shield },
+  { label: "Connections", path: "connections", icon: Link2 },
+  { label: "Danger Zone", path: "danger", icon: TriangleAlert, isDanger: true },
+];
+
+export const organizationItems = [
+  { label: "General", path: "general", icon: Settings },
+  { label: "Members", path: "members", icon: Users },
+  { label: "Permissions", path: "permissions", icon: ShieldCheck },
+  { label: "Integrations", path: "integrations", icon: Plug },
+  { label: "Danger Zone", path: "danger", icon: TriangleAlert, isDanger: true },
+];
