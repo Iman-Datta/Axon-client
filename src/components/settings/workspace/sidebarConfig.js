@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 
 export const personalItems = [
-  { label: "Profile", path: "profile", icon: UserRound },
+  { label: "Profile", path: "", icon: UserRound },
   { label: "Account", path: "account", icon: UserCog },
   { label: "Security", path: "security", icon: Shield },
   { label: "Connections", path: "connections", icon: Link2 },
@@ -19,7 +19,7 @@ export const personalItems = [
 ];
 
 export const organizationItems = [
-  { label: "General", path: "general", icon: Settings },
+  { label: "General", path: "", icon: Settings },
   { label: "Members", path: "members", icon: Users },
   { label: "Permissions", path: "permissions", icon: ShieldCheck },
   { label: "Integrations", path: "integrations", icon: Plug },

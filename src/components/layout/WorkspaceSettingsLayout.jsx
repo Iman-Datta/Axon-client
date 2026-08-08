@@ -78,7 +78,7 @@ function WorkspaceSettingsLayout({ type }) {
         <div className="grid grid-cols-1 gap-10 pt-10 md:grid-cols-[220px_minmax(0,1fr)]">
           <Sidebar type={type} />
           <section className="min-w-0 md:border-l md:border-[#21262d] md:pl-10">
-            <Outlet context={{ details, type }} />
+            <Outlet context={{ details, type, onUpdate: setDetails }} />
           </section>
         </div>
       </div>

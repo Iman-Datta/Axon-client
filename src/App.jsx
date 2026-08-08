@@ -28,8 +28,8 @@ import WorkflowSettings from "./pages/settings/project/WorkflowSettings";
 import LabelsSetting from "./pages/settings/project/LabelsSetting";
 import Danger from "./pages/settings/project/Danger";
 import WorkspaceSettings from "./components/routing/WorkspaceSettings";
-
 import Dashboard from "./pages/dashboard/Dashboard";
+import GeneralSettings from "./pages/settings/workspace/Generalsettings";
 
 import WorkspaceResolver from "./components/routing/WorkspaceResolver";
 import WorkspaceLoader from "./components/routing/WorkspaceLoader";
@@ -154,6 +154,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/:slug/settings"
           element={
@@ -161,7 +162,10 @@ function App() {
               <WorkspaceSettings />
             </ProtectedRoute>
           }
-        />
+        >
+          <Route index element={<GeneralSettings />} />
+        </Route>
+
         <Route
           path="/organizations/create"
           element={
