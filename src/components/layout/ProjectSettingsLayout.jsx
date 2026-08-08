@@ -1,7 +1,7 @@
 import { Outlet } from "react-router-dom";
 
-import Header from "../settings/Header";
-import NavBar from "../settings/NavBar";
+import Header from "../settings/project/Header";
+import NavBar from "../settings/project/NavBar";
 
 function ProjectSettingsLayout({
   title = "Settings",

@@ -9,7 +9,6 @@ import {
 } from "lucide-react";
 import { FaGithub } from "react-icons/fa";
 
-// Formats an ISO date string into "3 days ago" / "just now" / "2 months ago"
 function timeAgo(dateString) {
   if (!dateString) return "N/A";
 
