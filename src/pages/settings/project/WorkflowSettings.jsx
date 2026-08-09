@@ -20,7 +20,7 @@ const STAGES = [
     accentBg: "rgba(139,148,158,0.12)",
     summary: "Planned, not started",
     detail:
-      "The starting point for every new ticket. Work has been planned but no development has begun — tickets here are waiting to be picked up.",
+      "The starting point for every new ticket. Work has been planned but no development has begun, tickets here are waiting to be picked up.",
   },
   {
     key: "in-progress",
@@ -30,7 +30,7 @@ const STAGES = [
     accentBg: "rgba(88,166,255,0.12)",
     summary: "Actively being built",
     detail:
-      "A developer is actively working the ticket — writing code, fixing bugs, or building the requested feature.",
+      "A developer is actively working the ticket, writing code, fixing bugs, or building the requested feature.",
   },
   {
     key: "review",

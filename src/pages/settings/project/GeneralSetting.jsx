@@ -47,7 +47,7 @@ function FieldHeader({ icon: Icon, title, hint }) {
 function GeneralSetting() {
   const [formData, setFormData] = useState(FIELD_DEFAULTS);
   const [saving, setSaving] = useState(false);
-  const [status, setStatus] = useState(null); // { type: "success" | "error", message: string }
+  const [status, setStatus] = useState(null);
 
   const { slug, project_slug } = useParams();
   const { project, setProject } = useOutletContext();
@@ -70,7 +70,6 @@ function GeneralSetting() {
     });
   }, [project]);
 
-  // Auto-dismiss success/error message
   useEffect(() => {
     if (!status) return;
     const timer = setTimeout(() => setStatus(null), MESSAGE_TIMEOUT);
@@ -177,7 +176,7 @@ function GeneralSetting() {
                 }
                 placeholder="Describe what this project is for..."
                 disabled={saving}
-                className="w-full resize-none rounded-md border border-[#30363d] bg-[#0d1117] px-3 py-2 text-sm text-[#f0f6fc] outline-none transition focus:border-[#388bfd] disabled:opacity-60"
+                className="description-scroll w-full resize-none rounded-md border border-[#30363d] bg-[#0d1117] px-3 py-2 text-sm text-[#f0f6fc] outline-none transition focus:border-[#388bfd] disabled:opacity-60"
               />
               <p className="mt-1 text-right text-[11px] text-[#6e7681]">
                 {formData.description.length}/{DESCRIPTION_LIMIT}

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useOutletContext, useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { AlertTriangle, Loader2, LogOut, Trash2, Clock } from "lucide-react";
+import { AlertTriangle, Loader2, LogOut, Trash2, Clock, X } from "lucide-react";
 
 import { fetchWithAuth } from "../../../utils/fetchWithAuth";
 
@@ -48,19 +48,27 @@ function DangerRow({
 }
 
 function DangerOrg() {
-  const { type } = useOutletContext();
+  const { type, details } = useOutletContext();
   const { slug } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const accessToken = useSelector((state) => state.auth.accessToken);
   const user = useSelector((state) => state.auth.user);
   const isOrg = type === "organization";
+  const isOwner = details?.role?.toLowerCase() === "owner";
 
   const [showComingSoon, setShowComingSoon] = useState(false);
 
   const [confirmingLeave, setConfirmingLeave] = useState(false);
   const [isLeaving, setIsLeaving] = useState(false);
   const [leaveError, setLeaveError] = useState(null);
+
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState(null);
+
+  const canDelete = deleteConfirmText === details?.name;
 
   const handleDeleteAccountClick = () => {
     setShowComingSoon(true);
@@ -93,13 +101,48 @@ function DangerOrg() {
     }
   };
 
+  const handleDeleteOrg = async () => {
+    setIsDeleting(true);
+    setDeleteError(null);
+
+    try {
+      const response = await fetchWithAuth(
+        `${API}/org/${slug}/delete/`,
+        { method: "DELETE" },
+        dispatch,
+        accessToken,
+      );
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok || data.success === false) {
+        throw new Error(
+          data?.message || "Couldn't delete the organization. Try again.",
+        );
+      }
+
+      navigate(`/${user.username}`, { replace: true });
+    } catch (err) {
+      setDeleteError(err.message || "Something went wrong. Try again.");
+      setIsDeleting(false);
+    }
+  };
+
+  const closeDeleteModal = () => {
+    setDeleteModalOpen(false);
+    setDeleteConfirmText("");
+    setDeleteError(null);
+  };
+
   return (
     <div className="max-w-2xl">
       <div>
         <h1 className="text-base font-semibold text-[#e6edf3]">Danger Zone</h1>
         <p className="mt-1 text-sm text-[#8b949e]">
           {isOrg
-            ? "Leaving this organization removes your access immediately."
+            ? isOwner
+              ? "These actions are irreversible. Review carefully before continuing."
+              : "Leaving this organization removes your access immediately."
             : "Deleting your account is permanent and cannot be undone."}
         </p>
       </div>
@@ -164,6 +207,16 @@ function DangerOrg() {
                 </div>
               </div>
             )}
+
+            {isOwner && (
+              <DangerRow
+                title="Delete organization"
+                description="Permanently delete this organization, including all its projects, teams, and data. This cannot be undone."
+                actionLabel="Delete organization"
+                actionIcon={Trash2}
+                onAction={() => setDeleteModalOpen(true)}
+              />
+            )}
           </>
         ) : (
           <>
@@ -178,13 +231,89 @@ function DangerOrg() {
             {showComingSoon && (
               <div className="flex items-center gap-2 rounded-md border border-[#30363d] bg-[#161b22] px-3.5 py-3 text-sm text-[#8b949e]">
                 <Clock size={15} className="shrink-0 text-[#8b949e]" />
-                Account deletion isn't available yet — this is coming in a
+                Account deletion isn't available yet: this is coming in a
                 future update.
               </div>
             )}
           </>
         )}
       </div>
+
+      {deleteModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-xl border border-[#30363d] bg-[#161b22] shadow-2xl">
+            <div className="flex items-center justify-between border-b border-[#21262d] px-6 py-4">
+              <h2 className="text-lg font-semibold text-[#f0f6fc]">
+                Delete organization
+              </h2>
+              <button
+                onClick={closeDeleteModal}
+                className="rounded-md p-1 text-[#8b949e] transition hover:bg-[#21262d] hover:text-white"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="space-y-4 px-6 py-5">
+              <p className="text-sm leading-6 text-[#8b949e]">
+                This will permanently delete{" "}
+                <span className="font-semibold text-[#f0f6fc]">
+                  {details?.name}
+                </span>{" "}
+                and all of its projects, teams, and data. This action cannot be
+                undone.
+              </p>
+              <p className="text-sm leading-6 text-[#8b949e]">
+                Type{" "}
+                <span className="font-semibold text-[#f85149]">
+                  {details?.name}
+                </span>{" "}
+                to confirm.
+              </p>
+
+              {deleteError && (
+                <div className="rounded-md border border-[#f85149]/30 bg-[#f85149]/10 px-3 py-2 text-sm text-[#f85149]">
+                  {deleteError}
+                </div>
+              )}
+
+              <input
+                type="text"
+                value={deleteConfirmText}
+                disabled={isDeleting}
+                onChange={(e) => {
+                  setDeleteConfirmText(e.target.value);
+                  if (deleteError) setDeleteError(null);
+                }}
+                placeholder={`Type ${details?.name} to confirm`}
+                className="w-full rounded-md border border-[#30363d] bg-[#0d1117] px-3 py-2 text-sm text-[#f0f6fc] outline-none transition focus:border-[#f85149] disabled:cursor-not-allowed disabled:opacity-60"
+              />
+            </div>
+
+            <div className="flex justify-end gap-3 border-t border-[#21262d] px-6 py-4">
+              <button
+                onClick={closeDeleteModal}
+                disabled={isDeleting}
+                className="rounded-md border border-[#30363d] px-4 py-2 text-sm text-[#c9d1d9] transition hover:bg-[#21262d] disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                disabled={!canDelete || isDeleting}
+                onClick={handleDeleteOrg}
+                className="flex items-center gap-1.5 rounded-md bg-[#da3633] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#f85149] disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {isDeleting ? (
+                  <Loader2 size={14} className="animate-spin" />
+                ) : (
+                  <Trash2 size={14} />
+                )}
+                {isDeleting ? "Deleting…" : "Delete organization"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

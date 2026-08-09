@@ -50,7 +50,7 @@ const PRIORITIES = [
     bars: 3,
     accent: "#d29922",
     accentBg: "rgba(210,153,34,0.12)",
-    desc: "Important — should be done as soon as possible.",
+    desc: "Important, should be done as soon as possible.",
   },
   {
     key: "medium",
