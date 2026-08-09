@@ -1,7 +1,6 @@
 import {
   LayoutDashboard,
   FolderGit2,
-  Users,
   UserRound,
   BarChart3,
   Settings,
@@ -31,19 +30,12 @@ export const getPrivateNav = (
   ];
 
   if (workspaceType === "organization") {
-    nav.push(
-      {
-        name: "Teams",
-        path: `/${workspaceSlug}/teams`,
-        icon: Users,
-      },
-      {
-        name: "People",
-        path: `/${workspaceSlug}/people`,
-        icon: UserRound,
-        count: peopleCount,
-      },
-    );
+    nav.push({
+      name: "People",
+      path: `/${workspaceSlug}/people`,
+      icon: UserRound,
+      count: peopleCount,
+    });
   }
   if (workspaceType === "personal") {
     nav.push({
