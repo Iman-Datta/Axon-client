@@ -6,10 +6,10 @@ import Navbar from "./components/shared/navbar/Navbar";
 import LandingPage from "./pages/LandingPage";
 
 // Auth
-import AuthPage from "./pages/Auth";
-import CheckEmail from "./pages/CheckEmail";
-import EmailCallback from "./pages/EmailCallback";
-import Onboarding from "./pages/Onboarding";
+import AuthPage from "./pages/auth/Auth";
+import CheckEmail from "./pages/auth/CheckEmail";
+import EmailCallback from "./pages/auth/EmailCallback";
+import Onboarding from "./pages/auth/Onboarding";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 import OnboardingGuard from "./components/onboarding/OnboardingGuard";

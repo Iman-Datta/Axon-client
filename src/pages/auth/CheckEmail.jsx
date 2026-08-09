@@ -1,6 +1,6 @@
 import { MailCheck } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
-import AxonLogo from "../components/shared/AxonLogo";
+import AxonLogo from "../../components/shared/AxonLogo";
 
 function CheckEmail() {
   const navigate = useNavigate();

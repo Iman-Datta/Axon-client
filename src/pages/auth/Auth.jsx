@@ -3,11 +3,11 @@ import { X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
-import Login from "../components/auth/Login";
-import Register from "../components/auth/Register";
-import ForgotPassword from "../components/auth/Forgotpassword";
-import AxonLogo from "../components/shared/AxonLogo";
-import { setAccessToken, setUser } from "../redux/slices/authSlice";
+import Login from "../../components/auth/Login";
+import Register from "../../components/auth/Register";
+import ForgotPassword from "../../components/auth/Forgotpassword";
+import AxonLogo from "../../components/shared/AxonLogo";
+import { setAccessToken, setUser } from "../../redux/slices/authSlice";
 
 const API = import.meta.env.VITE_API_URL;
 

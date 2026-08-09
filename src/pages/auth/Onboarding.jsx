@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 
-import IdentitySetup from "../components/onboarding/IdentitySetup";
-import CompleteProfile from "../components/onboarding/CompleteProfile";
+import IdentitySetup from "../../components/onboarding/IdentitySetup";
+import CompleteProfile from "../../components/onboarding/CompleteProfile";
 
 const STEPS = [
   { id: 1, key: "identity", label: "Identity" },

@@ -4,10 +4,10 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
 
-import AxonLogo from "../components/shared/AxonLogo";
+import AxonLogo from "../../components/shared/AxonLogo";
 
-import { setUser } from "../redux/slices/authSlice";
-import { fetchWithAuth } from "../utils/fetchWithAuth";
+import { setUser } from "../../redux/slices/authSlice";
+import { fetchWithAuth } from "../../utils/fetchWithAuth";
 
 const API = import.meta.env.VITE_API_URL;
 
