@@ -47,6 +47,7 @@ import ProjectLayout from "./components/layout/ProjectLayout";
 
 // Comming soon
 import ComingSoon from "./components/shared/ComingSoon";
+import ComingSoonV2 from "./components/shared/ComingSoonV2";
 
 import { setUser, setAuthLoading, clearUser } from "./redux/slices/authSlice";
 
@@ -166,6 +167,16 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/:slug/insights"
+          element={
+            <ProtectedRoute>
+              <WorkspaceLoader>
+                <ComingSoonV2 />
+              </WorkspaceLoader>
+            </ProtectedRoute>
+          }
+        />
 
         <Route
           path="/:slug/settings"
@@ -220,7 +231,7 @@ function App() {
             <Route path="labels" element={<LabelsSetting />} />
             <Route path="danger" element={<Danger />} />
           </Route>
-          {/* <Route path="activity" element={<ActivityPage />} /> */}
+          <Route path="activity" element={<ComingSoonV2 />} />
         </Route>
       </Routes>
     </div>
