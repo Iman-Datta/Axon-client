@@ -145,34 +145,26 @@ function TicketFormModal({
   const [membersError, setMembersError] = useState(null);
   const [showMemberDropdown, setShowMemberDropdown] = useState(false);
   const memberFieldRef = useRef(null);
-  console.log(API);
 
   useEffect(() => {
-    console.log("Inside useeffect");
     if (!slug || !project_slug) return;
 
-    console.log("AA");
     let cancelled = false;
 
     async function fetchMembers() {
-      console.log("BB");
       setMembersLoading(true);
       setMembersError(null);
-      console.log("CC");
       try {
-        console.log("DD");
         const res = await fetchWithAuth(
           `${API}/projects/${slug}/${project_slug}/members/`,
           {},
           dispatch,
           accessToken,
         );
-        console.log(res);
 
         if (!res.ok) throw new Error("Failed to load members");
 
         const data = await res.json();
-        console.log(data);
 
         if (!cancelled && data?.success) {
           setMemberOptions(data.members || []);

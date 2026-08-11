@@ -1,5 +1,7 @@
-import { useEffect } from "react";
-import { X, Pencil, Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { X, Pencil, Trash2, Rocket } from "lucide-react";
+import { useParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import {
   getStatusStyle,
   getTypeTextStyle,
@@ -8,6 +10,11 @@ import {
   getPriorityIcon,
   formatLabel,
 } from "./ticketBadgeConfig";
+import MoveToBoardModal from "./MoveToBoardModal";
+import StatusActionDropdown from "./StatusActionDropdown";
+import { fetchWithAuth } from "../../../utils/fetchWithAuth";
+
+const API = import.meta.env.VITE_API_URL;
 
 function TicketDrawer({
   ticket,
@@ -17,7 +24,26 @@ function TicketDrawer({
   onClose,
   onEdit,
   onDelete,
+  epics = [],
+  members = [],
+  onTicketUpdated,
 }) {
+  const { slug, project_slug } = useParams();
+  const dispatch = useDispatch();
+  const accessToken = useSelector((state) => state.auth.accessToken);
+
+  const [currentTicket, setCurrentTicket] = useState(ticket);
+  useEffect(() => {
+    setCurrentTicket(ticket);
+  }, [ticket]);
+
+  const [showMoveToBoard, setShowMoveToBoard] = useState(false);
+  const [moveLoading, setMoveLoading] = useState(false);
+  const [moveError, setMoveError] = useState(null);
+
+  const [statusLoading, setStatusLoading] = useState(false);
+  const [statusError, setStatusError] = useState(null);
+
   // Esc to close
   useEffect(() => {
     function handleEsc(e) {
@@ -27,8 +53,95 @@ function TicketDrawer({
     return () => window.removeEventListener("keydown", handleEsc);
   }, [open, onClose]);
 
-  const TypeIcon = ticket ? getTypeIcon(ticket.type) : null;
-  const PriorityIcon = ticket ? getPriorityIcon(ticket.priority) : null;
+  const updateTicketFields = async (payload) => {
+    const res = await fetchWithAuth(
+      `${API}/tickets/${slug}/${project_slug}/${currentTicket.id}/update/`,
+      {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      },
+      dispatch,
+      accessToken,
+    );
+
+    if (!res.ok) {
+      const body = await res.json().catch(() => null);
+      throw new Error(body?.message || "Failed to update ticket");
+    }
+
+    const data = await res.json();
+    return data?.ticket || data;
+  };
+
+  const assignTicket = async (assigneeId) => {
+    const res = await fetchWithAuth(
+      `${API}/tickets/${slug}/${project_slug}/${currentTicket.id}/assign/`,
+      {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ assignee: assigneeId }),
+      },
+      dispatch,
+      accessToken,
+    );
+
+    if (!res.ok) {
+      const body = await res.json().catch(() => null);
+      throw new Error(body?.message || "Failed to assign ticket");
+    }
+
+    const data = await res.json();
+    return data?.ticket || data;
+  };
+
+  const applyUpdate = (updated) => {
+    setCurrentTicket(updated);
+    onTicketUpdated?.(updated);
+  };
+
+  const handleMoveToBoardConfirm = async (formPayload) => {
+    setMoveLoading(true);
+    setMoveError(null);
+    try {
+      const { assignee, ...fields } = formPayload;
+      console.log(assignee);
+
+      let updated = await updateTicketFields({ ...fields, status: "OPEN" });
+
+      if (assignee) {
+        updated = await assignTicket(assignee);
+      }
+
+      setShowMoveToBoard(false);
+      applyUpdate(updated);
+    } catch (err) {
+      setMoveError(err.message || "Something went wrong");
+    } finally {
+      setMoveLoading(false);
+    }
+  };
+
+  const handleStatusChange = async (newStatus) => {
+    setStatusLoading(true);
+    setStatusError(null);
+    try {
+      const updated = await updateTicketFields({ status: newStatus });
+      applyUpdate(updated);
+    } catch (err) {
+      setStatusError(err.message || "Something went wrong");
+    } finally {
+      setStatusLoading(false);
+    }
+  };
+
+  const TypeIcon = currentTicket ? getTypeIcon(currentTicket.type) : null;
+  const PriorityIcon = currentTicket
+    ? getPriorityIcon(currentTicket.priority)
+    : null;
+
+  const iconButtonClass =
+    "flex h-9 w-9 items-center justify-center rounded-xl border border-[#30363d] text-[#c9d1d9] transition hover:bg-[#161b22] hover:text-white";
 
   return (
     <>
@@ -66,59 +179,100 @@ function TicketDrawer({
           </div>
         )}
 
-        {!loading && !error && ticket && (
+        {!loading && !error && currentTicket && (
           <>
             {/* Header */}
-            <div className="flex items-start justify-between gap-4 border-b border-[#21262d] px-6 py-5">
-              <div className="min-w-0">
-                <span className="rounded-md bg-[#161b22] px-2 py-1 font-mono text-[11px] font-medium text-[#6e7681] ring-1 ring-[#30363d]">
-                  {ticket.ticket_number}
-                </span>
-                <h1 className="mt-3 text-xl font-semibold text-[#e6edf3]">
-                  {ticket.title}
-                </h1>
-              </div>
+            <div className="border-b border-[#21262d]">
+              <div className="flex items-start justify-between gap-4 px-6 pt-5">
+                <div className="min-w-0">
+                  <span className="rounded-md bg-[#161b22] px-2 py-1 font-mono text-[11px] font-medium text-[#6e7681] ring-1 ring-[#30363d]">
+                    {currentTicket.ticket_number}
+                  </span>
+                  <h1 className="mt-3 text-xl font-semibold text-[#e6edf3]">
+                    {currentTicket.title}
+                  </h1>
+                </div>
 
-              <div className="flex shrink-0 items-center gap-2">
-                <button
-                  onClick={() => onEdit(ticket)}
-                  className="flex items-center gap-2 rounded-xl border border-[#30363d] px-3 py-2 text-sm text-[#c9d1d9] transition hover:bg-[#161b22] hover:text-white"
-                >
-                  <Pencil className="h-3.5 w-3.5" />
-                  Edit
-                </button>
-                <button
-                  onClick={() => onDelete(ticket)}
-                  className="flex items-center gap-2 rounded-xl border border-[#30363d] px-3 py-2 text-sm text-red-400 transition hover:bg-red-500/10"
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                  Delete
-                </button>
                 <button
                   onClick={onClose}
-                  className="rounded-xl p-2 text-[#8b949e] transition hover:bg-[#161b22] hover:text-white"
+                  className="shrink-0 rounded-xl p-2 text-[#8b949e] transition hover:bg-[#161b22] hover:text-white"
                   title="Close"
                 >
                   <X className="h-4 w-4" />
                 </button>
               </div>
+
+              {/* Action bar */}
+              <div className="mt-4 flex items-center justify-between gap-3 px-6 pb-4">
+                <div>
+                  {currentTicket.status === "DRAFT" && (
+                    <button
+                      onClick={() => setShowMoveToBoard(true)}
+                      className="flex items-center gap-2 rounded-xl bg-[#238636] px-3.5 py-2 text-sm font-medium text-white transition hover:bg-[#2ea043] hover:shadow-[0_0_16px_rgba(46,160,67,0.3)]"
+                    >
+                      <Rocket className="h-3.5 w-3.5" />
+                      Add to Sprint
+                    </button>
+                  )}
+
+                  {currentTicket.status !== "DRAFT" && (
+                    <StatusActionDropdown
+                      status={currentTicket.status}
+                      onSelect={handleStatusChange}
+                      loading={statusLoading}
+                    />
+                  )}
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => onEdit(currentTicket)}
+                    className={iconButtonClass}
+                    title="Edit ticket"
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => onDelete(currentTicket)}
+                    className={`${iconButtonClass} hover:border-red-500/40 hover:bg-red-500/10 hover:text-red-400`}
+                    title="Delete ticket"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
             </div>
 
             {/* Body */}
             <div className="flex-1 space-y-6 overflow-y-auto px-6 py-6">
+              {statusError && (
+                <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
+                  {statusError}
+                </div>
+              )}
+
               <div className="flex flex-wrap gap-6">
                 <div>
                   <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-[#6e7681]">
                     Status
                   </p>
-                  <span
-                    className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-medium ring-1 ${getStatusStyle(
-                      ticket.status,
-                    )}`}
-                  >
-                    <span className="h-1.5 w-1.5 rounded-full bg-current" />
-                    {formatLabel(ticket.status)}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-medium ring-1 ${getStatusStyle(
+                        currentTicket.status,
+                      )}`}
+                    >
+                      <span className="h-1.5 w-1.5 rounded-full bg-current" />
+                      {formatLabel(currentTicket.status)}
+                    </span>
+
+                    {currentTicket.status === "OPEN" && (
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-[#238636]/10 px-2.5 py-0.5 text-[11px] font-medium text-[#3fb950] ring-1 ring-[#238636]/40">
+                        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#3fb950]" />
+                        Live
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 <div>
@@ -127,11 +281,11 @@ function TicketDrawer({
                   </p>
                   <span
                     className={`inline-flex items-center gap-1.5 text-[13px] font-medium ${getTypeTextStyle(
-                      ticket.type,
+                      currentTicket.type,
                     )}`}
                   >
                     <TypeIcon className="h-3.5 w-3.5" />
-                    {formatLabel(ticket.type)}
+                    {formatLabel(currentTicket.type)}
                   </span>
                 </div>
 
@@ -141,15 +295,15 @@ function TicketDrawer({
                   </p>
                   <span
                     className={`inline-flex items-center gap-1.5 text-[13px] font-medium ${getPriorityTextStyle(
-                      ticket.priority,
+                      currentTicket.priority,
                     )}`}
                   >
                     <PriorityIcon className="h-3.5 w-3.5" />
-                    {formatLabel(ticket.priority)}
+                    {formatLabel(currentTicket.priority)}
                   </span>
                 </div>
 
-                {ticket.epic && (
+                {currentTicket.epic && (
                   <div>
                     <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-[#6e7681]">
                       Epic
@@ -157,20 +311,20 @@ function TicketDrawer({
                     <span className="inline-flex items-center gap-1.5 rounded-full bg-[#161b22] px-2.5 py-0.5 text-[11px] font-medium text-[#c9d1d9] ring-1 ring-[#30363d]">
                       <span
                         className="h-1.5 w-1.5 shrink-0 rounded-full"
-                        style={{ backgroundColor: ticket.epic.color }}
+                        style={{ backgroundColor: currentTicket.epic.color }}
                       />
-                      {ticket.epic.name}
+                      {currentTicket.epic.name}
                     </span>
                   </div>
                 )}
 
-                {ticket.story_points != null && (
+                {currentTicket.story_points != null && (
                   <div>
                     <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-[#6e7681]">
                       Story Points
                     </p>
                     <span className="text-sm text-[#c9d1d9]">
-                      {ticket.story_points}
+                      {currentTicket.story_points}
                     </span>
                   </div>
                 )}
@@ -181,7 +335,7 @@ function TicketDrawer({
                   Description
                 </p>
                 <p className="text-sm leading-relaxed text-[#c9d1d9]">
-                  {ticket.description || (
+                  {currentTicket.description || (
                     <span className="text-[#6e7681]">
                       No description provided.
                     </span>
@@ -194,15 +348,16 @@ function TicketDrawer({
                   <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-[#6e7681]">
                     Creator
                   </p>
-                  {ticket.creator ? (
+                  {currentTicket.creator ? (
                     <div className="flex items-center gap-2">
                       <img
-                        src={ticket.creator.avatar}
-                        alt={ticket.creator.username}
+                        src={currentTicket.creator.avatar}
+                        alt={currentTicket.creator.username}
                         className="h-6 w-6 rounded-full"
                       />
                       <span className="text-sm text-[#c9d1d9]">
-                        {ticket.creator.first_name} {ticket.creator.last_name}
+                        {currentTicket.creator.first_name}{" "}
+                        {currentTicket.creator.last_name}
                       </span>
                     </div>
                   ) : (
@@ -214,15 +369,16 @@ function TicketDrawer({
                   <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-[#6e7681]">
                     Assignee
                   </p>
-                  {ticket.assignee ? (
+                  {currentTicket.assignee ? (
                     <div className="flex items-center gap-2">
                       <img
-                        src={ticket.assignee.avatar}
-                        alt={ticket.assignee.username}
+                        src={currentTicket.assignee.avatar}
+                        alt={currentTicket.assignee.username}
                         className="h-6 w-6 rounded-full"
                       />
                       <span className="text-sm text-[#c9d1d9]">
-                        {ticket.assignee.first_name} {ticket.assignee.last_name}
+                        {currentTicket.assignee.first_name}{" "}
+                        {currentTicket.assignee.last_name}
                       </span>
                     </div>
                   ) : (
@@ -234,6 +390,21 @@ function TicketDrawer({
           </>
         )}
       </div>
+
+      {showMoveToBoard && currentTicket && (
+        <MoveToBoardModal
+          ticket={currentTicket}
+          epics={epics}
+          members={members}
+          onClose={() => {
+            setShowMoveToBoard(false);
+            setMoveError(null);
+          }}
+          onConfirm={handleMoveToBoardConfirm}
+          loading={moveLoading}
+          error={moveError}
+        />
+      )}
     </>
   );
 }
