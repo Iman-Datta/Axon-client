@@ -1,6 +1,13 @@
 import { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { Hash, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import {
+  Hash,
+  MoreHorizontal,
+  Pencil,
+  Trash2,
+  Copy,
+  Check,
+} from "lucide-react";
 import {
   getStatusStyle,
   getTypeTextStyle,
@@ -20,8 +27,10 @@ const PADDING = 8;
 function TicketRow({ ticket, onEdit, onDelete, onSelect }) {
   const [open, setOpen] = useState(false);
   const [menuPos, setMenuPos] = useState({ top: 0, left: 0 });
+  const [copied, setCopied] = useState(false);
   const buttonRef = useRef(null);
   const menuRef = useRef(null);
+  const copiedTimeoutRef = useRef(null);
 
   const openMenu = () => {
     const rect = buttonRef.current.getBoundingClientRect();
@@ -91,6 +100,40 @@ function TicketRow({ ticket, onEdit, onDelete, onSelect }) {
     return () => window.removeEventListener("scroll", handleScroll, true);
   }, [open]);
 
+  useEffect(() => {
+    return () => {
+      if (copiedTimeoutRef.current) clearTimeout(copiedTimeoutRef.current);
+    };
+  }, []);
+
+  const handleCopyLink = async (e) => {
+    e.stopPropagation();
+
+    const ticketNumber = ticket.ticket_number;
+
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(ticketNumber);
+      } else {
+        const textarea = document.createElement("textarea");
+        textarea.value = ticketNumber;
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+      }
+
+      setCopied(true);
+      if (copiedTimeoutRef.current) clearTimeout(copiedTimeoutRef.current);
+      copiedTimeoutRef.current = setTimeout(() => setCopied(false), 1500);
+    } catch (err) {
+      console.error("Failed to copy ticket link:", err);
+    }
+  };
+
   const TypeIcon = getTypeIcon(ticket.type);
   const PriorityIcon = getPriorityIcon(ticket.priority);
 
@@ -101,8 +144,28 @@ function TicketRow({ ticket, onEdit, onDelete, onSelect }) {
     >
       {/* Ticket number */}
       <td className="whitespace-nowrap px-5 py-3.5">
-        <span className="rounded-md bg-[#0d1117] px-2 py-1 font-mono text-[11px] font-medium text-[#6e7681] ring-1 ring-[#30363d]">
-          {ticket.ticket_number}
+        <span className="inline-flex items-center gap-1.5">
+          <span className="rounded-md bg-[#0d1117] px-2 py-1 font-mono text-[11px] font-medium text-[#6e7681] ring-1 ring-[#30363d]">
+            {ticket.ticket_number}
+          </span>
+
+          <button
+            type="button"
+            onClick={handleCopyLink}
+            title={copied ? "Copied!" : "Copy ticket number"}
+            aria-label="Copy ticket number"
+            className={`rounded-md p-1 text-[#6e7681] transition-all duration-150 hover:bg-[#21262d] hover:text-[#e6edf3] ${
+              copied
+                ? "opacity-100 text-emerald-400"
+                : "opacity-0 group-hover:opacity-100"
+            }`}
+          >
+            {copied ? (
+              <Check className="h-3 w-3" strokeWidth={2.5} />
+            ) : (
+              <Copy className="h-3 w-3" strokeWidth={2} />
+            )}
+          </button>
         </span>
       </td>
 

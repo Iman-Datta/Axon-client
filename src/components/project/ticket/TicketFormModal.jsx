@@ -1,14 +1,19 @@
-// components/project/ticket/TicketFormModal.jsx
 import { useEffect, useRef, useState } from "react";
-import { X, ChevronDown, Plus, Minus } from "lucide-react";
-
+import { X, ChevronDown, Plus, Minus, Search, UserRound } from "lucide-react";
+import { useParams } from "react-router-dom";
 import StoryPointStepper from "./StoryPointStepper";
+import { useDispatch, useSelector } from "react-redux";
+
+import { fetchWithAuth } from "../../../utils/fetchWithAuth";
+
+const API = import.meta.env.VITE_API_URL;
 
 function TicketFormModal({
   mode = "create",
   ticket = null,
   epics,
-  members = [],
+  members: initialMembers = [],
+
   onClose,
   onSubmit,
   loading = false,
@@ -18,6 +23,10 @@ function TicketFormModal({
   const isEdit = mode === "edit";
 
   const [showAdvanced, setShowAdvanced] = useState(false);
+
+  const { slug, project_slug } = useParams();
+  const dispatch = useDispatch();
+  const accessToken = useSelector((state) => state.auth.accessToken);
 
   const buildInitialState = (t) => ({
     title: t?.title || "",
@@ -38,7 +47,6 @@ function TicketFormModal({
   useEffect(() => {
     if (!ticket) return;
     setFormData(buildInitialState(ticket));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ticket]);
 
   useEffect(() => {
@@ -68,8 +76,6 @@ function TicketFormModal({
     }));
   };
 
-  // Status has a side effect only in create mode: leaving Draft auto-opens
-  // Advanced Options so priority/type/etc. are visible.
   const handleStatusChange = (e) => {
     const value = e.target.value;
 
@@ -128,11 +134,215 @@ function TicketFormModal({
 
   const selectClass = `${inputClass} appearance-none pr-10`;
 
-  // ---- compact variants used only in edit mode ----
   const compactInputClass =
     "mt-1.5 w-full rounded-lg border border-[#30363d] bg-[#0d1117] px-3.5 py-2.5 text-sm text-[#e6edf3] placeholder:text-[#6e7681] outline-none transition-all focus:border-[#58a6ff] focus:ring-2 focus:ring-[#58a6ff]/20";
   const compactSelectClass = `${compactInputClass} appearance-none pr-9`;
   const compactLabelClass = "text-xs font-medium text-[#8b949e]";
+
+  const [memberOptions, setMemberOptions] = useState(initialMembers);
+  const [memberQuery, setMemberQuery] = useState("");
+  const [membersLoading, setMembersLoading] = useState(false);
+  const [membersError, setMembersError] = useState(null);
+  const [showMemberDropdown, setShowMemberDropdown] = useState(false);
+  const memberFieldRef = useRef(null);
+  console.log(API);
+
+  useEffect(() => {
+    console.log("Inside useeffect");
+    if (!slug || !project_slug) return;
+
+    console.log("AA");
+    let cancelled = false;
+
+    async function fetchMembers() {
+      console.log("BB");
+      setMembersLoading(true);
+      setMembersError(null);
+      console.log("CC");
+      try {
+        console.log("DD");
+        const res = await fetchWithAuth(
+          `${API}/projects/${slug}/${project_slug}/members/`,
+          {},
+          dispatch,
+          accessToken,
+        );
+        console.log(res);
+
+        if (!res.ok) throw new Error("Failed to load members");
+
+        const data = await res.json();
+        console.log(data);
+
+        if (!cancelled && data?.success) {
+          setMemberOptions(data.members || []);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setMembersError(err.message || "Failed to load members");
+        }
+      } finally {
+        if (!cancelled) setMembersLoading(false);
+      }
+    }
+
+    fetchMembers();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [slug, project_slug, accessToken, dispatch]);
+
+  // click outside closes the dropdown
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (
+        memberFieldRef.current &&
+        !memberFieldRef.current.contains(e.target)
+      ) {
+        setShowMemberDropdown(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const selectedMember = memberOptions.find(
+    (m) => String(m.id) === String(formData.assignee),
+  );
+
+  const filteredMembers = memberOptions
+    .filter((m) => {
+      const q = memberQuery.trim().toLowerCase();
+      if (!q) return true;
+      const fullName =
+        `${m.first_name || ""} ${m.last_name || ""}`.toLowerCase();
+      return (
+        m.username?.toLowerCase().includes(q) ||
+        m.github_username?.toLowerCase().includes(q) ||
+        fullName.includes(q)
+      );
+    })
+    .slice(0, 3);
+
+  const handleSelectMember = (member) => {
+    setFormData((prev) => ({
+      ...prev,
+      assignee: member ? String(member.id) : "",
+    }));
+    setMemberQuery("");
+    setShowMemberDropdown(false);
+  };
+
+  const renderAssigneeField = (
+    labelClass = "text-sm font-medium text-[#8b949e]",
+  ) => (
+    <div ref={memberFieldRef} className="relative">
+      <label className={labelClass}>Assignee</label>
+
+      <div className="relative mt-2">
+        {selectedMember ? (
+          <div className="flex items-center justify-between rounded-xl border border-[#30363d] bg-[#0d1117] px-3.5 py-2.5">
+            <div className="flex min-w-0 items-center gap-2.5">
+              <img
+                src={selectedMember.avatar}
+                alt=""
+                className="h-6 w-6 shrink-0 rounded-full ring-1 ring-[#30363d]"
+              />
+              <div className="min-w-0 leading-tight">
+                <p className="truncate text-sm text-[#e6edf3]">
+                  {selectedMember.first_name} {selectedMember.last_name}
+                </p>
+                <p className="truncate text-xs text-[#6e7681]">
+                  @{selectedMember.username}
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => handleSelectMember(null)}
+              className="ml-2 shrink-0 rounded-md p-1 text-[#8b949e] transition-colors hover:bg-[#21262d] hover:text-[#e6edf3]"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        ) : (
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6e7681]" />
+            <input
+              type="text"
+              value={memberQuery}
+              onChange={(e) => {
+                setMemberQuery(e.target.value);
+                setShowMemberDropdown(true);
+              }}
+              onFocus={() => setShowMemberDropdown(true)}
+              placeholder="Search members..."
+              className={`${inputClass} pl-10`}
+              autoComplete="off"
+            />
+          </div>
+        )}
+
+        {showMemberDropdown && !selectedMember && (
+          <div className="absolute z-20 mt-1.5 w-full overflow-hidden rounded-xl border border-[#30363d] bg-[#161b22] shadow-2xl">
+            {membersLoading ? (
+              <div className="px-4 py-3 text-sm text-[#8b949e]">
+                Loading members...
+              </div>
+            ) : membersError ? (
+              <div className="px-4 py-3 text-sm text-red-400">
+                {membersError}
+              </div>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={() => handleSelectMember(null)}
+                  className="flex w-full items-center gap-2.5 border-b border-[#21262d] px-4 py-2.5 text-left text-sm text-[#8b949e] transition-colors hover:bg-[#21262d]"
+                >
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#0d1117] ring-1 ring-[#30363d]">
+                    <UserRound className="h-3.5 w-3.5" />
+                  </span>
+                  Unassigned
+                </button>
+
+                {filteredMembers.length === 0 ? (
+                  <div className="px-4 py-3 text-sm text-[#6e7681]">
+                    No members found
+                  </div>
+                ) : (
+                  filteredMembers.map((member) => (
+                    <button
+                      key={member.id}
+                      type="button"
+                      onClick={() => handleSelectMember(member)}
+                      className="flex w-full items-center gap-2.5 px-4 py-2.5 text-left transition-colors hover:bg-[#21262d]"
+                    >
+                      <img
+                        src={member.avatar}
+                        alt=""
+                        className="h-6 w-6 shrink-0 rounded-full ring-1 ring-[#30363d]"
+                      />
+                      <div className="min-w-0 flex-1 leading-tight">
+                        <p className="truncate text-sm text-[#e6edf3]">
+                          {member.first_name} {member.last_name}
+                        </p>
+                        <p className="truncate text-xs text-[#6e7681]">
+                          @{member.username} · {member.role}
+                        </p>
+                      </div>
+                    </button>
+                  ))
+                )}
+              </>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
 
   return (
     <div
@@ -196,7 +406,6 @@ function TicketFormModal({
           className="flex flex-1 flex-col overflow-hidden"
         >
           {isEdit ? (
-            /* ---------------- EDIT MODE — flat, compact, no sections ---------------- */
             <div className="custom-scrollbar flex-1 space-y-4 overflow-y-auto px-5 py-5">
               <div>
                 <label className={compactLabelClass}>
@@ -439,30 +648,7 @@ function TicketFormModal({
 
               {showAdvanced && (
                 <div className="grid grid-cols-2 gap-5 rounded-2xl border border-[#30363d] bg-[#0d1117]/50 p-5">
-                  <div>
-                    <label className="text-sm font-medium text-[#8b949e]">
-                      Assignee
-                    </label>
-
-                    <div className="relative">
-                      <select
-                        name="assignee"
-                        value={formData.assignee}
-                        onChange={handleChange}
-                        className={selectClass}
-                      >
-                        <option value="">Unassigned</option>
-
-                        {members.map((member) => (
-                          <option key={member.id} value={member.id}>
-                            {member.username}
-                          </option>
-                        ))}
-                      </select>
-
-                      <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6e7681]" />
-                    </div>
-                  </div>
+                  {renderAssigneeField()}
 
                   <div>
                     <label className="text-sm font-medium text-[#8b949e]">
