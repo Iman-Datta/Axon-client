@@ -185,7 +185,6 @@ function TicketFormModal({
     };
   }, [slug, project_slug, accessToken, dispatch]);
 
-  // click outside closes the dropdown
   useEffect(() => {
     function handleClickOutside(e) {
       if (

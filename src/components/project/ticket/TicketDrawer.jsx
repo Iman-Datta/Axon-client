@@ -105,7 +105,6 @@ function TicketDrawer({
     setMoveError(null);
     try {
       const { assignee, ...fields } = formPayload;
-      console.log(assignee);
 
       let updated = await updateTicketFields({ ...fields, status: "OPEN" });
 

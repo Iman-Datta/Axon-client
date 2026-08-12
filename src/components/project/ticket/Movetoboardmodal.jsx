@@ -5,7 +5,6 @@ import {
   Plus,
   Minus,
   Search,
-  UserRound,
   Rocket,
   ArrowLeft,
 } from "lucide-react";

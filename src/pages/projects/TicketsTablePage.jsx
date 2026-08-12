@@ -16,27 +16,24 @@ import {
   createTicket,
   updateTicket,
   deleteTicket,
+  assignTicket,
 } from "../../services/ticketService";
 
 function TicketsTablePage() {
   const { slug, project_slug } = useParams();
-
   const dispatch = useDispatch();
   const accessToken = useSelector((state) => state.auth.accessToken);
 
-  // create / edit modal state
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState("create");
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [submitLoading, setSubmitLoading] = useState(false);
   const [submitError, setSubmitError] = useState("");
 
-  // delete confirm state
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [deleteError, setDeleteError] = useState("");
 
-  // drawer state
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [activeTicketId, setActiveTicketId] = useState(null);
 
@@ -44,9 +41,7 @@ function TicketsTablePage() {
     slug,
     project_slug,
   );
-
   const { epics } = useEpics(slug, project_slug);
-
   const {
     ticket: drawerTicket,
     loading: drawerLoading,
@@ -54,19 +49,15 @@ function TicketsTablePage() {
     refetch: refetchDrawerTicket,
   } = useTicketDetail(slug, project_slug, activeTicketId);
 
-  // Temporary until project members API is built TODO
   const members = [];
 
   const handleRowSelect = (ticket) => {
-    console.log("[TicketsTablePage] row clicked ->", ticket);
-    setActiveTicketId(ticket.id);
+    setActiveTicketId(ticket?.id);
     setDrawerOpen(true);
   };
 
   const closeDrawer = () => {
-    console.log("[TicketsTablePage] closing drawer");
     setDrawerOpen(false);
-    // small delay so the close animation isn't cut off by clearing data mid-slide
     setTimeout(() => setActiveTicketId(null), 300);
   };
 
@@ -78,7 +69,6 @@ function TicketsTablePage() {
   };
 
   const openEditModal = (ticket) => {
-    console.log("[TicketsTablePage] edit ->", ticket);
     setModalMode("edit");
     setSelectedTicket(ticket);
     setSubmitError("");
@@ -96,38 +86,65 @@ function TicketsTablePage() {
     try {
       setSubmitError("");
       setSubmitLoading(true);
-      console.log("[TicketsTablePage] submitting form ->", modalMode, formData);
 
+      const { assignee, ...ticketFields } = formData;
+      let savedTicket;
+
+      // 1. Create or Update the ticket
       if (modalMode === "edit" && selectedTicket) {
-        await updateTicket(
+        savedTicket = await updateTicket(
           slug,
           project_slug,
           selectedTicket.id,
-          formData,
+          ticketFields,
           dispatch,
           accessToken,
         );
       } else {
-        await createTicket(slug, project_slug, formData, dispatch, accessToken);
+        savedTicket = await createTicket(
+          slug,
+          project_slug,
+          ticketFields,
+          dispatch,
+          accessToken,
+        );
+      }
+
+      // 2. FIX: Look for nested .ticket.id based on your Django response
+      const targetTicketId =
+        savedTicket?.ticket?.id || savedTicket?.id || selectedTicket?.id;
+
+      // 3. FIX: Only trigger the assign API if an assignee was actually selected,
+      // OR if we are explicitly editing the ticket to unassign it.
+      const isAssigningSomeone =
+        assignee !== null && assignee !== undefined && assignee !== "";
+      const isUnassigningInEdit = modalMode === "edit" && assignee === null;
+
+      if (targetTicketId && (isAssigningSomeone || isUnassigningInEdit)) {
+        await assignTicket(
+          slug,
+          project_slug,
+          targetTicketId,
+          assignee,
+          dispatch,
+          accessToken,
+        );
       }
 
       closeModal();
       await refetch();
 
-      // if the ticket being edited is currently open in the drawer, refresh it too
       if (activeTicketId && selectedTicket?.id === activeTicketId) {
         await refetchDrawerTicket();
       }
     } catch (err) {
-      console.log("[TicketsTablePage] submit error ->", err.message);
-      setSubmitError(err.message);
+      setSubmitError(err.message || "Failed to process ticket");
     } finally {
       setSubmitLoading(false);
     }
   };
 
   const openDeleteConfirm = (ticket) => {
-    console.log("[TicketsTablePage] delete requested ->", ticket);
     setDeleteError("");
     setDeleteTarget(ticket);
   };
@@ -144,7 +161,6 @@ function TicketsTablePage() {
     try {
       setDeleteLoading(true);
       setDeleteError("");
-      console.log("[TicketsTablePage] confirming delete ->", deleteTarget.id);
 
       await deleteTicket(
         slug,
@@ -154,7 +170,6 @@ function TicketsTablePage() {
         accessToken,
       );
 
-      // if the deleted ticket is open in the drawer, close it
       if (deleteTarget.id === activeTicketId) {
         closeDrawer();
       }
@@ -162,20 +177,14 @@ function TicketsTablePage() {
       setDeleteTarget(null);
       await refetch();
     } catch (err) {
-      console.log("[TicketsTablePage] delete error ->", err.message);
-      setDeleteError(err.message);
+      setDeleteError(err.message || "Failed to delete ticket");
     } finally {
       setDeleteLoading(false);
     }
   };
 
-  if (loading) {
-    return <h1 className="mt-18">Loading...</h1>;
-  }
-
-  if (error) {
-    return <h1 className="mt-18 text-red-500">{error}</h1>;
-  }
+  if (loading) return <h1 className="mt-18">Loading...</h1>;
+  if (error) return <h1 className="mt-18 text-red-500">{error}</h1>;
 
   return (
     <div className="mt-18 px-2">
@@ -185,7 +194,6 @@ function TicketsTablePage() {
           <h2 className="text-lg font-semibold text-[#e6edf3]">
             No tickets yet
           </h2>
-
           <p className="mt-2 text-[#8b949e]">
             Create your first ticket to get started.
           </p>

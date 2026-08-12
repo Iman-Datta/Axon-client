@@ -140,3 +140,32 @@ export const deleteTicket = async (
 
   return data;
 };
+
+export const assignTicket = async (
+  slug,
+  project_slug,
+  ticket_id,
+  assignee_id,
+  dispatch,
+  accessToken,
+) => {
+  const res = await fetchWithAuth(
+    `${API}/tickets/${slug}/${project_slug}/${ticket_id}/assign/`,
+    {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      // If assignee_id is empty/null, send null to unassign
+      body: JSON.stringify({ assignee: assignee_id || null }),
+    },
+    dispatch,
+    accessToken,
+  );
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    throw new Error(body?.message || "Failed to assign ticket");
+  }
+
+  const data = await res.json();
+  return data?.ticket || data;
+};
