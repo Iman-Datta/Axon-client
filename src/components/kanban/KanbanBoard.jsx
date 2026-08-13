@@ -11,8 +11,17 @@ import {
 import KanbanColumn from "./KanbanColumn";
 import TicketCardPreview from "./TicketCardPreview";
 import TicketDrawer from "../project/ticket/TicketDrawer";
+import TicketFormModal from "../project/ticket/TicketFormModal";
+import ConfirmDeleteTicketModal from "../project/ticket/ConfirmDeleteTicketModal";
 import useTicketDetail from "../../hooks/useTicketDetails";
-import { updateKanbanBoard } from "../../services/ticketService";
+import useEpics from "../../hooks/useEpics";
+
+import {
+  updateKanbanBoard,
+  updateTicket,
+  deleteTicket,
+  assignTicket,
+} from "../../services/ticketService";
 import { isEndId, fromEndId } from "./kanbanDnd";
 
 const COLUMN_ORDER = ["TODO", "IN_PROGRESS", "REVIEW", "DONE"];
@@ -37,9 +46,23 @@ const KanbanBoard = ({ tickets, setTickets }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [activeTicketId, setActiveTicketId] = useState(null);
 
+  // Edit Modal States
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedTicket, setSelectedTicket] = useState(null);
+  const [submitLoading, setSubmitLoading] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+
+  // Delete Modal States
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
+
   const { slug, project_slug } = useParams();
   const dispatch = useDispatch();
   const accessToken = useSelector((state) => state.auth.accessToken);
+
+  const { epics } = useEpics(slug, project_slug);
+  const members = [];
 
   const {
     ticket: drawerTicket,
@@ -63,6 +86,115 @@ const KanbanBoard = ({ tickets, setTickets }) => {
     setTickets((prev) =>
       prev.map((t) => (t.id === updatedTicket?.id ? updatedTicket : t)),
     );
+    if (activeTicketId && updatedTicket?.id === activeTicketId) {
+      refetchDrawerTicket();
+    }
+  };
+
+  // Edit Modal Handlers
+  const openEditModal = (ticket) => {
+    setSelectedTicket(ticket);
+    setSubmitError("");
+    setModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setSubmitError("");
+    setSelectedTicket(null);
+    setModalOpen(false);
+  };
+
+  const handleFormSubmit = async (formData) => {
+    try {
+      setSubmitError("");
+      setSubmitLoading(true);
+
+      const { assignee, ...ticketFields } = formData;
+      let savedTicket;
+
+      if (selectedTicket) {
+        savedTicket = await updateTicket(
+          slug,
+          project_slug,
+          selectedTicket.id,
+          ticketFields,
+          dispatch,
+          accessToken,
+        );
+      }
+
+      const targetTicketId =
+        savedTicket?.ticket?.id || savedTicket?.id || selectedTicket?.id;
+
+      const originalAssigneeId = selectedTicket?.assignee?.id || null;
+      const newAssigneeId = assignee || null;
+      const didAssigneeChange = originalAssigneeId !== newAssigneeId;
+
+      if (targetTicketId && didAssigneeChange) {
+        await assignTicket(
+          slug,
+          project_slug,
+          targetTicketId,
+          newAssigneeId,
+          dispatch,
+          accessToken,
+        );
+      }
+
+      closeModal();
+
+      // Refresh board and drawer
+      if (savedTicket) {
+        handleTicketUpdatedLocally(savedTicket.ticket || savedTicket);
+      }
+      if (activeTicketId) {
+        refetchDrawerTicket();
+      }
+    } catch (err) {
+      setSubmitError(err.message || "Failed to process ticket");
+    } finally {
+      setSubmitLoading(false);
+    }
+  };
+
+  // Delete Modal Handlers
+  const openDeleteConfirm = (ticket) => {
+    setDeleteError("");
+    setDeleteTarget(ticket);
+  };
+
+  const closeDeleteConfirm = () => {
+    if (deleteLoading) return;
+    setDeleteTarget(null);
+    setDeleteError("");
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+
+    try {
+      setDeleteLoading(true);
+      setDeleteError("");
+
+      await deleteTicket(
+        slug,
+        project_slug,
+        deleteTarget.id,
+        dispatch,
+        accessToken,
+      );
+
+      if (deleteTarget.id === activeTicketId) {
+        closeDrawer();
+      }
+
+      setTickets((prev) => prev.filter((t) => t.id !== deleteTarget.id));
+      setDeleteTarget(null);
+    } catch (err) {
+      setDeleteError(err.message || "Failed to delete ticket");
+    } finally {
+      setDeleteLoading(false);
+    }
   };
 
   const columns = {
@@ -266,8 +398,35 @@ const KanbanBoard = ({ tickets, setTickets }) => {
         loading={drawerLoading}
         error={drawerError}
         onClose={closeDrawer}
+        onEdit={openEditModal}
+        onDelete={openDeleteConfirm}
         onTicketUpdated={handleTicketUpdatedLocally}
       />
+
+      {/* Edit Modal */}
+      {modalOpen && (
+        <TicketFormModal
+          mode="edit"
+          ticket={selectedTicket}
+          epics={epics}
+          members={members}
+          onClose={closeModal}
+          onSubmit={handleFormSubmit}
+          loading={submitLoading}
+          error={submitError}
+        />
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteTarget && (
+        <ConfirmDeleteTicketModal
+          ticket={deleteTarget}
+          onCancel={closeDeleteConfirm}
+          onConfirm={handleConfirmDelete}
+          loading={deleteLoading}
+          error={deleteError}
+        />
+      )}
     </DndContext>
   );
 };
