@@ -1,14 +1,11 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-
 import { CalendarDays } from "lucide-react";
-import { useNavigate, useParams } from "react-router-dom";
-
 import { priorityConfig, typeConfig } from "../../components/kanban/ticketmeta";
 
 const CARD_HEIGHT = "h-[104px]";
 
-const TicketCard = ({ ticket }) => {
+const TicketCard = ({ ticket, onTicketClick }) => {
   const {
     attributes,
     listeners,
@@ -24,9 +21,6 @@ const TicketCard = ({ ticket }) => {
     transform: CSS.Transform.toString(transform),
     transition,
   };
-
-  const navigate = useNavigate();
-  const { slug, project_slug } = useParams();
 
   const priority =
     priorityConfig[ticket.priority?.toUpperCase()] || priorityConfig.LOW;
@@ -44,8 +38,7 @@ const TicketCard = ({ ticket }) => {
       style={style}
       {...attributes}
       {...listeners}
-      onClick={() => navigate(`/${slug}/${project_slug}/tickets/${ticket.id}`)}
-      className={`group flex ${CARD_HEIGHT} cursor-pointer flex-col justify-between rounded-lg border border-[#30363d] bg-[#0d1117] p-3 transition-all duration-200 hover:border-[#388bfd]/40 hover:bg-[#111827]`}
+      className={`group flex ${CARD_HEIGHT} cursor-grab active:cursor-grabbing flex-col justify-between rounded-lg border border-[#30363d] bg-[#0d1117] p-3 transition-all duration-200 hover:border-[#388bfd]/40 hover:bg-[#111827]`}
     >
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-1.5">
@@ -79,8 +72,15 @@ const TicketCard = ({ ticket }) => {
         )}
       </div>
 
-      {/* Title */}
-      <h3 className="line-clamp-2 text-[13px] font-medium leading-snug text-[#e6edf3] transition-colors group-hover:text-[#58a6ff]">
+      {/* Title - Triggers the Drawer on click */}
+      <h3
+        onClick={(e) => {
+          e.stopPropagation();
+          if (onTicketClick) onTicketClick(ticket);
+        }}
+        onPointerDown={(e) => e.stopPropagation()}
+        className="line-clamp-2 w-fit cursor-pointer text-[13px] font-medium leading-snug text-[#e6edf3] transition-colors hover:text-[#58a6ff] hover:underline group-hover:text-[#58a6ff]"
+      >
         {ticket.title}
       </h3>
 

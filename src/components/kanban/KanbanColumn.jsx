@@ -28,7 +28,7 @@ function EndDropZone({ column, active }) {
   );
 }
 
-const KanbanColumn = ({ column, tickets, placeholder }) => {
+const KanbanColumn = ({ column, tickets, placeholder, onTicketClick }) => {
   const { setNodeRef, isOver } = useDroppable({
     id: column,
   });
@@ -88,7 +88,7 @@ const KanbanColumn = ({ column, tickets, placeholder }) => {
                       <DropPlaceholder />
                     )}
 
-                  <TicketCard ticket={ticket} />
+                  <TicketCard ticket={ticket} onTicketClick={onTicketClick} />
                 </div>
               ))}
 

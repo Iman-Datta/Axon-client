@@ -10,6 +10,8 @@ import {
 
 import KanbanColumn from "./KanbanColumn";
 import TicketCardPreview from "./TicketCardPreview";
+import TicketDrawer from "../project/ticket/TicketDrawer";
+import useTicketDetail from "../../hooks/useTicketDetails";
 import { updateKanbanBoard } from "../../services/ticketService";
 import { isEndId, fromEndId } from "./kanbanDnd";
 
@@ -31,9 +33,37 @@ const KanbanBoard = ({ tickets, setTickets }) => {
   const [activeTicket, setActiveTicket] = useState(null);
   const [placeholder, setPlaceholder] = useState(null);
 
+  // Drawer states
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [activeTicketId, setActiveTicketId] = useState(null);
+
   const { slug, project_slug } = useParams();
   const dispatch = useDispatch();
   const accessToken = useSelector((state) => state.auth.accessToken);
+
+  const {
+    ticket: drawerTicket,
+    loading: drawerLoading,
+    error: drawerError,
+    refetch: refetchDrawerTicket,
+  } = useTicketDetail(slug, project_slug, activeTicketId);
+
+  const handleTicketClick = (ticket) => {
+    setActiveTicketId(ticket.id);
+    setDrawerOpen(true);
+  };
+
+  const closeDrawer = () => {
+    setDrawerOpen(false);
+    setTimeout(() => setActiveTicketId(null), 300);
+  };
+
+  // Local update function to prevent table/board glitches
+  const handleTicketUpdatedLocally = (updatedTicket) => {
+    setTickets((prev) =>
+      prev.map((t) => (t.id === updatedTicket?.id ? updatedTicket : t)),
+    );
+  };
 
   const columns = {
     TODO: [],
@@ -48,9 +78,6 @@ const KanbanBoard = ({ tickets, setTickets }) => {
     }
   });
 
-  // rawOverId may be a ticket id, a column id (empty column), or an
-  // "__end" id (explicit end-of-column drop zone) — normalize the last
-  // case down to the plain column id before doing any list surgery.
   const moveTicket = (tickets, activeId, rawOverId) => {
     const overId = isEndId(rawOverId) ? fromEndId(rawOverId) : rawOverId;
 
@@ -69,7 +96,6 @@ const KanbanBoard = ({ tickets, setTickets }) => {
     );
 
     if (overTicket) {
-      // Hovering a real card — insert right before it
       draggedTicket.kanban_column = overTicket.kanban_column;
 
       const insertIndex = updated.findIndex(
@@ -78,7 +104,6 @@ const KanbanBoard = ({ tickets, setTickets }) => {
 
       updated.splice(insertIndex, 0, draggedTicket);
     } else {
-      // Empty column OR the explicit end-drop-zone — append to the end
       draggedTicket.kanban_column = overId;
       updated.push(draggedTicket);
     }
@@ -112,7 +137,6 @@ const KanbanBoard = ({ tickets, setTickets }) => {
 
     const overId = String(over.id);
 
-    // Explicit end-of-column zone — unambiguous "append to end"
     if (isEndId(overId)) {
       setPlaceholder({
         column: fromEndId(overId),
@@ -121,7 +145,6 @@ const KanbanBoard = ({ tickets, setTickets }) => {
       return;
     }
 
-    // Hovering over another ticket — placeholder lands right before it
     const overTicket = tickets.find((t) => String(t.id) === overId);
 
     if (overTicket) {
@@ -132,7 +155,6 @@ const KanbanBoard = ({ tickets, setTickets }) => {
       return;
     }
 
-    // Hovering an empty column's own droppable region
     if (COLUMN_ORDER.includes(overId)) {
       setPlaceholder({
         column: overId,
@@ -227,6 +249,7 @@ const KanbanBoard = ({ tickets, setTickets }) => {
               column={column}
               tickets={columns[column]}
               placeholder={placeholder}
+              onTicketClick={handleTicketClick}
             />
           ))}
         </div>
@@ -235,6 +258,16 @@ const KanbanBoard = ({ tickets, setTickets }) => {
           {activeTicket ? <TicketCardPreview ticket={activeTicket} /> : null}
         </DragOverlay>
       </div>
+
+      {/* Ticket Drawer */}
+      <TicketDrawer
+        open={drawerOpen}
+        ticket={drawerTicket}
+        loading={drawerLoading}
+        error={drawerError}
+        onClose={closeDrawer}
+        onTicketUpdated={handleTicketUpdatedLocally}
+      />
     </DndContext>
   );
 };
