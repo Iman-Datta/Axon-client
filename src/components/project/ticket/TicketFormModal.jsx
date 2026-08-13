@@ -29,7 +29,7 @@ function TicketFormModal({
     status: t?.status || "DRAFT",
     kanban_column: t?.kanban_column || "TODO",
     priority: t?.priority || "MEDIUM",
-    type: t?.type || "TASK",
+    type: t?.type || "FEATURE",
     estimated_hours: t?.estimated_hours ?? "",
     due_date: t?.due_date ? t.due_date.slice(0, 10) : "",
   });
@@ -81,14 +81,16 @@ function TicketFormModal({
     onSubmit(payload);
   };
 
-  // Reusable styling classes
+ // Reusable styling classes optimized for a compact, professional UI
   const inputClass =
-    "mt-2 w-full rounded-xl border border-[#30363d] bg-[#0d1117] px-4 py-3 text-sm text-[#e6edf3] placeholder:text-[#6e7681] outline-none transition-all focus:border-[#58a6ff] focus:ring-2 focus:ring-[#58a6ff]/20";
-  const selectClass = `${inputClass} appearance-none pr-10`;
-  const compactInputClass =
-    "mt-1.5 w-full rounded-lg border border-[#30363d] bg-[#0d1117] px-3.5 py-2.5 text-sm text-[#e6edf3] placeholder:text-[#6e7681] outline-none transition-all focus:border-[#58a6ff] focus:ring-2 focus:ring-[#58a6ff]/20";
-  const compactSelectClass = `${compactInputClass} appearance-none pr-9`;
-  const compactLabelClass = "text-xs font-medium text-[#8b949e]";
+    "mt-1.5 w-full rounded-lg border border-[#30363d] bg-[#0d1117] px-3 py-2 text-[13px] text-[#e6edf3] placeholder:text-[#6e7681] outline-none transition-all focus:border-[#58a6ff] focus:ring-2 focus:ring-[#58a6ff]/20";
+  const selectClass = `${inputClass} appearance-none pr-9`;
+  const labelClass = "text-xs font-medium text-[#8b949e]";
+
+  // Aliasing the compact classes so they share the exact same sleek design
+  const compactInputClass = inputClass;
+  const compactSelectClass = selectClass;
+  const compactLabelClass = labelClass;
 
   return (
     <div
@@ -101,22 +103,16 @@ function TicketFormModal({
         className={`flex flex-col overflow-hidden border border-[#30363d] bg-[#161b22] shadow-[0_20px_80px_rgba(0,0,0,0.65)] ${
           isEdit
             ? "max-h-[90vh] w-full max-w-lg rounded-2xl"
-            : "max-h-[92vh] w-full max-w-3xl rounded-3xl"
+            : "max-h-[92vh] w-full max-w-2xl rounded-2xl"
         }`}
       >
         {/* Header */}
         <div
-          className={`flex items-start justify-between border-b border-[#30363d] ${isEdit ? "px-5 py-4" : "px-6 py-5"}`}
+          className={`flex items-start justify-between border-b border-[#30363d] px-5 py-4`}
         >
           <div>
             <div className="flex items-center gap-2.5">
-              <h2
-                className={
-                  isEdit
-                    ? "text-base font-semibold text-[#e6edf3]"
-                    : "text-xl font-semibold text-[#e6edf3]"
-                }
-              >
+              <h2 className="text-base font-semibold text-[#e6edf3]">
                 {isEdit ? "Edit Ticket" : "Create Ticket"}
               </h2>
               {isEdit && ticket?.ticket_number && (
@@ -126,7 +122,7 @@ function TicketFormModal({
               )}
             </div>
             {!isEdit && (
-              <p className="mt-1 text-sm text-[#8b949e]">
+              <p className="mt-1 text-[13px] text-[#8b949e]">
                 Add a new work item to your project.
               </p>
             )}
@@ -134,9 +130,9 @@ function TicketFormModal({
           <button
             type="button"
             onClick={onClose}
-            className={`text-[#8b949e] transition-colors hover:bg-[#21262d] hover:text-[#e6edf3] ${isEdit ? "rounded-lg p-1.5" : "rounded-xl p-2"}`}
+            className="rounded-lg p-1.5 text-[#8b949e] transition-colors hover:bg-[#21262d] hover:text-[#e6edf3]"
           >
-            <X size={isEdit ? 18 : 20} />
+            <X size={18} />
           </button>
         </div>
 
@@ -245,20 +241,20 @@ function TicketFormModal({
               </div>
 
               {error && (
-                <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-3.5 py-2.5 text-sm text-red-400">
+                <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-3.5 py-2.5 text-[13px] text-red-400">
                   {error}
                 </div>
               )}
             </div>
           ) : (
-            <div className="custom-scrollbar flex-1 space-y-8 overflow-y-auto px-6 py-6">
+            <div className="custom-scrollbar flex-1 space-y-6 overflow-y-auto px-5 py-5">
               <section>
-                <h3 className="mb-5 text-xs font-semibold uppercase tracking-[0.2em] text-[#6e7681]">
+                <h3 className="mb-4 text-[11px] font-semibold uppercase tracking-[0.15em] text-[#6e7681]">
                   Basic Information
                 </h3>
-                <div className="space-y-5">
+                <div className="space-y-4">
                   <div>
-                    <label className="text-sm font-medium text-[#8b949e]">
+                    <label className={labelClass}>
                       Title <span className="text-red-400">*</span>
                     </label>
                     <input
@@ -271,11 +267,9 @@ function TicketFormModal({
                     />
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-[#8b949e]">
-                      Description
-                    </label>
+                    <label className={labelClass}>Description</label>
                     <textarea
-                      rows={5}
+                      rows={4}
                       name="description"
                       value={formData.description}
                       onChange={handleChange}
@@ -283,11 +277,9 @@ function TicketFormModal({
                       className={`${inputClass} resize-none`}
                     />
                   </div>
-                  <div className="grid grid-cols-2 gap-5">
+                  <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="text-sm font-medium text-[#8b949e]">
-                        Epic
-                      </label>
+                      <label className={labelClass}>Epic</label>
                       <div className="relative">
                         <select
                           name="epic"
@@ -302,14 +294,12 @@ function TicketFormModal({
                             </option>
                           ))}
                         </select>
-                        <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6e7681]" />
+                        <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6e7681]" />
                       </div>
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-[#8b949e]">
-                        Story Points
-                      </label>
-                      <div className="mt-3">
+                      <label className={labelClass}>Story Points</label>
+                      <div className="mt-1.5">
                         <StoryPointStepper
                           value={formData.story_points}
                           onChange={(value) =>
@@ -326,9 +316,7 @@ function TicketFormModal({
               </section>
 
               <div>
-                <label className="text-sm font-medium text-[#8b949e]">
-                  Status
-                </label>
+                <label className={labelClass}>Status</label>
                 <div className="relative">
                   <select
                     name="status"
@@ -342,23 +330,25 @@ function TicketFormModal({
                     <option value="DONE">Done</option>
                     <option value="CANCELLED">Cancelled</option>
                   </select>
-                  <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6e7681]" />
+                  <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6e7681]" />
                 </div>
               </div>
 
               <button
                 type="button"
                 onClick={() => setShowAdvanced((prev) => !prev)}
-                className="flex w-fit items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-[#58a6ff] transition-colors hover:bg-[#21262d]"
+                className="flex w-fit items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[13px] font-medium text-[#58a6ff] transition-colors hover:bg-[#21262d]"
               >
                 <ChevronDown
-                  className={`h-4 w-4 transition-transform ${showAdvanced ? "rotate-180" : ""}`}
+                  className={`h-3.5 w-3.5 transition-transform ${
+                    showAdvanced ? "rotate-180" : ""
+                  }`}
                 />
                 Advanced Options
               </button>
 
               {showAdvanced && (
-                <div className="grid grid-cols-2 gap-5 rounded-2xl border border-[#30363d] bg-[#0d1117]/50 p-5">
+                <div className="grid grid-cols-2 gap-4 rounded-xl border border-[#30363d] bg-[#0d1117]/50 p-4">
                   <MemberSelect
                     slug={slug}
                     projectSlug={project_slug}
@@ -370,9 +360,7 @@ function TicketFormModal({
                   />
 
                   <div>
-                    <label className="text-sm font-medium text-[#8b949e]">
-                      Kanban Column
-                    </label>
+                    <label className={labelClass}>Kanban Column</label>
                     <select
                       name="kanban_column"
                       value={formData.kanban_column}
@@ -388,9 +376,7 @@ function TicketFormModal({
                   </div>
 
                   <div>
-                    <label className="text-sm font-medium text-[#8b949e]">
-                      Priority
-                    </label>
+                    <label className={labelClass}>Priority</label>
                     <select
                       name="priority"
                       value={formData.priority}
@@ -405,9 +391,7 @@ function TicketFormModal({
                   </div>
 
                   <div>
-                    <label className="text-sm font-medium text-[#8b949e]">
-                      Type
-                    </label>
+                    <label className={labelClass}>Type</label>
                     <select
                       name="type"
                       value={formData.type}
@@ -422,9 +406,7 @@ function TicketFormModal({
                   </div>
 
                   <div>
-                    <label className="text-sm font-medium text-[#8b949e]">
-                      Estimated Hours
-                    </label>
+                    <label className={labelClass}>Estimated Hours</label>
                     <EstimatedHoursInput
                       value={formData.estimated_hours}
                       onChange={(val) =>
@@ -437,9 +419,7 @@ function TicketFormModal({
                   </div>
 
                   <div>
-                    <label className="text-sm font-medium text-[#8b949e]">
-                      Due Date
-                    </label>
+                    <label className={labelClass}>Due Date</label>
                     <input
                       type="date"
                       name="due_date"
@@ -452,7 +432,7 @@ function TicketFormModal({
               )}
 
               {error && (
-                <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
+                <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-3.5 py-2.5 text-[13px] text-red-400">
                   {error}
                 </div>
               )}
@@ -460,28 +440,30 @@ function TicketFormModal({
           )}
 
           {/* Footer */}
-          <div
-            className={`flex justify-end gap-2.5 border-t border-[#30363d] bg-[#0d1117] ${isEdit ? "px-5 py-4" : "px-6 py-5"}`}
-          >
+          <div className="flex justify-end gap-2.5 border-t border-[#30363d] bg-[#0d1117] px-5 py-4">
             <button
               type="button"
               onClick={onClose}
-              className={`border border-[#30363d] bg-[#161b22] font-medium text-[#c9d1d9] transition-all hover:border-[#484f58] hover:bg-[#21262d] ${isEdit ? "rounded-lg px-4 py-2 text-sm" : "rounded-xl px-5 py-2.5 text-sm"}`}
+              className="rounded-lg border border-[#30363d] bg-[#161b22] px-4 py-2 text-[13px] font-medium text-[#c9d1d9] transition-all hover:border-[#484f58] hover:bg-[#21262d]"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className={`font-semibold text-white transition-all ${isEdit ? "rounded-lg px-4 py-2 text-sm" : "rounded-xl px-5 py-2.5 text-sm hover:shadow-[0_0_20px_rgba(46,160,67,0.3)]"} ${loading ? "cursor-not-allowed bg-[#30363d] text-[#8b949e]" : "bg-[#238636] hover:bg-[#2ea043]"}`}
+              className={`rounded-lg px-4 py-2 text-[13px] font-semibold text-white transition-all ${
+                loading
+                  ? "cursor-not-allowed bg-[#30363d] text-[#8b949e]"
+                  : "bg-[#238636] hover:bg-[#2ea043] hover:shadow-[0_0_20px_rgba(46,160,67,0.3)]"
+              }`}
             >
               {loading
                 ? isEdit
                   ? "Saving..."
                   : "Creating..."
                 : isEdit
-                  ? "Save Changes"
-                  : "Create Ticket"}
+                ? "Save Changes"
+                : "Create Ticket"}
             </button>
           </div>
         </form>
