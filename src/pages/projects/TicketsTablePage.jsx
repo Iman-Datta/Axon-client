@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -51,6 +51,25 @@ function TicketsTablePage() {
 
   const members = [];
 
+  const [localTickets, setLocalTickets] = useState([]);
+  const [hasFetchedOnce, setHasFetchedOnce] = useState(false);
+
+  // Sync the hook's tickets into our local UI state
+  useEffect(() => {
+    if (tickets) {
+      setLocalTickets(tickets);
+      setHasFetchedOnce(true); // Prevents the screen from blanking out on subsequent refetches
+    }
+  }, [tickets]);
+
+  const handleTicketUpdatedLocally = (updatedTicket) => {
+    setLocalTickets((prev) =>
+      prev.map((t) => (t.id === updatedTicket?.id ? updatedTicket : t)),
+    );
+    // Do a silent refetch in the background to ensure 100% sync, but no glitch will happen!
+    refetch();
+  };
+
   const handleRowSelect = (ticket) => {
     setActiveTicketId(ticket?.id);
     setDrawerOpen(true);
@@ -90,7 +109,6 @@ function TicketsTablePage() {
       const { assignee, ...ticketFields } = formData;
       let savedTicket;
 
-      // 1. Create or Update the ticket
       if (modalMode === "edit" && selectedTicket) {
         savedTicket = await updateTicket(
           slug,
@@ -110,28 +128,28 @@ function TicketsTablePage() {
         );
       }
 
-      // 2. FIX: Look for nested .ticket.id based on your Django response
       const targetTicketId =
         savedTicket?.ticket?.id || savedTicket?.id || selectedTicket?.id;
 
-      // 3. FIX: Only trigger the assign API if an assignee was actually selected,
-      // OR if we are explicitly editing the ticket to unassign it.
-      const isAssigningSomeone =
-        assignee !== null && assignee !== undefined && assignee !== "";
-      const isUnassigningInEdit = modalMode === "edit" && assignee === null;
+      const originalAssigneeId = selectedTicket?.assignee?.id || null;
+      const newAssigneeId = assignee || null; // assignee is already a Number or null from TicketFormModal
 
-      if (targetTicketId && (isAssigningSomeone || isUnassigningInEdit)) {
+      const didAssigneeChange = originalAssigneeId !== newAssigneeId;
+
+      if (targetTicketId && didAssigneeChange) {
         await assignTicket(
           slug,
           project_slug,
           targetTicketId,
-          assignee,
+          newAssigneeId,
           dispatch,
           accessToken,
         );
       }
 
       closeModal();
+
+      // Update UI optimistically without glitching
       await refetch();
 
       if (activeTicketId && selectedTicket?.id === activeTicketId) {
@@ -183,13 +201,21 @@ function TicketsTablePage() {
     }
   };
 
-  if (loading) return <h1 className="mt-18">Loading...</h1>;
-  if (error) return <h1 className="mt-18 text-red-500">{error}</h1>;
+  // Only show the hard loading screen if we have NEVER fetched tickets before.
+  if (loading && !hasFetchedOnce) {
+    return <h1 className="mt-18 px-4 text-[#8b949e]">Loading tickets...</h1>;
+  }
+
+  if (error) {
+    return <h1 className="mt-18 px-4 text-red-500">{error}</h1>;
+  }
 
   return (
     <div className="mt-18 px-2">
       <TicketHeader onCreateTicket={openCreateModal} count={count} />
-      {tickets.length === 0 ? (
+
+      {/* Render from localTickets instead of tickets */}
+      {localTickets.length === 0 ? (
         <div className="rounded-2xl border border-[#30363d] bg-[#161b22] p-10 text-center">
           <h2 className="text-lg font-semibold text-[#e6edf3]">
             No tickets yet
@@ -200,7 +226,7 @@ function TicketsTablePage() {
         </div>
       ) : (
         <TicketTable
-          tickets={tickets}
+          tickets={localTickets}
           onEdit={openEditModal}
           onDelete={openDeleteConfirm}
           onSelect={handleRowSelect}
@@ -215,6 +241,8 @@ function TicketsTablePage() {
         onClose={closeDrawer}
         onEdit={openEditModal}
         onDelete={openDeleteConfirm}
+        // FIX: Pass the local state update function instead of a raw refetch()
+        onTicketUpdated={handleTicketUpdatedLocally}
       />
 
       {modalOpen && (
