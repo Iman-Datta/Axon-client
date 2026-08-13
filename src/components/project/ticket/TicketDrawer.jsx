@@ -1,5 +1,14 @@
 import { useEffect, useState } from "react";
-import { X, Pencil, Trash2, Rocket, Check, Copy } from "lucide-react";
+import {
+  X,
+  Pencil,
+  Trash2,
+  Rocket,
+  Check,
+  Copy,
+  Clock,
+  CalendarDays,
+} from "lucide-react";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -139,8 +148,9 @@ function TicketDrawer({
     ? getPriorityIcon(currentTicket.priority)
     : null;
 
+  // Refined button classes for the top-right grouping
   const iconButtonClass =
-    "text-[#8b949e] transition-all duration-150 hover:text-white hover:scale-110 active:scale-95";
+    "flex h-8 w-8 items-center justify-center rounded-lg text-[#8b949e] transition-colors hover:bg-[#161b22] hover:text-[#e6edf3]";
 
   const [copied, setCopied] = useState(false);
   const handleCopyTicketNumber = async () => {
@@ -203,9 +213,10 @@ function TicketDrawer({
         {!loading && !error && currentTicket && (
           <>
             {/* Header */}
-            <div className="border-b border-[#30363d]/60 bg-[#0d1117] pt-6 sticky top-0 z-10">
-              <div className="flex items-start justify-between gap-4 px-7 pt-6">
-                <div className="min-w-0">
+            <div className="border-b border-[#21262d] bg-[#0d1117] pt-6 sticky top-0 z-10">
+              <div className="flex items-start justify-between gap-4 px-7">
+                {/* Left Side: ID & Title */}
+                <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-1.5">
                     <span className="rounded-md bg-[#161b22] px-2 py-1 font-mono text-[11px] font-medium tracking-wide text-[#6e7681] ring-1 ring-[#30363d]">
                       {currentTicket.ticket_number}
@@ -227,13 +238,32 @@ function TicketDrawer({
                   </h1>
                 </div>
 
-                <button
-                  onClick={onClose}
-                  className={`shrink-0 ${iconButtonClass}`}
-                  title="Close"
-                >
-                  <X className="h-5 w-5" />
-                </button>
+                {/* Right Side: Edit, Delete, Close Grouping */}
+                <div className="flex shrink-0 items-center gap-1">
+                  <button
+                    onClick={() => onEdit(currentTicket)}
+                    className={iconButtonClass}
+                    title="Edit ticket"
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => onDelete(currentTicket)}
+                    className={`${iconButtonClass} hover:!text-red-400 hover:!bg-red-500/10`}
+                    title="Delete ticket"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                  <div className="mx-1.5 h-4 w-px bg-[#30363d]" />{" "}
+                  {/* Divider */}
+                  <button
+                    onClick={onClose}
+                    className={iconButtonClass}
+                    title="Close"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
               </div>
 
               {/* Action bar */}
@@ -257,28 +287,11 @@ function TicketDrawer({
                     />
                   )}
                 </div>
-
-                <div className="flex items-center gap-4">
-                  <button
-                    onClick={() => onEdit(currentTicket)}
-                    className={iconButtonClass}
-                    title="Edit ticket"
-                  >
-                    <Pencil className="h-4 w-4" />
-                  </button>
-                  <button
-                    onClick={() => onDelete(currentTicket)}
-                    className={`${iconButtonClass} hover:text-red-400`}
-                    title="Delete ticket"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </div>
               </div>
             </div>
 
             {/* Body */}
-            <div className="flex-1 space-y-7 overflow-y-auto px-7 py-7">
+            <div className="flex-1 space-y-7 overflow-y-auto px-7 py-7 custom-scrollbar">
               {statusError && (
                 <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
                   {statusError}
@@ -421,24 +434,18 @@ function TicketDrawer({
                 </div>
               </div>
 
-              {/* Timestamps */}
-              <div className="flex items-center gap-6 rounded-xl border border-[#21262d] bg-[#0d1117]/60 px-4 py-3">
-                <div className="flex items-center gap-2">
-                  <span className="text-[11px] font-medium text-[#6e7681]">
-                    Created
-                  </span>
-                  <span className="text-[12px] text-[#c9d1d9]">
-                    {formatDate(currentTicket.created_at)}
-                  </span>
+              {/* Timestamps (Small & Quiet) */}
+              <div className="flex items-center gap-4 px-1 pt-2 text-[11px] font-medium text-[#6e7681]">
+                <div className="flex items-center gap-1.5">
+                  <CalendarDays className="h-3.5 w-3.5 opacity-70" />
+                  <span>Created {formatDate(currentTicket.created_at)}</span>
                 </div>
-                <div className="h-3 w-px bg-[#30363d]" />
-                <div className="flex items-center gap-2">
-                  <span className="text-[11px] font-medium text-[#6e7681]">
-                    Updated
-                  </span>
-                  <span className="text-[12px] text-[#c9d1d9]">
-                    {formatDate(currentTicket.updated_at)}
-                  </span>
+
+                <span className="text-[#30363d]">•</span>
+
+                <div className="flex items-center gap-1.5">
+                  <Clock className="h-3.5 w-3.5 opacity-70" />
+                  <span>Updated {formatDate(currentTicket.updated_at)}</span>
                 </div>
               </div>
 
@@ -462,7 +469,7 @@ function TicketDrawer({
       </div>
 
       {showMoveToBoard && currentTicket && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center">
+        <div className="fixed inset-0 z-60 flex items-center justify-center">
           <MoveToBoardModal
             ticket={currentTicket}
             epics={epics}
