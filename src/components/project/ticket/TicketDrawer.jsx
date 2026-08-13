@@ -179,7 +179,7 @@ function TicketDrawer({
       {/* Overlay */}
       <div
         onClick={onClose}
-        className={`fixed inset-0 z-40 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ${
+        className={`fixed inset-0 z-40 bg-black/60 backdrop-blur-xs transition-opacity duration-300 ${
           open
             ? "pointer-events-auto opacity-100"
             : "pointer-events-none opacity-0"
