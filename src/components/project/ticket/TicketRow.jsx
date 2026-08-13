@@ -1,13 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
-import {
-  Hash,
-  MoreHorizontal,
-  Pencil,
-  Trash2,
-  Copy,
-  Check,
-} from "lucide-react";
+import { MoreHorizontal, Pencil, Trash2, Copy, Check } from "lucide-react";
 import {
   getStatusStyle,
   getTypeTextStyle,
@@ -236,8 +229,7 @@ function TicketRow({ ticket, onEdit, onDelete, onSelect }) {
       <td className="whitespace-nowrap px-5 py-3.5">
         {ticket.story_points != null ? (
           <span className="inline-flex items-center gap-1 rounded-md bg-[#0d1117] px-2 py-0.5 text-xs font-medium text-[#c9d1d9] ring-1 ring-[#30363d]">
-            <Hash className="h-3 w-3 text-[#6e7681]" />
-            {ticket.story_points}
+            {ticket.story_points} SP
           </span>
         ) : (
           <span className="text-xs text-[#6e7681]">-</span>

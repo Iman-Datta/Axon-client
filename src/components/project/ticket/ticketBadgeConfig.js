@@ -9,8 +9,6 @@ import {
   AlertTriangle,
 } from "lucide-react";
 
-// Status keeps the pill treatment — it's a state indicator, that's the
-// one place a badge reads as "status", not decoration.
 export const STATUS_STYLES = {
   DRAFT: "bg-[#6e7681]/10 text-[#8b949e] ring-[#6e7681]/30",
   OPEN: "bg-[#238636]/10 text-[#3fb950] ring-[#238636]/30",
@@ -19,8 +17,7 @@ export const STATUS_STYLES = {
   CANCELLED: "bg-[#6e7681]/10 text-[#8b949e] ring-[#6e7681]/30",
 };
 
-// Type — plain text + icon, colored, no pill. Reads like a Jira/Linear
-// issue-type column, not a "tag".
+
 export const TYPE_TEXT_STYLES = {
   TASK: "text-[#8b949e]",
   FEATURE: "text-[#a371f7]",
@@ -35,7 +32,7 @@ export const TYPE_ICONS = {
   BUG: Bug,
 };
 
-// Priority — plain text + signal icon, colored by severity, no pill.
+
 export const PRIORITY_TEXT_STYLES = {
   LOW: "text-[#6e7681]",
   MEDIUM: "text-[#8b949e]",

@@ -236,7 +236,7 @@ function TicketFormModal({
                     >
                       <option value="TASK">Task</option>
                       <option value="BUG">Bug</option>
-                      <option value="STORY">Story</option>
+                      <option value="IMPROVEMENT">Improvement</option>
                       <option value="FEATURE">Feature</option>
                     </select>
                     <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#6e7681]" />
@@ -416,7 +416,7 @@ function TicketFormModal({
                     >
                       <option value="TASK">Task</option>
                       <option value="BUG">Bug</option>
-                      <option value="STORY">Story</option>
+                      <option value="IMPROVEMENT">Improvement</option>
                       <option value="FEATURE">Feature</option>
                     </select>
                   </div>

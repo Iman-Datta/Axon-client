@@ -226,7 +226,7 @@ function MoveToBoardModal({
   const typeLabels = {
     TASK: "Task",
     BUG: "Bug",
-    STORY: "Story",
+    IMPROVEMENT: "Improvement",
     FEATURE: "Feature",
   };
 
@@ -381,7 +381,7 @@ function MoveToBoardModal({
                     >
                       <option value="TASK">Task</option>
                       <option value="BUG">Bug</option>
-                      <option value="STORY">Story</option>
+                      <option value="IMPROVEMENT">Improvement</option>
                       <option value="FEATURE">Feature</option>
                     </select>
                     <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6e7681]" />

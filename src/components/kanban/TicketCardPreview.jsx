@@ -24,7 +24,7 @@ const priorityConfig = {
 const typeConfig = {
   TASK: { icon: CheckSquare, color: "#8b949e", label: "Task" },
   BUG: { icon: Bug, color: "#f85149", label: "Bug" },
-  STORY: { icon: BookOpen, color: "#58a6ff", label: "Story" },
+  IMPROVEMENT: { icon: BookOpen, color: "#58a6ff", label: "Improvement" },
   FEATURE: { icon: Sparkles, color: "#a855f7", label: "Feature" },
 };
 
