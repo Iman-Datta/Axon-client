@@ -12,7 +12,6 @@ export const publicNav = ["Features", "Pricing", "About"];
 export const getPrivateNav = (
   workspaceSlug,
   workspaceType,
-  projectCount = 0,
   peopleCount = 0,
 ) => {
   const nav = [
@@ -25,7 +24,6 @@ export const getPrivateNav = (
       name: "Projects",
       path: `/${workspaceSlug}/projects`,
       icon: FolderGit2,
-      count: projectCount,
     },
   ];
 
