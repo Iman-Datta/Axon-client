@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { X, Pencil, Trash2, Rocket } from "lucide-react";
+import { X, Pencil, Trash2, Rocket, Check, Copy } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -140,14 +140,36 @@ function TicketDrawer({
     : null;
 
   const iconButtonClass =
-    "flex h-9 w-9 items-center justify-center rounded-xl border border-[#30363d] text-[#c9d1d9] transition hover:bg-[#161b22] hover:text-white";
+    "text-[#8b949e] transition-all duration-150 hover:text-white hover:scale-110 active:scale-95";
+
+  const [copied, setCopied] = useState(false);
+  const handleCopyTicketNumber = async () => {
+    try {
+      await navigator.clipboard.writeText(currentTicket.ticket_number);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const formatDate = (dateStr) => {
+    if (!dateStr) return "-";
+    return new Date(dateStr).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+    });
+  };
 
   return (
     <>
       {/* Overlay */}
       <div
         onClick={onClose}
-        className={`fixed inset-0 z-40 bg-black/50 backdrop-blur-[2px] transition-opacity duration-300 ${
+        className={`fixed inset-0 z-40 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ${
           open
             ? "pointer-events-auto opacity-100"
             : "pointer-events-none opacity-0"
@@ -156,7 +178,7 @@ function TicketDrawer({
 
       {/* Drawer */}
       <div
-        className={`fixed right-0 top-0 z-50 flex h-full w-full max-w-2xl flex-col border-l border-[#30363d] bg-[#0d1117] shadow-[-20px_0_60px_rgba(0,0,0,0.45)] transition-transform duration-300 ease-out ${
+        className={`fixed right-0 top-0 z-50 flex h-full w-full max-w-2xl flex-col border-l border-[#21262d] bg-gradient-to-b from-[#0d1117] to-[#0a0d12] shadow-[-30px_0_80px_rgba(0,0,0,0.55)] transition-transform duration-300 ease-out ${
           open ? "translate-x-0" : "translate-x-full"
         }`}
       >
@@ -181,35 +203,48 @@ function TicketDrawer({
         {!loading && !error && currentTicket && (
           <>
             {/* Header */}
-            <div className="border-b border-[#21262d]">
-              <div className="flex items-start justify-between gap-4 px-6 pt-5">
+            <div className="border-b border-[#30363d]/60 bg-[#0d1117] pt-6 sticky top-0 z-10">
+              <div className="flex items-start justify-between gap-4 px-7 pt-6">
                 <div className="min-w-0">
-                  <span className="rounded-md bg-[#161b22] px-2 py-1 font-mono text-[11px] font-medium text-[#6e7681] ring-1 ring-[#30363d]">
-                    {currentTicket.ticket_number}
-                  </span>
-                  <h1 className="mt-3 text-xl font-semibold text-[#e6edf3]">
+                  <div className="flex items-center gap-1.5">
+                    <span className="rounded-md bg-[#161b22] px-2 py-1 font-mono text-[11px] font-medium tracking-wide text-[#6e7681] ring-1 ring-[#30363d]">
+                      {currentTicket.ticket_number}
+                    </span>
+                    <button
+                      onClick={handleCopyTicketNumber}
+                      className="relative flex h-6 w-6 items-center justify-center rounded-md text-[#6e7681] transition hover:bg-[#161b22] hover:text-[#c9d1d9]"
+                      title="Copy ticket number"
+                    >
+                      {copied ? (
+                        <Check className="h-3 w-3 text-[#3fb950]" />
+                      ) : (
+                        <Copy className="h-3 w-3" />
+                      )}
+                    </button>
+                  </div>
+                  <h1 className="mt-3 text-[22px] font-semibold leading-snug tracking-tight text-[#f0f6fc]">
                     {currentTicket.title}
                   </h1>
                 </div>
 
                 <button
                   onClick={onClose}
-                  className="shrink-0 rounded-xl p-2 text-[#8b949e] transition hover:bg-[#161b22] hover:text-white"
+                  className={`shrink-0 ${iconButtonClass}`}
                   title="Close"
                 >
-                  <X className="h-4 w-4" />
+                  <X className="h-5 w-5" />
                 </button>
               </div>
 
               {/* Action bar */}
-              <div className="mt-4 flex items-center justify-between gap-3 px-6 pb-4">
+              <div className="mt-5 flex items-center justify-between gap-3 px-7 pb-5">
                 <div>
                   {currentTicket.status === "DRAFT" && (
                     <button
                       onClick={() => setShowMoveToBoard(true)}
-                      className="flex items-center gap-2 rounded-xl bg-[#238636] px-3.5 py-2 text-sm font-medium text-white transition hover:bg-[#2ea043] hover:shadow-[0_0_16px_rgba(46,160,67,0.3)]"
+                      className="group flex items-center gap-2 rounded-full bg-gradient-to-b from-[#2f81f7] to-[#1f6feb] px-4 py-1.5 text-[13px] font-medium text-white shadow-[0_1px_0_rgba(255,255,255,0.15)_inset,0_4px_12px_rgba(31,111,235,0.35)] transition-all hover:shadow-[0_1px_0_rgba(255,255,255,0.2)_inset,0_6px_16px_rgba(31,111,235,0.5)] hover:brightness-110 active:scale-[0.98]"
                     >
-                      <Rocket className="h-3.5 w-3.5" />
+                      <Rocket className="h-3.5 w-3.5 transition-transform group-hover:-translate-y-0.5" />
                       Add to Sprint
                     </button>
                   )}
@@ -223,7 +258,7 @@ function TicketDrawer({
                   )}
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-4">
                   <button
                     onClick={() => onEdit(currentTicket)}
                     className={iconButtonClass}
@@ -233,7 +268,7 @@ function TicketDrawer({
                   </button>
                   <button
                     onClick={() => onDelete(currentTicket)}
-                    className={`${iconButtonClass} hover:border-red-500/40 hover:bg-red-500/10 hover:text-red-400`}
+                    className={`${iconButtonClass} hover:text-red-400`}
                     title="Delete ticket"
                   >
                     <Trash2 className="h-4 w-4" />
@@ -243,7 +278,7 @@ function TicketDrawer({
             </div>
 
             {/* Body */}
-            <div className="flex-1 space-y-6 overflow-y-auto px-6 py-6">
+            <div className="flex-1 space-y-7 overflow-y-auto px-7 py-7">
               {statusError && (
                 <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
                   {statusError}
@@ -267,7 +302,7 @@ function TicketDrawer({
 
                     {currentTicket.status === "OPEN" && (
                       <span className="inline-flex items-center gap-1.5 rounded-full bg-[#238636]/10 px-2.5 py-0.5 text-[11px] font-medium text-[#3fb950] ring-1 ring-[#238636]/40">
-                        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#3fb950]" />
+                        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#3fb950] -z-10" />
                         Live
                       </span>
                     )}
@@ -352,7 +387,7 @@ function TicketDrawer({
                       <img
                         src={currentTicket.creator.avatar}
                         alt={currentTicket.creator.username}
-                        className="h-6 w-6 rounded-full"
+                        className="h-6 w-6 rounded-full ring-1 ring-[#30363d]"
                       />
                       <span className="text-sm text-[#c9d1d9]">
                         {currentTicket.creator.first_name}{" "}
@@ -373,7 +408,7 @@ function TicketDrawer({
                       <img
                         src={currentTicket.assignee.avatar}
                         alt={currentTicket.assignee.username}
-                        className="h-6 w-6 rounded-full"
+                        className="h-6 w-6 rounded-full ring-1 ring-[#30363d]"
                       />
                       <span className="text-sm text-[#c9d1d9]">
                         {currentTicket.assignee.first_name}{" "}
@@ -385,24 +420,62 @@ function TicketDrawer({
                   )}
                 </div>
               </div>
+
+              {/* Timestamps */}
+              <div className="flex items-center gap-6 rounded-xl border border-[#21262d] bg-[#0d1117]/60 px-4 py-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] font-medium text-[#6e7681]">
+                    Created
+                  </span>
+                  <span className="text-[12px] text-[#c9d1d9]">
+                    {formatDate(currentTicket.created_at)}
+                  </span>
+                </div>
+                <div className="h-3 w-px bg-[#30363d]" />
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] font-medium text-[#6e7681]">
+                    Updated
+                  </span>
+                  <span className="text-[12px] text-[#c9d1d9]">
+                    {formatDate(currentTicket.updated_at)}
+                  </span>
+                </div>
+              </div>
+
+              {/* Activities */}
+              <div className="border-t border-[#21262d] pt-6">
+                <p className="mb-3 text-[11px] font-semibold uppercase tracking-wide text-[#6e7681]">
+                  Activities
+                </p>
+                <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-[#30363d] bg-[#0d1117]/40 py-8 text-center">
+                  <span className="text-sm font-medium text-[#8b949e]">
+                    Coming soon in next update
+                  </span>
+                  <span className="text-[12px] text-[#6e7681]">
+                    Activity history and comments will appear here.
+                  </span>
+                </div>
+              </div>
             </div>
           </>
         )}
       </div>
 
       {showMoveToBoard && currentTicket && (
-        <MoveToBoardModal
-          ticket={currentTicket}
-          epics={epics}
-          members={members}
-          onClose={() => {
-            setShowMoveToBoard(false);
-            setMoveError(null);
-          }}
-          onConfirm={handleMoveToBoardConfirm}
-          loading={moveLoading}
-          error={moveError}
-        />
+        <div className="fixed inset-0 z-[60] flex items-center justify-center">
+          <MoveToBoardModal
+            ticket={currentTicket}
+            epics={epics}
+            members={members}
+            onClose={() => {
+              setShowMoveToBoard(false);
+              setMoveError(null);
+            }}
+            onConfirm={handleMoveToBoardConfirm}
+            loading={moveLoading}
+            error={moveError}
+          />
+        </div>
       )}
     </>
   );
