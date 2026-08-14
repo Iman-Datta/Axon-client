@@ -8,7 +8,7 @@ function ComingSoonV2({
   backLabel = "Back",
 }) {
   return (
-    <div className="flex min-h-[60vh] items-center justify-center px-6">
+    <div className="flex min-h-[60vh] items-center justify-center px-6 pt-10">
       <div className="w-full max-w-md text-center">
         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-[#161b22] ring-1 ring-[#30363d]">
           <Sparkles size={22} className="text-[#58a6ff]" strokeWidth={1.75} />
