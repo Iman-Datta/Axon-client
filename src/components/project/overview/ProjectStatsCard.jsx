@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import {
   Layers,
   CheckCircle2,
@@ -8,6 +9,19 @@ import {
 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 
+function getInitials(name = "") {
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((n) => n[0]?.toUpperCase())
+    .join("");
+}
+
+const isDone = (t) => t.status === "DONE" || t.kanban_column === "DONE";
+const isInProgress = (t) =>
+  t.status === "IN_PROGRESS" || t.kanban_column === "IN_PROGRESS";
+
 function ProjectStatsCard({
   tickets = [],
   members = [],
@@ -17,45 +31,46 @@ function ProjectStatsCard({
   const navigate = useNavigate();
   const { slug, project_slug } = useParams();
 
-  const totalTickets = tickets.length;
+  const ticketStats = useMemo(() => {
+    const totalTickets = tickets.length;
+    const doneTickets = tickets.filter(isDone).length;
+    const inProgressTickets = tickets.filter(isInProgress).length;
+    const openTickets = totalTickets - doneTickets - inProgressTickets;
+    const completionPercentage =
+      totalTickets > 0 ? Math.round((doneTickets / totalTickets) * 100) : 0;
 
-  const isDone = (t) => t.status === "DONE" || t.kanban_column === "DONE";
-  const isInProgress = (t) =>
-    t.status === "IN_PROGRESS" || t.kanban_column === "IN_PROGRESS";
+    return {
+      totalTickets,
+      doneTickets,
+      inProgressTickets,
+      openTickets,
+      completionPercentage,
+    };
+  }, [tickets]);
 
-  const doneTickets = tickets.filter(isDone).length;
-  const inProgressTickets = tickets.filter(isInProgress).length;
-  const openTickets = totalTickets - doneTickets - inProgressTickets;
+  const rankedMembers = useMemo(() => {
+    const ticketCountByMember = tickets.reduce((acc, t) => {
+      const assigneeId = t.assignee?.id || t.assignee_id;
+      if (assigneeId) acc[assigneeId] = (acc[assigneeId] || 0) + 1;
+      return acc;
+    }, {});
 
-  const completionPercentage =
-    totalTickets > 0 ? Math.round((doneTickets / totalTickets) * 100) : 0;
+    const formattedMembers = members.map((m) => ({
+      id: m.id,
+      name:
+        m.first_name && m.last_name
+          ? `${m.first_name} ${m.last_name}`
+          : m.username || "Team Member",
+      role: m.role || "Developer",
+      avatar: m.avatar || null,
+      username: m.username,
+      assignedCount: ticketCountByMember[m.id] ?? 0,
+    }));
 
-  const totalMembers = members.length;
-
-  const formattedMembers = members.map((m) => ({
-    id: m.id,
-    name:
-      m.first_name && m.last_name
-        ? `${m.first_name} ${m.last_name}`
-        : m.username || "Team Member",
-    role: m.role || "Developer",
-    avatar: m.avatar || null,
-    username: m.username,
-  }));
-
-  const ticketCountByMember = tickets.reduce((acc, t) => {
-    const assigneeId = t.assignee?.id || t.assignee_id;
-    if (assigneeId) acc[assigneeId] = (acc[assigneeId] || 0) + 1;
-    return acc;
-  }, {});
-
-  const rankedMembers = [...formattedMembers]
-    .sort((a, b) => {
-      const aCount = ticketCountByMember[a.id] ?? 0;
-      const bCount = ticketCountByMember[b.id] ?? 0;
-      return bCount - aCount;
-    })
-    .slice(0, 3);
+    return [...formattedMembers]
+      .sort((a, b) => b.assignedCount - a.assignedCount)
+      .slice(0, 3);
+  }, [tickets, members]);
 
   const handleViewAllMembers = () => {
     if (onViewAllMembers) return onViewAllMembers();
@@ -67,18 +82,17 @@ function ProjectStatsCard({
     navigate(`/${slug}/${project_slug}/tickets`);
   };
 
-  const getInitials = (name = "") =>
-    name
-      .split(" ")
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((n) => n[0]?.toUpperCase())
-      .join("");
+  const {
+    totalTickets,
+    doneTickets,
+    inProgressTickets,
+    openTickets,
+    completionPercentage,
+  } = ticketStats;
 
   return (
-    /* Stack the cards vertically */
     <div className="flex flex-col gap-5">
-      {/* 1. Ticket Progress Card */}
+      {/* Ticket Progress Card */}
       <div className="rounded-2xl border border-[#30363d] bg-[#161b22] p-5 shadow-sm">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -149,7 +163,7 @@ function ProjectStatsCard({
         </div>
       </div>
 
-      {/* 2. Active Contributors Card */}
+      {/* Active Contributors Card */}
       <div className="rounded-2xl border border-[#30363d] bg-[#161b22] p-5 shadow-sm">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -166,7 +180,7 @@ function ProjectStatsCard({
             onClick={handleViewAllMembers}
             className="flex items-center gap-1 text-xs font-medium text-[#58a6ff] hover:underline"
           >
-            View all ({totalMembers})
+            View all ({members.length})
             <ArrowRight size={12} />
           </button>
         </div>
@@ -176,41 +190,39 @@ function ProjectStatsCard({
             <p className="text-xs text-[#8b949e]">No team members found.</p>
           )}
 
-          {rankedMembers.map((member) => {
-            const assignedCount = ticketCountByMember[member.id] || 0;
-            return (
-              <div
-                key={member.id}
-                className="flex items-center justify-between rounded-xl border border-[#21262d] bg-[#0d1117]/60 p-2.5"
-              >
-                <div className="flex min-w-0 items-center gap-2.5">
-                  {member.avatar ? (
-                    <img
-                      src={member.avatar}
-                      alt={member.name}
-                      className="h-8 w-8 shrink-0 rounded-full object-cover ring-1 ring-[#30363d]"
-                    />
-                  ) : (
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#1f6feb]/20 text-xs font-bold text-[#58a6ff] ring-1 ring-[#30363d]">
-                      {getInitials(member.name)}
-                    </div>
-                  )}
-                  <div className="min-w-0">
-                    <p className="truncate text-xs font-semibold text-[#f0f6fc]">
-                      {member.name}
-                    </p>
-                    <p className="truncate text-[11px] text-[#8b949e]">
-                      @{member.username}
-                    </p>
+          {rankedMembers.map((member) => (
+            <div
+              key={member.id}
+              className="flex items-center justify-between rounded-xl border border-[#21262d] bg-[#0d1117]/60 p-2.5"
+            >
+              <div className="flex min-w-0 items-center gap-2.5">
+                {member.avatar ? (
+                  <img
+                    src={member.avatar}
+                    alt={member.name}
+                    className="h-8 w-8 shrink-0 rounded-full object-cover ring-1 ring-[#30363d]"
+                  />
+                ) : (
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#1f6feb]/20 text-xs font-bold text-[#58a6ff] ring-1 ring-[#30363d]">
+                    {getInitials(member.name)}
                   </div>
+                )}
+                <div className="min-w-0">
+                  <p className="truncate text-xs font-semibold text-[#f0f6fc]">
+                    {member.name}
+                  </p>
+                  <p className="truncate text-[11px] text-[#8b949e]">
+                    @{member.username}
+                  </p>
                 </div>
-
-                <span className="shrink-0 rounded bg-[#21262d] px-2 py-0.5 text-[11px] font-medium text-[#8b949e]">
-                  {assignedCount} {assignedCount === 1 ? "ticket" : "tickets"}
-                </span>
               </div>
-            );
-          })}
+
+              <span className="shrink-0 rounded bg-[#21262d] px-2 py-0.5 text-[11px] font-medium text-[#8b949e]">
+                {member.assignedCount}{" "}
+                {member.assignedCount === 1 ? "ticket" : "tickets"}
+              </span>
+            </div>
+          ))}
         </div>
       </div>
     </div>
