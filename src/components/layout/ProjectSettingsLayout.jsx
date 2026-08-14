@@ -1,6 +1,6 @@
 import { Outlet } from "react-router-dom";
 
-import Header from "../settings/project/Header";
+import Header from "../project/Header";
 import NavBar from "../settings/project/NavBar";
 
 function ProjectSettingsLayout({
