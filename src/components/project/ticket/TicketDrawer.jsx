@@ -19,8 +19,8 @@ import {
   getPriorityIcon,
   formatLabel,
 } from "./ticketBadgeConfig";
-import MoveToBoardModal from "./MoveToBoardModal";
-import StatusActionDropdown from "./StatusActionDropdown";
+import MoveToBoardModal from "./Movetoboardmodal";
+import StatusActionDropdown from "./Statusactiondropdown";
 import { fetchWithAuth } from "../../../utils/fetchWithAuth";
 
 const API = import.meta.env.VITE_API_URL;

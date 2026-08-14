@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 import { fetchWithAuth } from "../../utils/fetchWithAuth";
 import Sidebar from "../settings/workspace/Sidebar";
-import SettingsHeader from "../settings/workspace/SettingsHeader";
+import SettingsHeader from "../settings/workspace/Settingsheader";
 
 const API = import.meta.env.VITE_API_URL;
 
