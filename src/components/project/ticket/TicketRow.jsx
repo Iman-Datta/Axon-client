@@ -1,6 +1,17 @@
 import { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { MoreHorizontal, Pencil, Trash2, Copy, Check } from "lucide-react";
+import {
+  MoreHorizontal,
+  Pencil,
+  Trash2,
+  Copy,
+  Check,
+  CircleDot,
+  Zap,
+  Eye,
+  CheckCircle2,
+  ListTodo,
+} from "lucide-react";
 import {
   getStatusStyle,
   getTypeTextStyle,
@@ -8,14 +19,20 @@ import {
   getPriorityTextStyle,
   getPriorityIcon,
   formatLabel,
-  formatRelativeTime,
 } from "./ticketBadgeConfig";
 
-// Approx
 const MENU_WIDTH = 192;
 const MENU_HEIGHT = 166;
 const GAP = 6;
 const PADDING = 8;
+
+const KANBAN_ICONS = {
+  TODO: ListTodo,
+  IN_PROGRESS: Zap,
+  REVIEW: Eye,
+  DONE: CheckCircle2,
+  DEFAULT: CircleDot,
+};
 
 function TicketRow({ ticket, onEdit, onDelete, onSelect }) {
   const [open, setOpen] = useState(false);
@@ -28,7 +45,6 @@ function TicketRow({ ticket, onEdit, onDelete, onSelect }) {
   const openMenu = () => {
     const rect = buttonRef.current.getBoundingClientRect();
 
-    // Horizontal position
     const left = Math.max(
       PADDING,
       Math.min(
@@ -37,7 +53,6 @@ function TicketRow({ ticket, onEdit, onDelete, onSelect }) {
       ),
     );
 
-    // Space available
     const spaceBelow = window.innerHeight - rect.bottom;
     const spaceAbove = rect.top;
 
@@ -58,7 +73,6 @@ function TicketRow({ ticket, onEdit, onDelete, onSelect }) {
     setOpen(true);
   };
 
-  // click outside
   useEffect(() => {
     function handleClickOutside(e) {
       if (
@@ -74,7 +88,6 @@ function TicketRow({ ticket, onEdit, onDelete, onSelect }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Esc to close
   useEffect(() => {
     function handleEsc(e) {
       if (e.key === "Escape") setOpen(false);
@@ -83,7 +96,6 @@ function TicketRow({ ticket, onEdit, onDelete, onSelect }) {
     return () => window.removeEventListener("keydown", handleEsc);
   }, [open]);
 
-  // close on scroll
   useEffect(() => {
     if (!open) return;
     function handleScroll() {
@@ -129,14 +141,15 @@ function TicketRow({ ticket, onEdit, onDelete, onSelect }) {
 
   const TypeIcon = getTypeIcon(ticket.type);
   const PriorityIcon = getPriorityIcon(ticket.priority);
+  const columnKey = ticket.kanban_column || "TODO";
+  const KanbanIcon = KANBAN_ICONS[columnKey] || KANBAN_ICONS.DEFAULT;
 
   return (
     <tr
       onClick={() => onSelect?.(ticket)}
       className="group cursor-pointer border-b border-[#21262d] transition-colors last:border-0 hover:bg-[#1c2128]"
     >
-      {/* Ticket number */}
-      <td className="whitespace-nowrap px-5 py-3.5">
+      <td className="whitespace-nowrap px-3.5 py-3">
         <span className="inline-flex items-center gap-1.5">
           <span className="rounded-md bg-[#0d1117] px-2 py-1 font-mono text-[11px] font-medium text-[#6e7681] ring-1 ring-[#30363d]">
             {ticket.ticket_number}
@@ -162,8 +175,7 @@ function TicketRow({ ticket, onEdit, onDelete, onSelect }) {
         </span>
       </td>
 
-      {/* Title */}
-      <td className="max-w-[260px] px-5 py-3.5">
+      <td className="max-w-[210px] px-3.5 py-3">
         <h3 className="truncate text-sm font-medium text-[#e6edf3]">
           {ticket.title}
         </h3>
@@ -174,8 +186,7 @@ function TicketRow({ ticket, onEdit, onDelete, onSelect }) {
         )}
       </td>
 
-      {/* Type — plain text + icon, no pill */}
-      <td className="whitespace-nowrap px-5 py-3.5">
+      <td className="whitespace-nowrap px-3.5 py-3">
         <span
           className={`inline-flex items-center gap-1.5 text-[13px] font-medium ${getTypeTextStyle(
             ticket.type,
@@ -186,8 +197,7 @@ function TicketRow({ ticket, onEdit, onDelete, onSelect }) {
         </span>
       </td>
 
-      {/* Status — pill retained, it's a state */}
-      <td className="whitespace-nowrap px-5 py-3.5">
+      <td className="whitespace-nowrap px-3.5 py-3">
         <span
           className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-medium ring-1 ${getStatusStyle(
             ticket.status,
@@ -198,8 +208,7 @@ function TicketRow({ ticket, onEdit, onDelete, onSelect }) {
         </span>
       </td>
 
-      {/* Priority — plain text + signal icon, no pill */}
-      <td className="whitespace-nowrap px-5 py-3.5">
+      <td className="whitespace-nowrap px-3.5 py-3">
         <span
           className={`inline-flex items-center gap-1.5 text-[13px] font-medium ${getPriorityTextStyle(
             ticket.priority,
@@ -210,8 +219,7 @@ function TicketRow({ ticket, onEdit, onDelete, onSelect }) {
         </span>
       </td>
 
-      {/* Epic */}
-      <td className="whitespace-nowrap px-5 py-3.5">
+      <td className="whitespace-nowrap px-3.5 py-3">
         {ticket.epic ? (
           <span className="inline-flex items-center gap-1.5 rounded-full bg-[#0d1117] px-2.5 py-0.5 text-[11px] font-medium text-[#c9d1d9] ring-1 ring-[#30363d]">
             <span
@@ -225,8 +233,7 @@ function TicketRow({ ticket, onEdit, onDelete, onSelect }) {
         )}
       </td>
 
-      {/* Story points */}
-      <td className="whitespace-nowrap px-5 py-3.5">
+      <td className="whitespace-nowrap px-3.5 py-3">
         {ticket.story_points != null ? (
           <span className="inline-flex items-center gap-1 rounded-md bg-[#0d1117] px-2 py-0.5 text-xs font-medium text-[#c9d1d9] ring-1 ring-[#30363d]">
             {ticket.story_points} SP
@@ -236,18 +243,14 @@ function TicketRow({ ticket, onEdit, onDelete, onSelect }) {
         )}
       </td>
 
-      {/* Updated */}
-      <td className="whitespace-nowrap px-5 py-3.5">
-        <span
-          className="text-xs text-[#8b949e]"
-          title={new Date(ticket.updated_at).toLocaleString()}
-        >
-          {formatRelativeTime(ticket.updated_at)}
+      <td className="whitespace-nowrap px-3.5 py-3">
+        <span className="inline-flex items-center gap-1.5 text-xs font-medium text-[#c9d1d9]">
+          <KanbanIcon className="h-3.5 w-3.5 text-[#8b949e]" />
+          <span>{formatLabel(columnKey)}</span>
         </span>
       </td>
 
-      {/* Actions */}
-      <td className="whitespace-nowrap px-5 py-3.5 text-right">
+      <td className="whitespace-nowrap px-3.5 py-3 text-right">
         <button
           ref={buttonRef}
           onClick={(e) => {

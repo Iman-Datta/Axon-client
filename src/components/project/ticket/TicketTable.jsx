@@ -8,7 +8,7 @@ const COLUMNS = [
   "Priority",
   "Epic",
   "Story Points",
-  "Updated",
+  "Status",
   "",
 ];
 

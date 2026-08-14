@@ -8,6 +8,11 @@ import {
   Copy,
   Clock,
   CalendarDays,
+  ListTodo,
+  Zap,
+  Eye,
+  CheckCircle2,
+  CircleDot,
 } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -24,6 +29,14 @@ import StatusActionDropdown from "./Statusactiondropdown";
 import { fetchWithAuth } from "../../../utils/fetchWithAuth";
 
 const API = import.meta.env.VITE_API_URL;
+
+const KANBAN_ICONS = {
+  TODO: ListTodo,
+  IN_PROGRESS: Zap,
+  REVIEW: Eye,
+  DONE: CheckCircle2,
+  DEFAULT: CircleDot,
+};
 
 function TicketDrawer({
   ticket,
@@ -53,7 +66,6 @@ function TicketDrawer({
   const [statusLoading, setStatusLoading] = useState(false);
   const [statusError, setStatusError] = useState(null);
 
-  // Esc to close
   useEffect(() => {
     function handleEsc(e) {
       if (e.key === "Escape") onClose();
@@ -148,7 +160,9 @@ function TicketDrawer({
     ? getPriorityIcon(currentTicket.priority)
     : null;
 
-  // Refined button classes for the top-right grouping
+  const columnKey = currentTicket?.kanban_column || "TODO";
+  const KanbanIcon = KANBAN_ICONS[columnKey] || KANBAN_ICONS.DEFAULT;
+
   const iconButtonClass =
     "flex h-8 w-8 items-center justify-center rounded-lg text-[#8b949e] transition-colors hover:bg-[#161b22] hover:text-[#e6edf3]";
 
@@ -176,7 +190,6 @@ function TicketDrawer({
 
   return (
     <>
-      {/* Overlay */}
       <div
         onClick={onClose}
         className={`fixed inset-0 z-40 bg-black/60 backdrop-blur-xs transition-opacity duration-300 ${
@@ -186,7 +199,6 @@ function TicketDrawer({
         }`}
       />
 
-      {/* Drawer */}
       <div
         className={`fixed right-0 top-0 z-50 flex h-full w-full max-w-2xl flex-col border-l border-[#21262d] bg-gradient-to-b from-[#0d1117] to-[#0a0d12] shadow-[-30px_0_80px_rgba(0,0,0,0.55)] transition-transform duration-300 ease-out ${
           open ? "translate-x-0" : "translate-x-full"
@@ -212,10 +224,8 @@ function TicketDrawer({
 
         {!loading && !error && currentTicket && (
           <>
-            {/* Header */}
             <div className="border-b border-[#21262d] bg-[#0d1117] pt-6 sticky top-0 z-10">
               <div className="flex items-start justify-between gap-4 px-7">
-                {/* Left Side: ID & Title */}
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-1.5">
                     <span className="rounded-md bg-[#161b22] px-2 py-1 font-mono text-[11px] font-medium tracking-wide text-[#6e7681] ring-1 ring-[#30363d]">
@@ -238,7 +248,6 @@ function TicketDrawer({
                   </h1>
                 </div>
 
-                {/* Right Side: Edit, Delete, Close Grouping */}
                 <div className="flex shrink-0 items-center gap-1">
                   <button
                     onClick={() => onEdit(currentTicket)}
@@ -254,8 +263,7 @@ function TicketDrawer({
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
-                  <div className="mx-1.5 h-4 w-px bg-[#30363d]" />{" "}
-                  {/* Divider */}
+                  <div className="mx-1.5 h-4 w-px bg-[#30363d]" />
                   <button
                     onClick={onClose}
                     className={iconButtonClass}
@@ -266,7 +274,6 @@ function TicketDrawer({
                 </div>
               </div>
 
-              {/* Action bar */}
               <div className="mt-5 flex items-center justify-between gap-3 px-7 pb-5">
                 <div>
                   {currentTicket.status === "DRAFT" && (
@@ -290,7 +297,6 @@ function TicketDrawer({
               </div>
             </div>
 
-            {/* Body */}
             <div className="flex-1 space-y-7 overflow-y-auto px-7 py-7 custom-scrollbar">
               {statusError && (
                 <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
@@ -314,9 +320,9 @@ function TicketDrawer({
                     </span>
 
                     {currentTicket.status === "OPEN" && (
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-[#238636]/10 px-2.5 py-0.5 text-[11px] font-medium text-[#3fb950] ring-1 ring-[#238636]/40">
-                        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#3fb950] -z-10" />
-                        Live
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-[#161b22] px-2.5 py-0.5 text-[11px] font-medium text-[#c9d1d9] ring-1 ring-[#30363d]">
+                        <KanbanIcon className="h-3.5 w-3.5 text-[#8b949e]" />
+                        {formatLabel(columnKey)}
                       </span>
                     )}
                   </div>
@@ -434,7 +440,6 @@ function TicketDrawer({
                 </div>
               </div>
 
-              {/* Timestamps (Small & Quiet) */}
               <div className="flex items-center gap-4 px-1 pt-2 text-[11px] font-medium text-[#6e7681]">
                 <div className="flex items-center gap-1.5">
                   <CalendarDays className="h-3.5 w-3.5 opacity-70" />
@@ -449,7 +454,6 @@ function TicketDrawer({
                 </div>
               </div>
 
-              {/* Activities */}
               <div className="border-t border-[#21262d] pt-6">
                 <p className="mb-3 text-[11px] font-semibold uppercase tracking-wide text-[#6e7681]">
                   Activities
