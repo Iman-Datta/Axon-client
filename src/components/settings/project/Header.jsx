@@ -61,8 +61,9 @@ function VisibilityBadge({ visibility }) {
   );
 }
 
-function Header({ description, outletContext }) {
-  const project = outletContext || {};
+function Header({ description, outletContext, project: projectProp }) {
+  const project = projectProp || outletContext || {};
+
   const {
     name,
     slug,
@@ -74,7 +75,6 @@ function Header({ description, outletContext }) {
     created_at,
     updated_at,
   } = project;
-
   const githubUrl = created_by?.github_username
     ? `https://github.com/${created_by.github_username}`
     : null;
@@ -113,6 +113,12 @@ function Header({ description, outletContext }) {
               </span>
             )}
           </div>
+
+          {projectProp && project.description && (
+            <p className="mt-2.5 max-w-2xl text-sm leading-relaxed text-[#8b949e]">
+              {project.description}
+            </p>
+          )}
 
           {description && (
             <p className="mt-2.5 max-w-2xl text-sm leading-relaxed text-[#8b949e]">
