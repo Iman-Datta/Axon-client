@@ -128,7 +128,7 @@ function OverviewPage() {
   const { project, tickets, assignedTickets, members } = data;
 
   return (
-    <div className="min-h-screen bg-[#0d1117] pb-16">
+    <div className="min-h-screen bg-[#0d1117] pt-16">
       {project && <Header project={project} />}
 
       <div className="mx-auto max-w-7xl px-6 pt-8">
