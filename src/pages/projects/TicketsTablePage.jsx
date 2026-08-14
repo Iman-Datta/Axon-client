@@ -54,7 +54,6 @@ function TicketsTablePage() {
   const [localTickets, setLocalTickets] = useState([]);
   const [hasFetchedOnce, setHasFetchedOnce] = useState(false);
 
-  // Sync the hook's tickets into our local UI state
   useEffect(() => {
     if (tickets) {
       setLocalTickets(tickets);

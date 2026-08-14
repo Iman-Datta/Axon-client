@@ -3,7 +3,7 @@ import { Ticket as TicketIcon, Plus } from "lucide-react";
 function TicketHeader({ onCreateTicket, count }) {
   return (
     <div className="border-b mb-2 border-[#21262d] pt-4">
-      <div className="flex items-start justify-between gap-6">
+      <div className="flex items-start justify-between gap-6 pb-2">
         <div className="flex items-start gap-4">
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#388bfd]/15 to-[#238636]/10 ring-1 ring-[#30363d]">
             <TicketIcon

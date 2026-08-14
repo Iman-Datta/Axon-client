@@ -46,57 +46,56 @@ function ProjectSidebar() {
       `}</style>
 
       {/* Top Header */}
-      <div className="border-b border-[#21262d] p-4">
+      <div className="border-b border-[#21262d] p-3">
         <div
-          className={`mb-4 flex items-center ${collapsed ? "justify-center" : "justify-between"}`}
+          className={`mb-2 flex items-center px-1 ${collapsed ? "justify-center" : "justify-between"}`}
         >
           {!collapsed && (
-            <span className="text-sm font-semibold text-[#e6edf3]">
-              Projects
+            <span className="text-xs font-semibold uppercase tracking-wider text-[#6e7681]">
+              Workspace
             </span>
           )}
 
-          {/* Hamburger only exists in the expanded state now */}
           {!collapsed && (
             <button
               onClick={() => setCollapsed(true)}
-              className="rounded-xl p-2 text-[#8b949e] transition-all duration-200 hover:bg-[#161b22] hover:text-white"
+              className="rounded-lg p-1.5 text-[#8b949e] transition-all duration-200 hover:bg-[#161b22] hover:text-white"
               title="Collapse sidebar"
             >
-              <Menu size={18} />
+              <Menu size={16} />
             </button>
           )}
         </div>
 
-        {/* Project Card / Logo — doubles as the expand control when collapsed */}
+        {/* Professional Clean Workspace Header (No heavy card/glow) */}
         <button
           type="button"
           onClick={() => collapsed && setCollapsed(false)}
           title={collapsed ? "Expand sidebar" : undefined}
           className={
             collapsed
-              ? "group flex w-full justify-center"
-              : "group relative flex w-full cursor-default items-center gap-4 rounded-2xl border border-[#30363d] bg-linear-to-b from-[#161b22] to-[#11161d] p-4 transition-all duration-300 hover:border-[#388bfd66] hover:shadow-[0_8px_24px_rgba(56,139,253,0.18)]"
+              ? "group flex w-full justify-center py-2"
+              : "group flex w-full items-center gap-3 rounded-xl p-2.5 transition-all duration-200 hover:bg-[#161b22]"
           }
         >
-          <div className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-[#30363d] bg-[#0d1117] transition-all duration-300 group-hover:scale-105 group-hover:border-[#388bfd88]">
-            <FolderGit2 size={22} className="text-[#58a6ff]" />
+          <div className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#30363d] bg-[#161b22] text-[#58a6ff] transition-colors group-hover:border-[#8b949e]">
+            <FolderGit2 size={18} />
 
-            {/* Chevron badge — only appears (on hover) when the logo is actually clickable */}
             {collapsed && (
-              <span className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full border border-[#0d1117] bg-[#21262d] text-[#8b949e] opacity-0 shadow-md transition-all duration-200 group-hover:translate-x-0.5 group-hover:bg-[#1f6feb] group-hover:text-white group-hover:opacity-100">
-                <ChevronRight size={12} />
+              <span className="absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full border border-[#0d1117] bg-[#21262d] text-[#8b949e] opacity-0 shadow-sm transition-all duration-200 group-hover:translate-x-0.5 group-hover:bg-[#1f6feb] group-hover:text-white group-hover:opacity-100">
+                <ChevronRight size={10} />
               </span>
             )}
           </div>
 
           {!collapsed && (
-            <div className="min-w-0 flex-1">
-              <h2 className="truncate text-sm font-semibold text-[#e6edf3]">
+            <div className="min-w-0 flex-1 text-left">
+              <h2 className="truncate text-xs font-bold text-[#e6edf3]">
                 {projectName}
               </h2>
-
-              <p className="mt-0.5 text-xs text-[#8b949e]">Project Workspace</p>
+              <p className="truncate text-[11px] text-[#8b949e]">
+                Project Workspace
+              </p>
             </div>
           )}
         </button>
