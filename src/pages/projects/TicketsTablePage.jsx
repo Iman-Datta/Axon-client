@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useEffect, useState, useMemo } from "react";
+import { useParams, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { Search, ArrowUpDown, X, User } from "lucide-react";
 
 import TicketHeader from "../../components/project/ticket/TicketHeader";
 import TicketTable from "../../components/project/ticket/TicketTable";
@@ -21,8 +22,10 @@ import {
 
 function TicketsTablePage() {
   const { slug, project_slug } = useParams();
+  const [searchParams] = useSearchParams();
   const dispatch = useDispatch();
   const accessToken = useSelector((state) => state.auth.accessToken);
+  const currentUser = useSelector((state) => state.auth.user); // Get current logged-in user to check ID for "Assigned to me"
 
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState("create");
@@ -36,6 +39,14 @@ function TicketsTablePage() {
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [activeTicketId, setActiveTicketId] = useState(null);
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("ALL"); // 'ALL', 'OPEN', 'DONE', etc.
+  const [sortByStoryPoints, setSortByStoryPoints] = useState("NONE"); // 'NONE', 'ASC', 'DESC'
+
+  const [assignedToMe, setAssignedToMe] = useState(
+    searchParams.get("filter") === "assigned",
+  );
 
   const { tickets, count, loading, error, refetch } = useTickets(
     slug,
@@ -57,15 +68,57 @@ function TicketsTablePage() {
   useEffect(() => {
     if (tickets) {
       setLocalTickets(tickets);
-      setHasFetchedOnce(true); // Prevents the screen from blanking out on subsequent refetches
+      setHasFetchedOnce(true);
     }
   }, [tickets]);
+
+  const filteredAndSortedTickets = useMemo(() => {
+    let result = [...localTickets];
+
+    // 1. Search filter
+    if (searchQuery.trim() !== "") {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(
+        (t) =>
+          t.title?.toLowerCase().includes(q) ||
+          t.ticket_number?.toLowerCase().includes(q),
+      );
+    }
+
+    // 2. Status filter
+    if (statusFilter !== "ALL") {
+      result = result.filter((t) => t.status === statusFilter);
+    }
+
+    // 3. Assigned to me filter
+    if (assignedToMe && currentUser) {
+      result = result.filter(
+        (t) =>
+          t.assignee?.id === currentUser.id || t.assignee_id === currentUser.id,
+      );
+    }
+
+    // 4. Story Points Sorting
+    if (sortByStoryPoints === "ASC") {
+      result.sort((a, b) => (a.story_points || 0) - (b.story_points || 0));
+    } else if (sortByStoryPoints === "DESC") {
+      result.sort((a, b) => (b.story_points || 0) - (a.story_points || 0));
+    }
+
+    return result;
+  }, [
+    localTickets,
+    searchQuery,
+    statusFilter,
+    assignedToMe,
+    sortByStoryPoints,
+    currentUser,
+  ]);
 
   const handleTicketUpdatedLocally = (updatedTicket) => {
     setLocalTickets((prev) =>
       prev.map((t) => (t.id === updatedTicket?.id ? updatedTicket : t)),
     );
-    // Do a silent refetch in the background to ensure 100% sync, but no glitch will happen!
     refetch();
   };
 
@@ -131,7 +184,7 @@ function TicketsTablePage() {
         savedTicket?.ticket?.id || savedTicket?.id || selectedTicket?.id;
 
       const originalAssigneeId = selectedTicket?.assignee?.id || null;
-      const newAssigneeId = assignee || null; // assignee is already a Number or null from TicketFormModal
+      const newAssigneeId = assignee || null;
 
       const didAssigneeChange = originalAssigneeId !== newAssigneeId;
 
@@ -147,8 +200,6 @@ function TicketsTablePage() {
       }
 
       closeModal();
-
-      // Update UI optimistically without glitching
       await refetch();
 
       if (activeTicketId && selectedTicket?.id === activeTicketId) {
@@ -200,7 +251,6 @@ function TicketsTablePage() {
     }
   };
 
-  // Only show the hard loading screen if we have NEVER fetched tickets before.
   if (loading && !hasFetchedOnce) {
     return <h1 className="mt-18 px-4 text-[#8b949e]">Loading tickets...</h1>;
   }
@@ -213,19 +263,114 @@ function TicketsTablePage() {
     <div className="mt-18 px-2">
       <TicketHeader onCreateTicket={openCreateModal} count={count} />
 
-      {/* Render from localTickets instead of tickets */}
-      {localTickets.length === 0 ? (
+      <div className="mb-5 mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#30363d] bg-[#161b22] p-3 shadow-sm">
+        {/* Left Side: Search Bar */}
+        <div className="relative min-w-[240px] flex-1">
+          <Search
+            size={16}
+            className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8b949e]"
+          />
+          <input
+            type="text"
+            placeholder="Search tickets by title or ID (e.g. AXON-1)..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full rounded-lg border border-[#30363d] bg-[#0d1117] py-2 pl-10 pr-9 text-xs text-[#f0f6fc] placeholder-[#8b949e] outline-none transition-colors focus:border-[#58a6ff]"
+          />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery("")}
+              aria-label="Clear search"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8b949e] hover:text-white"
+            >
+              <X size={14} />
+            </button>
+          )}
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2.5">
+          {/* Assigned to Me Toggle */}
+          <button
+            type="button"
+            onClick={() => setAssignedToMe(!assignedToMe)}
+            aria-pressed={assignedToMe}
+            className={`flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-semibold transition-all ${
+              assignedToMe
+                ? "border-[#58a6ff] bg-[#1f6feb]/15 text-[#58a6ff]"
+                : "border-[#30363d] bg-[#0d1117] text-[#8b949e] hover:border-[#8b949e] hover:text-[#f0f6fc]"
+            }`}
+          >
+            <User size={13} />
+            Assigned to me
+          </button>
+
+          {/* Status Filter */}
+          <label className="flex items-center gap-1.5 rounded-lg border border-[#30363d] bg-[#0d1117] px-3 py-1.5">
+            <span className="text-[11px] font-medium text-[#8b949e]">
+              Status
+            </span>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="cursor-pointer bg-transparent text-xs font-semibold text-[#f0f6fc] outline-none"
+            >
+              <option value="ALL" className="bg-[#161b22]">
+                All Statuses
+              </option>
+              <option value="OPEN" className="bg-[#161b22]">
+                Open
+              </option>
+              <option value="DONE" className="bg-[#161b22]">
+                Done
+              </option>
+              <option value="BLOCKED" className="bg-[#161b22]">
+                Blocked
+              </option>
+              <option value="CANCELLED" className="bg-[#161b22]">
+                Cancelled
+              </option>
+            </select>
+          </label>
+
+          {/* Story Points Sort */}
+          <label className="flex items-center gap-1.5 rounded-lg border border-[#30363d] bg-[#0d1117] px-3 py-1.5">
+            <ArrowUpDown size={13} className="text-[#8b949e]" />
+            <span className="text-[11px] font-medium text-[#8b949e]">
+              Story Points
+            </span>
+            <select
+              value={sortByStoryPoints}
+              onChange={(e) => setSortByStoryPoints(e.target.value)}
+              className="cursor-pointer bg-transparent text-xs font-semibold text-[#f0f6fc] outline-none"
+            >
+              <option value="NONE" className="bg-[#161b22]">
+                Default
+              </option>
+              <option value="ASC" className="bg-[#161b22]">
+                Low to High
+              </option>
+              <option value="DESC" className="bg-[#161b22]">
+                High to Low
+              </option>
+            </select>
+          </label>
+        </div>
+      </div>
+
+      {/* Render from filteredAndSortedTickets instead of localTickets */}
+      {filteredAndSortedTickets.length === 0 ? (
         <div className="rounded-2xl border border-[#30363d] bg-[#161b22] p-10 text-center">
           <h2 className="text-lg font-semibold text-[#e6edf3]">
-            No tickets yet
+            No matching tickets found
           </h2>
           <p className="mt-2 text-[#8b949e]">
-            Create your first ticket to get started.
+            Try adjusting your search query or filter settings.
           </p>
         </div>
       ) : (
         <TicketTable
-          tickets={localTickets}
+          tickets={filteredAndSortedTickets}
           onEdit={openEditModal}
           onDelete={openDeleteConfirm}
           onSelect={handleRowSelect}
@@ -240,7 +385,6 @@ function TicketsTablePage() {
         onClose={closeDrawer}
         onEdit={openEditModal}
         onDelete={openDeleteConfirm}
-        // FIX: Pass the local state update function instead of a raw refetch()
         onTicketUpdated={handleTicketUpdatedLocally}
       />
 

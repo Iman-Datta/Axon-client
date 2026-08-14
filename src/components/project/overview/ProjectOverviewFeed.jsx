@@ -59,7 +59,7 @@ function ProjectOverviewFeed({ assignedTickets = [], onTicketClick }) {
   };
 
   const handleViewAll = () => {
-    navigate(`/${slug}/${project_slug}/tickets`);
+    navigate(`/${slug}/${project_slug}/tickets?filter=assigned`);
   };
 
   return (

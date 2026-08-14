@@ -133,12 +133,10 @@ function OverviewPage() {
 
       <div className="mx-auto max-w-7xl px-6 pt-8">
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
-          {/* LEFT AREA (~67% width) */}
           <div className="lg:col-span-8">
             <ProjectOverviewFeed assignedTickets={assignedTickets} />
           </div>
 
-          {/* RIGHT AREA (~33% width) */}
           <div className="lg:col-span-4">
             <ProjectStatsCard tickets={tickets} members={members} />
           </div>
