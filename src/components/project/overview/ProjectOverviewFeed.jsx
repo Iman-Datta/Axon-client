@@ -1,4 +1,4 @@
-import { CheckCircle2, ArrowRight } from "lucide-react";
+import { CheckCircle2, ArrowUpRight, Flag } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 
 const STATUS_CONFIG = {
@@ -32,6 +32,12 @@ const STATUS_CONFIG = {
   },
 };
 
+const PRIORITY_CONFIG = {
+  HIGH: { label: "High", color: "#f85149" },
+  MEDIUM: { label: "Medium", color: "#e3b341" },
+  LOW: { label: "Low", color: "#8b949e" },
+};
+
 function StatusBadge({ column, status }) {
   const key = column || status || "DEFAULT";
   const config = STATUS_CONFIG[key] ?? STATUS_CONFIG.DEFAULT;
@@ -41,6 +47,22 @@ function StatusBadge({ column, status }) {
       className={`inline-flex items-center gap-1.5 rounded-full border ${config.border} ${config.bg} px-2.5 py-0.5 text-xs font-medium ${config.text}`}
     >
       <span className={`h-1.5 w-1.5 rounded-full ${config.dot}`} />
+      {config.label}
+    </span>
+  );
+}
+
+function PriorityFlag({ priority }) {
+  if (!priority) return null;
+  const config = PRIORITY_CONFIG[priority] ?? PRIORITY_CONFIG.LOW;
+
+  return (
+    <span
+      className="inline-flex items-center gap-1 text-[11px] font-medium"
+      style={{ color: config.color }}
+      title={`${config.label} priority`}
+    >
+      <Flag size={11} fill={config.color} stroke="none" />
       {config.label}
     </span>
   );
@@ -81,9 +103,9 @@ function ProjectOverviewFeed({ assignedTickets = [], onTicketClick }) {
           className="group flex items-center gap-1.5 text-xs font-semibold text-[#58a6ff] transition-colors hover:text-white"
         >
           View all tickets
-          <ArrowRight
+          <ArrowUpRight
             size={13}
-            className="transition-transform duration-200 group-hover:translate-x-0.5"
+            className="transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
           />
         </button>
       </div>
@@ -117,9 +139,9 @@ function ProjectOverviewFeed({ assignedTickets = [], onTicketClick }) {
                     handleTicketActivate(ticket);
                   }
                 }}
-                className="group flex cursor-pointer items-center justify-between rounded-xl border border-[#21262d] bg-[#0d1117]/50 px-4 py-3.5 transition-all duration-200 hover:border-[#388bfd]/50 hover:bg-[#0d1117] focus:outline-none focus:ring-2 focus:ring-[#388bfd]/50"
+                className="group flex cursor-pointer items-center justify-between gap-4 rounded-xl border border-[#21262d] bg-[#0d1117]/50 px-4 py-3.5 transition-all duration-200 hover:border-[#388bfd]/50 hover:bg-[#0d1117] focus:outline-none focus:ring-2 focus:ring-[#388bfd]/50"
               >
-                {/* Left side: Ticket Number & Clean Title */}
+                {/* Left side: Ticket Number & Title */}
                 <div className="flex min-w-0 items-center gap-3.5">
                   <span className="shrink-0 font-mono text-xs font-bold text-[#58a6ff]">
                     {ticket.ticket_number}
@@ -130,16 +152,23 @@ function ProjectOverviewFeed({ assignedTickets = [], onTicketClick }) {
                   </p>
                 </div>
 
-                {/* Right side: Status Badge & Interactive Arrow */}
-                <div className="flex shrink-0 items-center gap-4 pl-3">
-                  <StatusBadge
-                    column={ticket.kanban_column}
-                    status={ticket.status}
-                  />
+                {/* Right side: Priority, Status & Open action */}
+                <div className="flex shrink-0 items-center gap-3">
+                  <PriorityFlag priority={ticket.priority} />
+                  <StatusBadge column={ticket.kanban_column} status={ticket.status} />
 
-                  <div className="flex h-6 w-6 items-center justify-center rounded-md text-[#8b949e] transition-all group-hover:bg-[#388bfd]/10 group-hover:text-[#58a6ff]">
-                    <ArrowRight size={14} />
-                  </div>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleTicketActivate(ticket);
+                    }}
+                    aria-label="Open ticket"
+                    title="Open ticket"
+                    className="inline-flex items-center justify-center rounded-md border border-[#30363d] bg-[#21262d] p-1.5 text-[#8b949e] transition-all hover:border-[#388bfd] hover:bg-[#388bfd] hover:text-white"
+                  >
+                    <ArrowUpRight size={13} />
+                  </button>
                 </div>
               </div>
             ))}

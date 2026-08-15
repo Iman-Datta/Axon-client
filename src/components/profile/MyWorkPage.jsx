@@ -16,14 +16,10 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { fetchWithAuth } from "../../utils/fetchWithAuth";
-import ProfileLayout from "../../components/layout/ProfileLayout";
+import ProfileLayout from "../layout/ProfileLayout";
 
 const API = import.meta.env.VITE_API_URL;
 
-/* 
-  Refined to use softer, desaturated tone palettes (GitHub Dark / Linear style) 
-  to eliminate eye strain while maintaining clear visual hierarchy.
-*/
 const STATUS_CONFIG = {
   DONE: {
     label: "Done",

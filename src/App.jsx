@@ -17,7 +17,7 @@ import OrganizationsPage from "./pages/organizations/OrganizationsPage";
 import CreateOrganization from "./pages/organizations/CreateOrganization";
 
 // My working ticket
-import MyWorkPage from "./pages/projects/MyWorkPage";
+import MyWorkPage from "./components/profile/MyWorkPage";
 
 // Project
 import ProjectsListPage from "./pages/projects/ProjectsListPage";

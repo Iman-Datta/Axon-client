@@ -8,22 +8,17 @@ import ProjectStatsCard from "../../components/project/overview/ProjectStatsCard
 import ProjectOverviewFeed from "../../components/project/overview/ProjectOverviewFeed";
 
 const INITIAL_STATE = {
-  tickets: [],
+  project_details: null,
+  metrics: {},
+  ticket_overview: {},
   assignedTickets: [],
   members: [],
 };
 
-async function parseJsonOrThrow(response, label) {
-  if (!response.ok) {
-    throw new Error(`Failed to load ${label} (status ${response.status}).`);
-  }
-  return response.json();
-}
-
 function OverviewPage() {
   const API = import.meta.env.VITE_API_URL;
   const { slug, project_slug } = useParams();
-  const { project } = useOutletContext(); // Grab pre-fetched project from ProjectLayout!
+  const { project: outletProject } = useOutletContext() || {};
 
   const dispatch = useDispatch();
   const accessToken = useSelector((state) => state.auth.accessToken);
@@ -38,45 +33,34 @@ function OverviewPage() {
       setError("");
 
       try {
-        const [ticketsRes, assignedRes, membersRes] = await Promise.all([
-          fetchWithAuth(
-            `${API}/tickets/${slug}/${project_slug}/`,
-            { signal },
-            dispatch,
-            accessToken,
-          ),
-          fetchWithAuth(
-            `${API}/tickets/${slug}/${project_slug}/?assignee=me`,
-            { signal },
-            dispatch,
-            accessToken,
-          ),
-          fetchWithAuth(
-            `${API}/projects/${slug}/${project_slug}/members/`,
-            { signal },
-            dispatch,
-            accessToken,
-          ),
-        ]);
+        const response = await fetchWithAuth(
+          `${API}/projects/${slug}/${project_slug}/overview/`,
+          { signal },
+          dispatch,
+          accessToken,
+        );
 
-        const [ticketsData, assignedData, membersData] = await Promise.all([
-          parseJsonOrThrow(ticketsRes, "tickets"),
-          parseJsonOrThrow(assignedRes, "assigned tickets"),
-          parseJsonOrThrow(membersRes, "members"),
-        ]);
+        const responseData = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            responseData.message ||
+              `Failed to load project overview (status ${response.status}).`,
+          );
+        }
 
         if (signal?.aborted) return;
 
         setData({
-          tickets: Array.isArray(ticketsData)
-            ? ticketsData
-            : (ticketsData.tickets ?? []),
-          assignedTickets: Array.isArray(assignedData)
-            ? assignedData
-            : (assignedData.tickets ?? []),
-          members: Array.isArray(membersData)
-            ? membersData
-            : (membersData.members ?? []),
+          project_details: responseData.project_details || null,
+          metrics: responseData.metrics || {},
+          ticket_overview: responseData.ticket_overview || {},
+          assignedTickets: Array.isArray(responseData.assigned_tickets)
+            ? responseData.assigned_tickets
+            : [],
+          members: Array.isArray(responseData.members)
+            ? responseData.members
+            : [],
         });
         setStatus("ready");
       } catch (err) {
@@ -97,7 +81,7 @@ function OverviewPage() {
     return () => controller.abort();
   }, [loadOverview]);
 
-  if (status === "loading" && !project) {
+  if (status === "loading" && !outletProject && !data.project_details) {
     return <OverviewSkeleton />;
   }
 
@@ -116,20 +100,35 @@ function OverviewPage() {
     );
   }
 
-  const { tickets, assignedTickets, members } = data;
+  const {
+    project_details,
+    metrics,
+    ticket_overview,
+    assignedTickets,
+    members,
+  } = data;
+
+  console.log(data);
+
+  // Fallback to outlet context project if backend details are loading/missing
+  const activeProject = project_details || outletProject;
 
   return (
     <div className="min-h-screen bg-[#0d1117] pt-16">
-      {project && <Header project={project} />}
+      {activeProject && <Header project={activeProject} />}
 
-      <div className="mx-auto max-w-7xl px-6 pt-8">
+      <div className="mx-auto max-w-7xl px-6 pt-8 pb-16">
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
           <div className="lg:col-span-8">
             <ProjectOverviewFeed assignedTickets={assignedTickets} />
           </div>
 
           <div className="lg:col-span-4">
-            <ProjectStatsCard tickets={tickets} members={members} />
+            <ProjectStatsCard
+              metrics={metrics}
+              ticketOverview={ticket_overview}
+              members={members}
+            />
           </div>
         </div>
       </div>
