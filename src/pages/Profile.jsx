@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 
 import ProfileLayout from "../components/shared/ProfileLayout";
 import ProfileChecklist from "../components/profile/ProfileChecklist";
+import ProfileOverviewPage from "../components/profile/ProfileOverviewPage";
 
 const API = import.meta.env.VITE_API_URL;
 
@@ -86,6 +87,7 @@ function Profile() {
   return (
     <ProfileLayout user={displayProfile}>
       <ProfileChecklist user={displayProfile} />
+      <ProfileOverviewPage />
     </ProfileLayout>
   );
 }
