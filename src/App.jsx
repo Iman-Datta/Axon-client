@@ -16,6 +16,9 @@ import OnboardingGuard from "./components/onboarding/OnboardingGuard";
 import OrganizationsPage from "./pages/organizations/OrganizationsPage";
 import CreateOrganization from "./pages/organizations/CreateOrganization";
 
+// My working tiecket
+import MyWorkPage from "./pages/projects/MyWorkPage";
+
 // Project
 import ProjectsListPage from "./pages/projects/ProjectsListPage";
 import CreateProject from "./pages/projects/CreateProject";
@@ -173,6 +176,16 @@ function App() {
             <ProtectedRoute>
               <WorkspaceLoader>
                 <ComingSoonV2 />
+              </WorkspaceLoader>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/:slug/my-work"
+          element={
+            <ProtectedRoute>
+              <WorkspaceLoader>
+                <MyWorkPage />
               </WorkspaceLoader>
             </ProtectedRoute>
           }

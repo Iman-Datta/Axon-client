@@ -5,6 +5,7 @@ import {
   BarChart3,
   Settings,
   Building2,
+  ListChecks,
 } from "lucide-react";
 
 export const publicNav = ["Features", "Pricing", "About"];
@@ -24,6 +25,11 @@ export const getPrivateNav = (
       name: "Projects",
       path: `/${workspaceSlug}/projects`,
       icon: FolderGit2,
+    },
+    {
+      name: "My work",
+      path: `/${workspaceSlug}/my-work`,
+      icon: ListChecks,
     },
   ];
 
