@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 
-import ProfileLayout from "../components/shared/ProfileLayout";
+import ProfileLayout from "../components/layout/ProfileLayout";
 import ProfileChecklist from "../components/profile/ProfileChecklist";
 import ProfileOverviewPage from "../components/profile/ProfileOverviewPage";
 

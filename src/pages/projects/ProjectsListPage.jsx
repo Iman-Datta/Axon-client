@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 
 import useProjects from "../../hooks/useProjects";
 
-import ProfileLayout from "../../components/shared/ProfileLayout";
+import ProfileLayout from "../../components/layout/ProfileLayout";
 import OrganizationLayout from "../../components/layout/OrganizationLayout";
 
 import ProjectsHeader from "../../components/project/ProjectsHeader";

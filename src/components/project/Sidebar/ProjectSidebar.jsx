@@ -1,48 +1,34 @@
 import { useState } from "react";
-import { FolderGit2, Menu, ChevronRight } from "lucide-react";
+import { FolderGit2, Menu, ChevronRight, Building2, User } from "lucide-react";
 import { useParams } from "react-router-dom";
 
 import ProjectSidebarItem from "./ProjectSidebarItem";
 import { projectItems, toolItems } from "./projectSidebarData";
 
-function ProjectSidebar() {
+function ProjectSidebar({ project }) {
   const { slug, project_slug } = useParams();
-
   const [collapsed, setCollapsed] = useState(false);
 
-  const projectName = project_slug
-    ?.split("-")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
+  const workspaceName = project?.workspace_name || slug || "Workspace";
+  const isOrg = project?.workspace_type === "organization";
 
   return (
     <aside
-      className={`sticky top-18 h-[calc(100vh-4.5rem)] shrink-0 border-r border-[#21262d] bg-linear-to-b from-[#0d1117]/98 via-[#0d1117]/95 to-[#0d1117]/98 backdrop-blur-md flex flex-col transition-all duration-300 ${
+      className={`sticky top-0 h-screen shrink-0 border-r border-[#21262d] bg-gradient-to-b from-[#0d1117]/98 via-[#0d1117]/95 to-[#0d1117]/98 backdrop-blur-md flex flex-col transition-all duration-300 pt-20 ${
         collapsed ? "w-20" : "w-62 2xl:w-[280px]"
       }`}
     >
       <style>{`
-        .axon-sidebar-scroll::-webkit-scrollbar {
-          width: 6px;
-        }
-
-        .axon-sidebar-scroll::-webkit-scrollbar-track {
-          background: transparent;
-        }
-
+        .axon-sidebar-scroll::-webkit-scrollbar { width: 6px; }
+        .axon-sidebar-scroll::-webkit-scrollbar-track { background: transparent; }
         .axon-sidebar-scroll::-webkit-scrollbar-thumb {
           background: linear-gradient(180deg, #388bfd55, #388bfd33);
           border-radius: 999px;
         }
-
         .axon-sidebar-scroll::-webkit-scrollbar-thumb:hover {
           background: linear-gradient(180deg, #58a6ff88, #388bfd55);
         }
-
-        .axon-sidebar-scroll {
-          scrollbar-width: thin;
-          scrollbar-color: #388bfd55 transparent;
-        }
+        .axon-sidebar-scroll { scrollbar-width: thin; scrollbar-color: #388bfd55 transparent; }
       `}</style>
 
       {/* Top Header */}
@@ -51,8 +37,8 @@ function ProjectSidebar() {
           className={`mb-2 flex items-center px-1 ${collapsed ? "justify-center" : "justify-between"}`}
         >
           {!collapsed && (
-            <span className="text-xs font-semibold uppercase tracking-wider text-[#6e7681]">
-              Workspace
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-[#6e7681]">
+              Workspace Context
             </span>
           )}
 
@@ -67,7 +53,7 @@ function ProjectSidebar() {
           )}
         </div>
 
-        {/* Professional Clean Workspace Header */}
+        {/* Professional Workspace Header Indicator */}
         <button
           type="button"
           onClick={() => collapsed && setCollapsed(false)}
@@ -90,12 +76,19 @@ function ProjectSidebar() {
 
           {!collapsed && (
             <div className="min-w-0 flex-1 text-left">
+              <div className="flex items-center gap-1.5">
+                {isOrg ? (
+                  <Building2 size={11} className="text-amber-400 shrink-0" />
+                ) : (
+                  <User size={11} className="text-emerald-400 shrink-0" />
+                )}
+                <span className="truncate text-[11px] font-semibold text-slate-400">
+                  {workspaceName}
+                </span>
+              </div>
               <h2 className="truncate text-xs font-bold text-[#e6edf3]">
-                {projectName}
+                {project?.name || project_slug}
               </h2>
-              <p className="truncate text-[11px] text-[#8b949e]">
-                Project Workspace
-              </p>
             </div>
           )}
         </button>

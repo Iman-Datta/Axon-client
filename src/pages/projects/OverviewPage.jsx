@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useOutletContext } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
 import { fetchWithAuth } from "../../utils/fetchWithAuth";
@@ -8,7 +8,6 @@ import ProjectStatsCard from "../../components/project/overview/ProjectStatsCard
 import ProjectOverviewFeed from "../../components/project/overview/ProjectOverviewFeed";
 
 const INITIAL_STATE = {
-  project: null,
   tickets: [],
   assignedTickets: [],
   members: [],
@@ -24,12 +23,13 @@ async function parseJsonOrThrow(response, label) {
 function OverviewPage() {
   const API = import.meta.env.VITE_API_URL;
   const { slug, project_slug } = useParams();
+  const { project } = useOutletContext(); // Grab pre-fetched project from ProjectLayout!
 
   const dispatch = useDispatch();
   const accessToken = useSelector((state) => state.auth.accessToken);
 
   const [data, setData] = useState(INITIAL_STATE);
-  const [status, setStatus] = useState("loading"); // "loading" | "error" | "ready"
+  const [status, setStatus] = useState("loading");
   const [error, setError] = useState("");
 
   const loadOverview = useCallback(
@@ -38,46 +38,36 @@ function OverviewPage() {
       setError("");
 
       try {
-        const [projectRes, ticketsRes, assignedRes, membersRes] =
-          await Promise.all([
-            fetchWithAuth(
-              `${API}/projects/${slug}/${project_slug}/`,
-              { signal },
-              dispatch,
-              accessToken,
-            ),
-            fetchWithAuth(
-              `${API}/tickets/${slug}/${project_slug}/`,
-              { signal },
-              dispatch,
-              accessToken,
-            ),
-            fetchWithAuth(
-              `${API}/tickets/${slug}/${project_slug}/?assignee=me`,
-              { signal },
-              dispatch,
-              accessToken,
-            ),
-            fetchWithAuth(
-              `${API}/projects/${slug}/${project_slug}/members/`,
-              { signal },
-              dispatch,
-              accessToken,
-            ),
-          ]);
+        const [ticketsRes, assignedRes, membersRes] = await Promise.all([
+          fetchWithAuth(
+            `${API}/tickets/${slug}/${project_slug}/`,
+            { signal },
+            dispatch,
+            accessToken,
+          ),
+          fetchWithAuth(
+            `${API}/tickets/${slug}/${project_slug}/?assignee=me`,
+            { signal },
+            dispatch,
+            accessToken,
+          ),
+          fetchWithAuth(
+            `${API}/projects/${slug}/${project_slug}/members/`,
+            { signal },
+            dispatch,
+            accessToken,
+          ),
+        ]);
 
-        const [projectData, ticketsData, assignedData, membersData] =
-          await Promise.all([
-            parseJsonOrThrow(projectRes, "project"),
-            parseJsonOrThrow(ticketsRes, "tickets"),
-            parseJsonOrThrow(assignedRes, "assigned tickets"),
-            parseJsonOrThrow(membersRes, "members"),
-          ]);
+        const [ticketsData, assignedData, membersData] = await Promise.all([
+          parseJsonOrThrow(ticketsRes, "tickets"),
+          parseJsonOrThrow(assignedRes, "assigned tickets"),
+          parseJsonOrThrow(membersRes, "members"),
+        ]);
 
         if (signal?.aborted) return;
 
         setData({
-          project: projectData.project ?? projectData,
           tickets: Array.isArray(ticketsData)
             ? ticketsData
             : (ticketsData.tickets ?? []),
@@ -92,7 +82,8 @@ function OverviewPage() {
       } catch (err) {
         if (err.name === "AbortError") return;
         setError(
-          err.message || "Something went wrong while loading this project.",
+          err.message ||
+            "Something went wrong while loading this project overview.",
         );
         setStatus("error");
       }
@@ -106,7 +97,7 @@ function OverviewPage() {
     return () => controller.abort();
   }, [loadOverview]);
 
-  if (status === "loading") {
+  if (status === "loading" && !project) {
     return <OverviewSkeleton />;
   }
 
@@ -125,7 +116,7 @@ function OverviewPage() {
     );
   }
 
-  const { project, tickets, assignedTickets, members } = data;
+  const { tickets, assignedTickets, members } = data;
 
   return (
     <div className="min-h-screen bg-[#0d1117] pt-16">

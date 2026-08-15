@@ -2,7 +2,7 @@ import { useSelector } from "react-redux";
 
 import useOrganizations from "../../hooks/useOrganizations";
 
-import ProfileLayout from "../../components/shared/ProfileLayout";
+import ProfileLayout from "../../components/layout/ProfileLayout";
 
 import ResourceList from "../../components/shared/resource/ResourceList";
 import EmptyState from "../../components/shared/resource/EmptyState";
