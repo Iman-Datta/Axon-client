@@ -1,4 +1,4 @@
-import { ArrowRight, Layers } from "lucide-react";
+import { ArrowUpRight, Layers } from "lucide-react";
 import StatusBadge from "./StatusBadge";
 
 function TicketRow({ ticket, onOpen }) {
@@ -33,10 +33,11 @@ function TicketRow({ ticket, onOpen }) {
         <button
           type="button"
           onClick={onOpen}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-[#30363d] bg-[#21262d] px-3 py-1.5 text-xs font-semibold text-[#f0f6fc] transition-all hover:border-[#388bfd] hover:bg-[#388bfd]"
+          aria-label="Open project"
+          title="Open project"
+          className="inline-flex items-center justify-center rounded-lg border border-[#30363d] bg-[#21262d] p-1.5 text-[#8b949e] transition-all hover:border-[#388bfd] hover:bg-[#388bfd] hover:text-white"
         >
-          Open Project
-          <ArrowRight size={13} />
+          <ArrowUpRight size={14} />
         </button>
       </div>
     </div>

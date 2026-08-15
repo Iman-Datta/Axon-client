@@ -22,10 +22,10 @@ import {
 
 function TicketsTablePage() {
   const { slug, project_slug } = useParams();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const dispatch = useDispatch();
   const accessToken = useSelector((state) => state.auth.accessToken);
-  const currentUser = useSelector((state) => state.auth.user); // Get current logged-in user to check ID for "Assigned to me"
+  const currentUser = useSelector((state) => state.auth.user);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState("create");
@@ -41,8 +41,8 @@ function TicketsTablePage() {
   const [activeTicketId, setActiveTicketId] = useState(null);
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("ALL"); // 'ALL', 'OPEN', 'DONE', etc.
-  const [sortByStoryPoints, setSortByStoryPoints] = useState("NONE"); // 'NONE', 'ASC', 'DESC'
+  const [statusFilter, setStatusFilter] = useState("ALL");
+  const [sortByStoryPoints, setSortByStoryPoints] = useState("NONE");
 
   const [assignedToMe, setAssignedToMe] = useState(
     searchParams.get("filter") === "assigned",
@@ -72,10 +72,31 @@ function TicketsTablePage() {
     }
   }, [tickets]);
 
+  const handleRowSelect = (ticket) => {
+    setActiveTicketId(ticket?.id);
+    setDrawerOpen(true);
+  };
+
+  // --- AUTO-OPEN DRAWER IF "openTicket" QUERY PARAM EXISTS ---
+  useEffect(() => {
+    const ticketIdToOpen = searchParams.get("openTicket");
+    if (ticketIdToOpen && localTickets.length > 0) {
+      const targetTicket = localTickets.find(
+        (t) => t.id.toString() === ticketIdToOpen.toString(),
+      );
+      if (targetTicket) {
+        handleRowSelect(targetTicket);
+        // Clean up search params so reloading doesn't keep triggering it
+        searchParams.delete("openTicket");
+        setSearchParams(searchParams);
+      }
+    }
+  }, [localTickets, searchParams, setSearchParams]);
+  // -----------------------------------------------------------
+
   const filteredAndSortedTickets = useMemo(() => {
     let result = [...localTickets];
 
-    // 1. Search filter
     if (searchQuery.trim() !== "") {
       const q = searchQuery.toLowerCase();
       result = result.filter(
@@ -85,12 +106,10 @@ function TicketsTablePage() {
       );
     }
 
-    // 2. Status filter
     if (statusFilter !== "ALL") {
       result = result.filter((t) => t.status === statusFilter);
     }
 
-    // 3. Assigned to me filter
     if (assignedToMe && currentUser) {
       result = result.filter(
         (t) =>
@@ -98,7 +117,6 @@ function TicketsTablePage() {
       );
     }
 
-    // 4. Story Points Sorting
     if (sortByStoryPoints === "ASC") {
       result.sort((a, b) => (a.story_points || 0) - (b.story_points || 0));
     } else if (sortByStoryPoints === "DESC") {
@@ -120,11 +138,6 @@ function TicketsTablePage() {
       prev.map((t) => (t.id === updatedTicket?.id ? updatedTicket : t)),
     );
     refetch();
-  };
-
-  const handleRowSelect = (ticket) => {
-    setActiveTicketId(ticket?.id);
-    setDrawerOpen(true);
   };
 
   const closeDrawer = () => {
@@ -358,7 +371,6 @@ function TicketsTablePage() {
         </div>
       </div>
 
-      {/* Render from filteredAndSortedTickets instead of localTickets */}
       {filteredAndSortedTickets.length === 0 ? (
         <div className="rounded-2xl border border-[#30363d] bg-[#161b22] p-10 text-center">
           <h2 className="text-lg font-semibold text-[#e6edf3]">

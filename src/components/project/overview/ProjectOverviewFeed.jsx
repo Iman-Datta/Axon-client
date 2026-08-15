@@ -54,7 +54,7 @@ function ProjectOverviewFeed({ assignedTickets = [], onTicketClick }) {
     if (onTicketClick) {
       onTicketClick(ticket);
     } else {
-      navigate(`/${slug}/${project_slug}/tickets`);
+      navigate(`/${slug}/${project_slug}/tickets?openTicket=${ticket.id}`);
     }
   };
 

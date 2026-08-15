@@ -46,10 +46,11 @@ function AssignedTicketsCard({ tickets = [], username }) {
               ticket={ticket}
               onOpen={() =>
                 navigate(
-                  `/${ticket.workspace_slug}/${ticket.project_slug}/tickets`,
+                  `/${ticket.workspace_slug}/${ticket.project_slug}/tickets?openTicket=${ticket.id}`,
                 )
               }
             />
+            
           ))}
         </div>
       )}
