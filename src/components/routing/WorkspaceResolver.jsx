@@ -11,52 +11,89 @@ import {
 } from "../../redux/slices/workspaceSlice";
 
 import { getWorkspaceType } from "../../services/workspaceService";
+import { fetchWithAuth } from "../../utils/fetchWithAuth";
+
+const API = import.meta.env.VITE_API_URL;
 
 function WorkspaceResolver() {
   const { slug } = useParams();
-
   const dispatch = useDispatch();
-
   const accessToken = useSelector((state) => state.auth.accessToken);
 
   const currentWorkspace = useSelector(
     (state) => state.workspace.currentWorkspace,
   );
-
   const workspaceCache = useSelector((state) => state.workspace.workspaceCache);
 
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let isMounted = true;
+
     const loadWorkspace = async () => {
       try {
         setLoading(true);
-        if (currentWorkspace?.slug === slug) {
+        if (currentWorkspace?.slug === slug && currentWorkspace?.type) {
           return;
         }
-        const cachedWorkspace = workspaceCache[slug];
 
-        if (cachedWorkspace) {
+        const cachedWorkspace = workspaceCache[slug];
+        // Use cache only if it has full organization details or is personal
+        if (
+          cachedWorkspace &&
+          (cachedWorkspace.type === "personal" || cachedWorkspace.id)
+        ) {
           dispatch(setCurrentWorkspace(cachedWorkspace));
           return;
         }
+
         const data = await getWorkspaceType(slug, dispatch, accessToken);
+        const workspaceType = data.workspace.type;
 
-        const workspace = {
-          slug,
-          type: data.workspace.type,
-        };
+        if (workspaceType === "personal") {
+          const personalWs = { slug, type: "personal" };
+          if (isMounted) {
+            dispatch(cacheWorkspace(personalWs));
+            dispatch(setCurrentWorkspace(personalWs));
+          }
+        } else {
+          // Fetch full organization payload so it's ready globally
+          const res = await fetchWithAuth(
+            `${API}/org/${slug}/`,
+            {},
+            dispatch,
+            accessToken,
+          );
+          const orgData = await res.json();
 
-        dispatch(cacheWorkspace(workspace));
-        dispatch(setCurrentWorkspace(workspace));
+          if (!res.ok) {
+            throw new Error(orgData.message || "Failed to fetch organization.");
+          }
+
+          const fullOrg = {
+            ...orgData.organization,
+            type: "organization",
+          };
+
+          if (isMounted) {
+            dispatch(cacheWorkspace(fullOrg));
+            dispatch(setCurrentWorkspace(fullOrg));
+          }
+        }
       } catch (error) {
-        console.log(error);
+        console.error("Failed to resolve workspace:", error);
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
     loadWorkspace();
+
+    return () => {
+      isMounted = false;
+    };
   }, [slug, dispatch, accessToken, currentWorkspace, workspaceCache]);
 
   const workspace =
@@ -64,8 +101,8 @@ function WorkspaceResolver() {
 
   if (loading || !workspace) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-white">
-        Loading...
+      <div className="min-h-screen flex items-center justify-center text-white bg-[#0d1117]">
+        Loading workspace...
       </div>
     );
   }

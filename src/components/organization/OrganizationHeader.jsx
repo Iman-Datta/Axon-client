@@ -1,8 +1,8 @@
 import { Building2, Users, FolderGit2 } from "lucide-react";
 
 function OrganizationHeader({ organization }) {
-  console.log(organization);
   if (!organization) return null;
+
   return (
     <div className="border-b border-[#30363d] pb-5 mt-4">
       <div className="flex items-start gap-4">
@@ -28,12 +28,12 @@ function OrganizationHeader({ organization }) {
           <div className="flex flex-wrap gap-6 mt-4 text-[#c9d1d9] text-sm">
             <div className="flex items-center gap-2">
               <Users size={16} className="text-[#8b949e]" />
-              <span>{organization.members_count} Members</span>
+              <span>{organization.members_count || 0} Members</span>
             </div>
 
             <div className="flex items-center gap-2">
               <FolderGit2 size={16} className="text-[#8b949e]" />
-              <span>{organization.projects_count} Projects</span>
+              <span>{organization.projects_count || 0} Projects</span>
             </div>
           </div>
         </div>

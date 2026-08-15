@@ -1,17 +1,14 @@
 import { useSelector } from "react-redux";
-
 import OrganizationLayout from "../../components/layout/OrganizationLayout";
-
 import { useOrganizationMembers } from "../../hooks/useOrganizationMembers";
-
 import MembersTable from "../../components/organization/members/MembersTable";
 import MemberSkeleton from "../../components/organization/members/MemberSkeleton";
 import EmptyState from "../../components/shared/resource/EmptyState";
 
 function OrganizationMembersPage() {
   const { members, loading, error } = useOrganizationMembers();
-
   const organization = useSelector((state) => state.workspace.currentWorkspace);
+
   if (loading) {
     return (
       <OrganizationLayout organization={organization}>
@@ -23,7 +20,7 @@ function OrganizationMembersPage() {
   if (error) {
     return (
       <OrganizationLayout organization={organization}>
-        <div className="text-red-500">{error}</div>
+        <div className="text-red-500 text-sm">{error}</div>
       </OrganizationLayout>
     );
   }
@@ -32,11 +29,10 @@ function OrganizationMembersPage() {
     <OrganizationLayout organization={organization}>
       <div className="flex items-start justify-between mb-3">
         <div>
-          <h1 className="text-4xl font-bold text-[#e6edf3]">
+          <h1 className="text-3xl font-bold text-[#e6edf3]">
             Organization Members
           </h1>
-
-          <p className="mt-2 text-[#8b949e]">
+          <p className="mt-1 text-xs text-[#8b949e]">
             Manage your organization members and permissions.
           </p>
         </div>

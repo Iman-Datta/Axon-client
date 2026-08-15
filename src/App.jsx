@@ -16,7 +16,7 @@ import OnboardingGuard from "./components/onboarding/OnboardingGuard";
 import OrganizationsPage from "./pages/organizations/OrganizationsPage";
 import CreateOrganization from "./pages/organizations/CreateOrganization";
 
-// My working tiecket
+// My working ticket
 import MyWorkPage from "./pages/projects/MyWorkPage";
 
 // Project
@@ -48,7 +48,7 @@ import WorkspaceLoader from "./components/routing/WorkspaceLoader";
 // Layout
 import ProjectLayout from "./components/layout/ProjectLayout";
 
-// Comming soon
+// Coming soon
 import ComingSoon from "./components/shared/ComingSoon";
 import ComingSoonV2 from "./components/shared/ComingSoonV2";
 
