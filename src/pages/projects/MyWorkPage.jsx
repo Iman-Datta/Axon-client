@@ -16,7 +16,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { fetchWithAuth } from "../../utils/fetchWithAuth";
-import ProfileLayout from "../../components/shared/ProfileLayout";
+import ProfileLayout from "../../components/layout/ProfileLayout";
 
 const API = import.meta.env.VITE_API_URL;
 
