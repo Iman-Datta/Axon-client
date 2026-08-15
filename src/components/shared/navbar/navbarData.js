@@ -10,11 +10,7 @@ import {
 
 export const publicNav = ["Features", "Pricing", "About"];
 
-export const getPrivateNav = (
-  workspaceSlug,
-  workspaceType,
-  peopleCount = 0,
-) => {
+export const getPrivateNav = (workspaceSlug, workspaceType) => {
   const nav = [
     {
       name: "Overview",
@@ -26,11 +22,6 @@ export const getPrivateNav = (
       path: `/${workspaceSlug}/projects`,
       icon: FolderGit2,
     },
-    {
-      name: "My work",
-      path: `/${workspaceSlug}/my-work`,
-      icon: ListChecks,
-    },
   ];
 
   if (workspaceType === "organization") {
@@ -38,15 +29,21 @@ export const getPrivateNav = (
       name: "People",
       path: `/${workspaceSlug}/people`,
       icon: UserRound,
-      count: peopleCount,
     });
   }
   if (workspaceType === "personal") {
-    nav.push({
-      name: "organizations",
-      path: `/${workspaceSlug}/organizations`,
-      icon: Building2,
-    });
+    nav.push(
+      {
+        name: "organizations",
+        path: `/${workspaceSlug}/organizations`,
+        icon: Building2,
+      },
+      {
+        name: "My work",
+        path: `/${workspaceSlug}/my-work`,
+        icon: ListChecks,
+      },
+    );
   }
   nav.push(
     {
