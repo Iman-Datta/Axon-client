@@ -2,6 +2,16 @@ function ProfileHeader({ user }) {
   if (!user) return null;
   const fullName = `${user.first_name || ""} ${user.last_name || ""}`.trim();
 
+  // Helper to upgrade Google low-res avatar URLs to high-res
+  const getAvatarUrl = (url) => {
+    if (!url) return "";
+    if (url.includes("googleusercontent.com")) {
+      // Replaces any Google sizing parameter like =s96-c with =s400-c
+      return url.replace(/=s\d+(-c)?/, "=s400-c");
+    }
+    return url;
+  };
+
   return (
     <section className="relative">
       <div className="relative h-44 md:h-55 overflow-hidden border-b border-[#30363d]">
@@ -15,7 +25,7 @@ function ProfileHeader({ user }) {
             <div className="h-44 w-44 overflow-hidden rounded-full border-4 border-[#30363d] bg-[#161b22] shadow-xl shadow-black/30">
               {user.avatar ? (
                 <img
-                  src={user.avatar}
+                  src={getAvatarUrl(user.avatar)}
                   alt={user.username}
                   referrerPolicy="no-referrer"
                   className="h-full w-full object-cover"
@@ -33,8 +43,6 @@ function ProfileHeader({ user }) {
               </h1>
 
               <p className="mt-1 text-base text-[#8b949e]">@{user.username}</p>
-
-              
             </div>
           </div>
         </div>
