@@ -1,8 +1,51 @@
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { AlertTriangle, Loader2, X, Shield } from "lucide-react";
+import {
+  AlertTriangle,
+  Loader2,
+  X,
+  Shield,
+  MoreHorizontal,
+} from "lucide-react";
 import { fetchWithAuth } from "../../../utils/fetchWithAuth";
+
+const ROLE_STYLES = {
+  OWNER: "border-[#30363d] bg-[#21262d] text-[#c9d1d9]",
+  ADMIN: "border-[#30363d] bg-[#21262d] text-[#c9d1d9]",
+  MEMBER: "border-[#30363d] bg-[#21262d] text-[#8b949e]",
+  DEFAULT: "border-[#30363d] bg-[#21262d] text-[#8b949e]",
+};
+
+function getInitials(name = "") {
+  return name
+    .split(/[\s_.-]+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((n) => n[0]?.toUpperCase())
+    .join("");
+}
+
+function Avatar({ src, alt }) {
+  const [failed, setFailed] = useState(false);
+
+  if (!src || failed) {
+    return (
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#21262d] text-xs font-bold text-[#c9d1d9] ring-1 ring-[#30363d]">
+        {getInitials(alt)}
+      </div>
+    );
+  }
+
+  return (
+    <img
+      src={src}
+      alt={alt}
+      onError={() => setFailed(true)}
+      className="h-10 w-10 shrink-0 rounded-full object-cover ring-1 ring-[#30363d]"
+    />
+  );
+}
 
 function MemberRow({ member, orgSlug, refetch }) {
   const API = import.meta.env.VITE_API_URL;
@@ -15,12 +58,10 @@ function MemberRow({ member, orgSlug, refetch }) {
   const [loadingAction, setLoadingAction] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
-  // States for Change Role Modal & Dropdown
   const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
   const [selectedRole, setSelectedRole] = useState(member.role);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  // Handle Role Change PATCH Request
   const handleConfirmChangeRole = async () => {
     try {
       setLoadingAction(true);
@@ -52,15 +93,12 @@ function MemberRow({ member, orgSlug, refetch }) {
     }
   };
 
-  // Handle Remove Member DELETE Request via Confirmation Modal
   const handleConfirmRemove = async () => {
     try {
       setLoadingAction(true);
       const response = await fetchWithAuth(
         `${API}/org/${currentOrgSlug}/members/${member.id}/remove/`,
-        {
-          method: "DELETE",
-        },
+        { method: "DELETE" },
         dispatch,
         accessToken,
       );
@@ -80,139 +118,145 @@ function MemberRow({ member, orgSlug, refetch }) {
     }
   };
 
+  const roleStyle = ROLE_STYLES[member.role] ?? ROLE_STYLES.DEFAULT;
+
   return (
     <>
       <div
-        className={`grid grid-cols-[1fr_180px_140px_60px] items-center border-b border-[#21262d] px-6 py-5 transition-colors hover:bg-[#161b22] overflow-visible relative ${loadingAction ? "opacity-50 pointer-events-none" : ""}`}
+        className={`grid grid-cols-[1fr_150px_110px_44px] items-center gap-3 border-b border-[#21262d] px-5 py-3.5 transition-colors last:border-b-0 hover:bg-[#161b22]/60 ${
+          loadingAction ? "pointer-events-none opacity-50" : ""
+        }`}
       >
         {/* User */}
-        <div className="flex items-center gap-4">
-          <img
-            src={member.avatar || "/default-avatar.png"}
-            alt={member.username}
-            className="h-12 w-12 rounded-full object-cover"
-            onError={(e) => {
-              e.currentTarget.onerror = null;
-              e.currentTarget.src =
-                "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png";
-            }}
+        <div className="flex min-w-0 items-center gap-3">
+          <Avatar
+            src={member.avatar}
+            alt={member.github_username || member.username}
           />
 
-          <div>
+          <div className="min-w-0">
             <Link
               to={`/${member.username}`}
-              className="text-lg font-medium text-[#58a6ff] hover:underline"
+              className="truncate text-[13px] font-medium text-[#58a6ff] hover:underline"
             >
               {member.github_username || member.username}
             </Link>
-
-            <p className="text-[#8b949e]">@{member.username}</p>
-
+            <p className="truncate text-[11.5px] text-[#8b949e]">
+              @{member.username}
+            </p>
             {member.bio && (
-              <p className="mt-1 text-sm text-[#8b949e]">{member.bio}</p>
+              <p className="mt-0.5 truncate text-[11px] text-[#6e7681]">
+                {member.bio}
+              </p>
             )}
           </div>
         </div>
 
         {/* Membership */}
         <div>
-          <span className="rounded-md border border-[#30363d] bg-[#161b22] px-3 py-1 text-xs font-medium text-[#c9d1d9]">
-            direct assignment
+          <span className="inline-flex rounded-md border border-[#30363d] bg-[#21262d] px-2 py-0.5 text-[10.5px] font-medium text-[#8b949e]">
+            Direct assignment
           </span>
         </div>
 
         {/* Role */}
         <div>
-          <span className="rounded-full border border-[#30363d] px-3 py-1 text-xs font-medium text-[#8b949e]">
+          <span
+            className={`inline-flex rounded-md border px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide ${roleStyle}`}
+          >
             {member.role}
           </span>
         </div>
 
-        {/* Actions (Omitted entirely if the user is an OWNER) */}
-        <div className="relative overflow-visible">
-          {!isOwner ? (
+        {/* Actions */}
+        <div className="relative flex justify-end">
+          {!isOwner && (
             <div className="relative">
               <button
                 type="button"
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#30363d] bg-[#21262d] text-[#8b949e] hover:text-white transition-colors"
+                onClick={() => setIsDropdownOpen((prev) => !prev)}
+                aria-label="Member actions"
+                className="flex h-7 w-7 items-center justify-center rounded-md border border-[#30363d] bg-[#21262d] text-[#8b949e] transition-colors hover:border-[#388bfd] hover:text-white"
               >
-                <span className="text-sm font-bold">•••</span>
+                <MoreHorizontal size={14} />
               </button>
 
               {isDropdownOpen && (
-                <div className="absolute right-0 bottom-full mb-2 w-36 z-50 rounded-xl border border-[#30363d] bg-[#161b22] py-1 shadow-2xl">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsDropdownOpen(false);
-                      setSelectedRole(member.role);
-                      setIsRoleModalOpen(true);
-                    }}
-                    className="w-full text-left px-4 py-2 text-xs text-[#c9d1d9] hover:bg-[#21262d] transition-colors"
-                  >
-                    Change Role
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsDropdownOpen(false);
-                      setIsDeleteModalOpen(true);
-                    }}
-                    className="w-full text-left px-4 py-2 text-xs text-rose-400 hover:bg-[#21262d] transition-colors"
-                  >
-                    Remove
-                  </button>
-                </div>
+                <>
+                  <div
+                    className="fixed inset-0 z-40"
+                    onClick={() => setIsDropdownOpen(false)}
+                  />
+                  <div className="absolute right-0 bottom-full z-50 mb-2 w-36 rounded-lg border border-[#30363d] bg-[#161b22] py-1 shadow-xl">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsDropdownOpen(false);
+                        setSelectedRole(member.role);
+                        setIsRoleModalOpen(true);
+                      }}
+                      className="w-full px-3 py-1.5 text-left text-[11.5px] text-[#c9d1d9] transition-colors hover:bg-[#21262d]"
+                    >
+                      Change role
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsDropdownOpen(false);
+                        setIsDeleteModalOpen(true);
+                      }}
+                      className="w-full px-3 py-1.5 text-left text-[11.5px] text-red-400 transition-colors hover:bg-[#21262d]"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </>
               )}
             </div>
-          ) : null}
+          )}
         </div>
       </div>
 
       {/* Change Role Modal */}
       {isRoleModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="w-full max-w-md rounded-xl border border-[#30363d] bg-[#161b22] p-6 shadow-2xl space-y-5">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-sm space-y-4 rounded-xl border border-[#30363d] bg-[#161b22] p-5 shadow-2xl">
             <div className="flex items-center justify-between border-b border-[#21262d] pb-3">
-              <h3 className="text-base font-semibold text-[#e6edf3] flex items-center gap-2">
-                <Shield size={18} className="text-[#58a6ff]" /> Change Member
-                Role
+              <h3 className="flex items-center gap-2 text-sm font-semibold text-[#f0f6fc]">
+                <Shield size={15} className="text-[#58a6ff]" /> Change role
               </h3>
               <button
                 type="button"
                 onClick={() => setIsRoleModalOpen(false)}
                 className="text-[#8b949e] hover:text-[#f0f6fc]"
               >
-                <X size={18} />
+                <X size={16} />
               </button>
             </div>
 
-            {/* User Details Box */}
-            <div className="flex items-center gap-3.5 rounded-xl border border-[#21262d] bg-[#0d1117] p-3">
-              <img
-                src={member.avatar || "/default-avatar.png"}
-                alt={member.username}
-                className="h-10 w-10 rounded-full object-cover"
+            <div className="flex items-center gap-3 rounded-lg border border-[#21262d] bg-[#0d1117] p-2.5">
+              <Avatar
+                src={member.avatar}
+                alt={member.github_username || member.username}
               />
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-[#f0f6fc] truncate">
+                <p className="truncate text-[13px] font-medium text-[#f0f6fc]">
                   {member.github_username || member.username}
                 </p>
-                <p className="text-xs text-[#8b949e] truncate">
+                <p className="truncate text-[11px] text-[#8b949e]">
                   @{member.username}
                 </p>
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-[#c9d1d9] mb-1.5">
-                Select New Role
+              <label className="mb-1.5 block text-[11px] font-medium text-[#c9d1d9]">
+                New role
               </label>
               <select
                 value={selectedRole}
                 onChange={(e) => setSelectedRole(e.target.value)}
-                className="w-full rounded-lg border border-[#30363d] bg-[#0d1117] px-3 py-2 text-sm text-[#f0f6fc] focus:border-[#58a6ff] focus:outline-none"
+                className="w-full rounded-lg border border-[#30363d] bg-[#0d1117] px-3 py-2 text-[13px] text-[#f0f6fc] focus:border-[#58a6ff] focus:outline-none"
               >
                 <option value="MEMBER">Member</option>
                 <option value="ADMIN">Admin</option>
@@ -220,11 +264,11 @@ function MemberRow({ member, orgSlug, refetch }) {
               </select>
             </div>
 
-            <div className="flex items-center justify-end gap-3 pt-3 border-t border-[#21262d]">
+            <div className="flex items-center justify-end gap-2 border-t border-[#21262d] pt-3">
               <button
                 type="button"
                 onClick={() => setIsRoleModalOpen(false)}
-                className="rounded-lg border border-[#30363d] bg-[#21262d] px-4 py-2 text-xs font-semibold text-[#c9d1d9] hover:bg-[#30363d]"
+                className="rounded-lg border border-[#30363d] bg-[#21262d] px-3.5 py-1.5 text-xs font-medium text-[#c9d1d9] hover:bg-[#30363d]"
               >
                 Cancel
               </button>
@@ -232,49 +276,49 @@ function MemberRow({ member, orgSlug, refetch }) {
                 type="button"
                 disabled={loadingAction}
                 onClick={handleConfirmChangeRole}
-                className="inline-flex items-center gap-2 rounded-lg bg-[#238636] px-4 py-2 text-xs font-semibold text-white hover:bg-[#2ea043] disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-[#238636] px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-[#2ea043] disabled:opacity-50"
               >
                 {loadingAction && (
-                  <Loader2 size={13} className="animate-spin" />
+                  <Loader2 size={12} className="animate-spin" />
                 )}
-                Save Changes
+                Save changes
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Confirmation Modal for Member Removal */}
+      {/* Remove Confirmation Modal */}
       {isDeleteModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="w-full max-w-md rounded-xl border border-[#30363d] bg-[#161b22] p-6 shadow-2xl space-y-5">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-sm space-y-4 rounded-xl border border-[#30363d] bg-[#161b22] p-5 shadow-2xl">
             <div className="flex items-center justify-between border-b border-[#21262d] pb-3">
-              <h3 className="text-base font-semibold text-[#e6edf3] flex items-center gap-2">
-                <AlertTriangle size={18} className="text-rose-400" /> Remove
-                Member
+              <h3 className="flex items-center gap-2 text-sm font-semibold text-[#f0f6fc]">
+                <AlertTriangle size={15} className="text-red-400" /> Remove
+                member
               </h3>
               <button
                 type="button"
                 onClick={() => setIsDeleteModalOpen(false)}
                 className="text-[#8b949e] hover:text-[#f0f6fc]"
               >
-                <X size={18} />
+                <X size={16} />
               </button>
             </div>
 
-            <p className="text-xs text-[#c9d1d9] leading-relaxed">
-              Are you sure you want to remove{" "}
+            <p className="text-[12.5px] leading-relaxed text-[#c9d1d9]">
+              Remove{" "}
               <span className="font-semibold text-white">
                 @{member.username}
               </span>{" "}
               from this organization? This action cannot be undone.
             </p>
 
-            <div className="flex items-center justify-end gap-3 pt-3 border-t border-[#21262d]">
+            <div className="flex items-center justify-end gap-2 border-t border-[#21262d] pt-3">
               <button
                 type="button"
                 onClick={() => setIsDeleteModalOpen(false)}
-                className="rounded-lg border border-[#30363d] bg-[#21262d] px-4 py-2 text-xs font-semibold text-[#c9d1d9] hover:bg-[#30363d]"
+                className="rounded-lg border border-[#30363d] bg-[#21262d] px-3.5 py-1.5 text-xs font-medium text-[#c9d1d9] hover:bg-[#30363d]"
               >
                 Cancel
               </button>
@@ -282,12 +326,12 @@ function MemberRow({ member, orgSlug, refetch }) {
                 type="button"
                 disabled={loadingAction}
                 onClick={handleConfirmRemove}
-                className="inline-flex items-center gap-2 rounded-lg bg-rose-600 px-4 py-2 text-xs font-semibold text-white hover:bg-rose-700 disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-red-600 px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-red-700 disabled:opacity-50"
               >
                 {loadingAction && (
-                  <Loader2 size={13} className="animate-spin" />
+                  <Loader2 size={12} className="animate-spin" />
                 )}
-                Yes, Remove
+                Yes, remove
               </button>
             </div>
           </div>

@@ -4,9 +4,9 @@ function MembersTable({ members, orgSlug, refetch }) {
   return (
     <div className="overflow-hidden rounded-xl border border-[#30363d] bg-[#0d1117]">
       {/* Header */}
-      <div className="grid grid-cols-[1fr_180px_140px_60px] items-center border-b border-[#30363d] bg-[#161b22] px-6 py-4 text-sm font-medium text-[#8b949e]">
-        <div>Members</div>
-        <div>Membership Via</div>
+      <div className="grid grid-cols-[1fr_150px_110px_44px] items-center gap-3 border-b border-[#21262d] bg-[#161b22] px-5 py-2.5 text-[10.5px] font-semibold uppercase tracking-wide text-[#8b949e]">
+        <div>Member</div>
+        <div>Membership via</div>
         <div>Role</div>
         <div />
       </div>
