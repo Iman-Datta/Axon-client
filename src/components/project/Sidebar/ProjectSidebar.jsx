@@ -67,7 +67,7 @@ function ProjectSidebar() {
           )}
         </div>
 
-        {/* Professional Clean Workspace Header (No heavy card/glow) */}
+        {/* Professional Clean Workspace Header */}
         <button
           type="button"
           onClick={() => collapsed && setCollapsed(false)}
