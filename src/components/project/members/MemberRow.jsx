@@ -7,7 +7,7 @@ const ROLE_STYLES = {
   VIEWER: { dot: "bg-gray-400", text: "text-gray-400" },
 };
 
-function MemberRow({ member }) {
+function MemberRow({ member, can_edit }) {
   const joinedDate = new Date(member.joined_at).toLocaleDateString("en-IN", {
     day: "numeric",
     month: "short",
@@ -71,9 +71,11 @@ function MemberRow({ member }) {
 
       {/* Actions */}
       <td className="px-5 py-3 text-right">
-        <button className="rounded-md p-1.5 text-[#8b949e] opacity-0 transition group-hover:opacity-100 hover:bg-[#21262d] hover:text-[#e6edf3]">
-          <MoreHorizontal className="h-4 w-4" />
-        </button>
+        {can_edit && (
+          <button className="rounded-md p-1.5 text-[#8b949e] opacity-0 transition group-hover:opacity-100 hover:bg-[#21262d] hover:text-[#e6edf3]">
+            <MoreHorizontal className="h-4 w-4" />
+          </button>
+        )}
       </td>
     </tr>
   );

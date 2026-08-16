@@ -11,6 +11,7 @@ import MembersHeader from "../../components/project/members/MembersHeader";
 
 function MembersPage() {
   const [members, setMembers] = useState([]);
+  const [can_edit, setCan_edit] = useState(false);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -26,7 +27,8 @@ function MembersPage() {
     try {
       const data = await listMember(slug, project_slug, dispatch, accessToken);
 
-      setMembers(data);
+      setMembers(data.members);
+      setCan_edit(data.can_edit);
       setError(null);
     } catch (error) {
       setError(error);
@@ -96,12 +98,13 @@ function MembersPage() {
     <div className="mt-21 px-2">
       <MembersHeader
         count={members.length}
+        can_edit={can_edit}
         search={search}
         setSearch={setSearch}
         onAddMember={() => setInviteOpen(true)}
       />
 
-      <MembersTable members={filteredMembers} />
+      <MembersTable members={filteredMembers} can_edit={can_edit} />
 
       <AddMemberModal
         open={inviteOpen}

@@ -60,8 +60,9 @@ export const listMember = async (slug, project_slug, dispatch, accessToken) => {
   if (!response.ok) {
     throw new Error(data.message || "Failed to fetch project members.");
   }
+  console.log(data);
 
-  return data.members;
+  return data;
 };
 
 export const addMember = async (

@@ -1,6 +1,6 @@
 import { Search, UserPlus, Users } from "lucide-react";
 
-function MembersHeader({ count, search, setSearch, onAddMember }) {
+function MembersHeader({ count, can_edit, search, setSearch, onAddMember }) {
   return (
     <div className="mb-2.5 border-b border-[#21262d] pb-3">
       <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
@@ -42,14 +42,15 @@ function MembersHeader({ count, search, setSearch, onAddMember }) {
               className="w-full rounded-lg border border-[#30363d] bg-[#0d1117] py-2.5 pl-10 pr-4 text-sm text-[#e6edf3] placeholder:text-[#8b949e] focus:border-[#58a6ff] focus:outline-none"
             />
           </div>
-
-          <button
-            onClick={onAddMember}
-            className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#238636] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#2ea043]"
-          >
-            <UserPlus className="h-4 w-4" />
-            Add Member
-          </button>
+          {can_edit && (
+            <button
+              onClick={onAddMember}
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#238636] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#2ea043]"
+            >
+              <UserPlus className="h-4 w-4" />
+              Add Member
+            </button>
+          )}
         </div>
       </div>
     </div>
