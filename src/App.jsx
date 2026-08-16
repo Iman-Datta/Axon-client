@@ -3,8 +3,7 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import Navbar from "./components/shared/navbar/Navbar";
-import LandingPage from "./pages/LandingPage";
-
+import LandingPage from "./components/landingpage/LandingPage";
 // Auth
 import AuthPage from "./pages/auth/Auth";
 import CheckEmail from "./pages/auth/CheckEmail";

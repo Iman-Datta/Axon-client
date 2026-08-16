@@ -1,5 +1,114 @@
 @import "tailwindcss";
 
+/* 1. Design Tokens & CSS Variables */
+:root {
+  --background: 222 20% 6%;
+  --foreground: 210 20% 92%;
+
+  --card: 222 18% 9%;
+  --card-foreground: 210 20% 92%;
+
+  --surface: 222 18% 8%;
+  --surface-raised: 222 16% 11%;
+
+  --border: 217 15% 18%;
+  --border-strong: 217 15% 26%;
+
+  --primary: 212 92% 58%;
+  --primary-foreground: 210 20% 98%;
+
+  --secondary: 217 15% 16%;
+  --muted-foreground: 217 10% 58%;
+
+  --accent: 217 15% 16%;
+
+  --todo: 217 10% 58%;
+  --dev: 212 92% 58%;
+  --review: 38 92% 58%;
+  --done: 142 60% 45%;
+  --danger: 0 72% 58%;
+}
+
+/* 2. Tailwind v4 Theme Color Mapping */
+@theme {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-surface: hsl(var(--surface));
+  --color-surface-raised: hsl(var(--surface-raised));
+  --color-border: hsl(var(--border));
+  --color-border-strong: hsl(var(--border-strong));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-accent: hsl(var(--accent));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-todo: hsl(var(--todo));
+  --color-dev: hsl(var(--dev));
+  --color-review: hsl(var(--review));
+  --color-done: hsl(var(--done));
+  --color-danger: hsl(var(--danger));
+}
+
+/* 3. Custom Utility Classes & Animations */
+.panel {
+  background-color: hsl(var(--surface));
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.75rem;
+}
+
+.shadow-panel {
+  box-shadow: 0 8px 30px -12px rgb(0 0 0 / 0.5);
+}
+
+.grid-bg {
+  background-image:
+    linear-gradient(to right, hsl(var(--border) / 0.4) 1px, transparent 1px),
+    linear-gradient(to bottom, hsl(var(--border) / 0.4) 1px, transparent 1px);
+  background-size: 32px 32px;
+  -webkit-mask-image: radial-gradient(
+    ellipse 60% 60% at 50% 0%,
+    #000 40%,
+    transparent 100%
+  );
+  mask-image: radial-gradient(
+    ellipse 60% 60% at 50% 0%,
+    #000 40%,
+    transparent 100%
+  );
+}
+
+.animate-pulse-dot {
+  animation: pulse-dot 1.8s ease-in-out infinite;
+}
+
+.animate-rise {
+  animation: rise 0.4s ease-out both;
+}
+
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 4. Custom Scrollbars */
 .custom-scrollbar::-webkit-scrollbar {
   width: 8px;
 }
