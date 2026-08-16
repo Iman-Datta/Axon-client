@@ -223,7 +223,7 @@ function IntegrationsPage() {
               </h2>
 
               <p className="mt-2 text-sm text-[#8b949e] leading-relaxed max-w-sm">
-                Only project owners or administrators can manage GitHub
+                Only project owners or Lead can manage GitHub
                 integrations for this project. Contact a project administrator
                 if you need changes made.
               </p>
@@ -233,7 +233,7 @@ function IntegrationsPage() {
                 <span>
                   Requires{" "}
                   <span className="text-[#8b949e] font-medium">Owner</span> or{" "}
-                  <span className="text-[#8b949e] font-medium">Admin</span> role
+                  <span className="text-[#8b949e] font-medium">Lead</span> role
                 </span>
               </div>
             </div>

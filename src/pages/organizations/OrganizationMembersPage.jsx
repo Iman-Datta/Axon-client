@@ -12,7 +12,8 @@ import { fetchWithAuth } from "../../utils/fetchWithAuth";
 function OrganizationMembersPage() {
   const API = import.meta.env.VITE_API_URL;
   const { slug } = useParams();
-  const { members, loading, error, refetch } = useOrganizationMembers();
+  const { members, can_edit, loading, error, refetch } =
+    useOrganizationMembers();
   const organization = useSelector((state) => state.workspace.currentWorkspace);
   const accessToken = useSelector((state) => state.auth.accessToken);
   const dispatch = useDispatch();
@@ -87,14 +88,15 @@ function OrganizationMembersPage() {
             Manage who has access to this organization and what they can do.
           </p>
         </div>
-
-        <button
-          type="button"
-          onClick={() => setIsModalOpen(true)}
-          className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-[#238636] px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-[#2ea043]"
-        >
-          <UserPlus size={13} /> Add member
-        </button>
+        {can_edit && (
+          <button
+            type="button"
+            onClick={() => setIsModalOpen(true)}
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-[#238636] px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-[#2ea043]"
+          >
+            <UserPlus size={13} /> Add member
+          </button>
+        )}
       </div>
 
       {members.length === 0 ? (

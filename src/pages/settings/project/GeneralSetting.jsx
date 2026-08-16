@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useOutletContext, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
-import { Type, Hash, FileText, Globe, Lock, Users } from "lucide-react";
+import { Type, FileText, Globe, Lock, Users } from "lucide-react";
 
 import { updateProject } from "../../../services/projectService";
 
@@ -132,31 +132,6 @@ function GeneralSetting() {
               disabled={saving}
               className="mt-3 w-full max-w-md rounded-md border border-[#30363d] bg-[#0d1117] px-3 py-2 text-sm text-[#f0f6fc] outline-none transition focus:border-[#388bfd] disabled:opacity-60"
             />
-          </div>
-
-          {/* Project Key */}
-          <div className="border-b border-[#21262d] pb-5">
-            <FieldHeader
-              icon={Hash}
-              title="Project key"
-              hint="Used as the prefix for ticket IDs."
-            />
-            <div className="mt-3 flex items-center gap-3">
-              <input
-                type="text"
-                value={formData.project_key}
-                onChange={(e) =>
-                  updateField("project_key")(e.target.value.toUpperCase())
-                }
-                placeholder="AXON"
-                maxLength={10}
-                disabled={saving}
-                className="w-full max-w-[10rem] rounded-md border border-[#30363d] bg-[#0d1117] px-3 py-2 text-sm font-medium uppercase tracking-wide text-[#f0f6fc] outline-none transition focus:border-[#388bfd] disabled:opacity-60"
-              />
-              <span className="rounded-md border border-dashed border-[#30363d] bg-[#0d1117] px-2.5 py-1.5 font-mono text-xs text-[#8b949e]">
-                {formData.project_key || "AXON"}-1
-              </span>
-            </div>
           </div>
 
           {/* Description */}

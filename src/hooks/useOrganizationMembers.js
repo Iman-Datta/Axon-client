@@ -9,6 +9,7 @@ export function useOrganizationMembers() {
   const accessToken = useSelector((state) => state.auth.accessToken);
 
   const [members, setMembers] = useState([]);
+  const [can_edit, setCan_edit] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -29,6 +30,7 @@ export function useOrganizationMembers() {
 
       if (response.ok) {
         setMembers(data.members);
+        setCan_edit(data.can_edit);
       }
     } catch (err) {
       console.log(err);
@@ -39,6 +41,7 @@ export function useOrganizationMembers() {
 
   return {
     members,
+    can_edit,
     loading,
     refetch: fetchMembers,
   };
