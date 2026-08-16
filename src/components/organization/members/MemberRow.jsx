@@ -47,7 +47,7 @@ function Avatar({ src, alt }) {
   );
 }
 
-function MemberRow({ member, orgSlug, refetch }) {
+function MemberRow({ member, orgSlug, can_edit, refetch }) {
   const API = import.meta.env.VITE_API_URL;
   const dispatch = useDispatch();
   const accessToken = useSelector((state) => state.auth.accessToken);
@@ -169,52 +169,54 @@ function MemberRow({ member, orgSlug, refetch }) {
         </div>
 
         {/* Actions */}
-        <div className="relative flex justify-end">
-          {!isOwner && (
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => setIsDropdownOpen((prev) => !prev)}
-                aria-label="Member actions"
-                className="flex h-7 w-7 items-center justify-center rounded-md border border-[#30363d] bg-[#21262d] text-[#8b949e] transition-colors hover:border-[#388bfd] hover:text-white"
-              >
-                <MoreHorizontal size={14} />
-              </button>
+        {can_edit && (
+          <div className="relative flex justify-end">
+            {!isOwner && (
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setIsDropdownOpen((prev) => !prev)}
+                  aria-label="Member actions"
+                  className="flex h-7 w-7 items-center justify-center rounded-md border border-[#30363d] bg-[#21262d] text-[#8b949e] transition-colors hover:border-[#388bfd] hover:text-white"
+                >
+                  <MoreHorizontal size={14} />
+                </button>
 
-              {isDropdownOpen && (
-                <>
-                  <div
-                    className="fixed inset-0 z-40"
-                    onClick={() => setIsDropdownOpen(false)}
-                  />
-                  <div className="absolute right-0 bottom-full z-50 mb-2 w-36 rounded-lg border border-[#30363d] bg-[#161b22] py-1 shadow-xl">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsDropdownOpen(false);
-                        setSelectedRole(member.role);
-                        setIsRoleModalOpen(true);
-                      }}
-                      className="w-full px-3 py-1.5 text-left text-[11.5px] text-[#c9d1d9] transition-colors hover:bg-[#21262d]"
-                    >
-                      Change role
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsDropdownOpen(false);
-                        setIsDeleteModalOpen(true);
-                      }}
-                      className="w-full px-3 py-1.5 text-left text-[11.5px] text-red-400 transition-colors hover:bg-[#21262d]"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                </>
-              )}
-            </div>
-          )}
-        </div>
+                {isDropdownOpen && (
+                  <>
+                    <div
+                      className="fixed inset-0 z-40"
+                      onClick={() => setIsDropdownOpen(false)}
+                    />
+                    <div className="absolute right-0 bottom-full z-50 mb-2 w-36 rounded-lg border border-[#30363d] bg-[#161b22] py-1 shadow-xl">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsDropdownOpen(false);
+                          setSelectedRole(member.role);
+                          setIsRoleModalOpen(true);
+                        }}
+                        className="w-full px-3 py-1.5 text-left text-[11.5px] text-[#c9d1d9] transition-colors hover:bg-[#21262d]"
+                      >
+                        Change role
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsDropdownOpen(false);
+                          setIsDeleteModalOpen(true);
+                        }}
+                        className="w-full px-3 py-1.5 text-left text-[11.5px] text-red-400 transition-colors hover:bg-[#21262d]"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Change Role Modal */}

@@ -105,7 +105,12 @@ function OrganizationMembersPage() {
           description="Invite members to start collaborating."
         />
       ) : (
-        <MembersTable members={members} orgSlug={slug} refetch={refetch} />
+        <MembersTable
+          members={members}
+          orgSlug={slug}
+          refetch={refetch}
+          can_edit={can_edit}
+        />
       )}
 
       {/* Add Member Modal */}

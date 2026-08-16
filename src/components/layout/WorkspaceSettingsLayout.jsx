@@ -5,8 +5,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchWithAuth } from "../../utils/fetchWithAuth";
 import Sidebar from "../settings/workspace/Sidebar";
 import SettingsHeader from "../settings/workspace/Settingsheader";
+import RestrictedAccess from "../../ui/RestrictedAccess";
 
 const API = import.meta.env.VITE_API_URL;
+
+const ORG_RESTRICTED_ROLES = ["MEMBER"];
 
 function WorkspaceSettingsLayout({ type }) {
   const [details, setDetails] = useState(null);
@@ -66,6 +69,20 @@ function WorkspaceSettingsLayout({ type }) {
         <div className="flex min-h-screen items-center justify-center text-sm text-[#f85149]">
           {error}
         </div>
+      </main>
+    );
+  }
+
+  const isOrgRestricted =
+    type === "organization" && ORG_RESTRICTED_ROLES.includes(details?.role);
+
+  if (isOrgRestricted) {
+    return (
+      <main className="min-h-screen bg-[#0d1117] text-[#c9d1d9]">
+        <RestrictedAccess
+          message="Only organization owners or admins can manage settings for this organization. Contact an owner or admin if you need changes made."
+          requiredRoles={["Admin", "Owner"]}
+        />
       </main>
     );
   }

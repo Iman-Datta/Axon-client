@@ -1,6 +1,6 @@
 import MemberRow from "./MemberRow";
 
-function MembersTable({ members, orgSlug, refetch }) {
+function MembersTable({ members, can_edit, orgSlug, refetch }) {
   return (
     <div className="overflow-hidden rounded-xl border border-[#30363d] bg-[#0d1117]">
       {/* Header */}
@@ -18,6 +18,7 @@ function MembersTable({ members, orgSlug, refetch }) {
             key={member.id}
             member={member}
             orgSlug={orgSlug}
+            can_edit={can_edit}
             refetch={refetch}
           />
         ))}
