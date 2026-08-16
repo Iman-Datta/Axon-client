@@ -9,11 +9,6 @@ function ProjectStatsCard({
   onViewAllMembers,
   onViewAllTickets,
 }) {
-  console.log("Hi")
-  console.log(metrics);
-  console.log(ticketOverview);
-  console.log(members);
-
   const navigate = useNavigate();
   const { slug, project_slug } = useParams();
 

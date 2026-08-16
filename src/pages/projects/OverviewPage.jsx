@@ -108,8 +108,6 @@ function OverviewPage() {
     members,
   } = data;
 
-  console.log(data);
-
   // Fallback to outlet context project if backend details are loading/missing
   const activeProject = project_details || outletProject;
 
