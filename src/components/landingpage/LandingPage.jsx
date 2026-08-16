@@ -11,7 +11,7 @@ import { Footer } from "./Footer";
 
 function LandingPage() {
   return (
-    <main className="overflow-hidden bg-background text-foreground pt-7">
+    <main className="overflow-hidden bg-background text-foreground pt-4">
       <Hero />
       <IdeaSection />
       <ComparisonSection />
