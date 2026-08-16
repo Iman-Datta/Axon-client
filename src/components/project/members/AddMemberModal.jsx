@@ -22,7 +22,6 @@ function AddMemberModal({ open, loading, error, onClose, onAdd }) {
     };
   }, [open, onClose]);
 
- 
   useEffect(() => {
     if (!open) {
       setUsername("");
@@ -96,7 +95,6 @@ function AddMemberModal({ open, loading, error, onClose, onAdd }) {
                 onChange={(e) => setRole(e.target.value)}
                 className="w-full rounded-lg border border-[#30363d] bg-[#161b22] px-3 py-2.5 text-sm text-[#e6edf3] outline-none focus:border-[#58a6ff]"
               >
-                <option value="LEAD">LEAD</option>
                 <option value="DEVELOPER">Developer</option>
                 <option value="VIEWER">Viewer</option>
               </select>
