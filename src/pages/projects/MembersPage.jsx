@@ -104,7 +104,11 @@ function MembersPage() {
         onAddMember={() => setInviteOpen(true)}
       />
 
-      <MembersTable members={filteredMembers} can_edit={can_edit} />
+      <MembersTable
+        members={filteredMembers}
+        can_edit={can_edit}
+        refetch={loadMembers}
+      />
 
       <AddMemberModal
         open={inviteOpen}

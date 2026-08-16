@@ -1,6 +1,6 @@
 import MemberRow from "./MemberRow";
 
-function MembersTable({ members, can_edit }) {
+function MembersTable({ members, can_edit, refetch }) {
   return (
     <div className="overflow-hidden rounded-xl border border-[#30363d] bg-[#0d1117]">
       <table className="w-full">
@@ -23,7 +23,12 @@ function MembersTable({ members, can_edit }) {
 
         <tbody>
           {members.map((member) => (
-            <MemberRow key={member.id} member={member} can_edit={can_edit} />
+            <MemberRow
+              key={member.id}
+              member={member}
+              can_edit={can_edit}
+              refetch={refetch}
+            />
           ))}
         </tbody>
       </table>
