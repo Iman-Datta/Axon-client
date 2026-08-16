@@ -4,14 +4,14 @@ import {
   Loader2,
   ChevronDown,
   ChevronUp,
-  Upload,
   Code2,
   Briefcase,
+  Check,
+  User,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { setUser } from "../../redux/slices/authSlice";
-
 import { fetchWithAuth } from "../../utils/fetchWithAuth";
 
 const API = import.meta.env.VITE_API_URL;
@@ -26,31 +26,18 @@ const DEVELOPER_TYPES = [
 ];
 
 const LEVELS = [
-  {
-    value: "beginner",
-    label: "Beginner",
-  },
-  {
-    value: "intermediate",
-    label: "Intermediate",
-  },
-  {
-    value: "professional",
-    label: "Professional",
-  },
-  {
-    value: "expert",
-    label: "Expert",
-  },
+  { value: "beginner", label: "Beginner" },
+  { value: "intermediate", label: "Intermediate" },
+  { value: "professional", label: "Professional" },
+  { value: "expert", label: "Expert" },
 ];
 
 export default function CompleteProfile({ profile }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { slug } = useParams();
 
   const { accessToken, user } = useSelector((state) => state.auth);
-
-
   const initialData = profile?.data || user || {};
 
   const [form, setForm] = useState({
@@ -61,7 +48,8 @@ export default function CompleteProfile({ profile }) {
     portfolio_website: initialData.portfolio_website || "",
   });
 
-  // UI only
+  const [avatarFile, setAvatarFile] = useState(null);
+  const [avatarPreview, setAvatarPreview] = useState(initialData.avatar || "");
   const [developerTypes, setDeveloperTypes] = useState([]);
   const [level, setLevel] = useState("");
   const [showSocials, setShowSocials] = useState(false);
@@ -74,10 +62,16 @@ export default function CompleteProfile({ profile }) {
       setDeveloperTypes((prev) => prev.filter((item) => item !== type));
       return;
     }
-
     if (developerTypes.length >= 3) return;
-
     setDeveloperTypes((prev) => [...prev, type]);
+  };
+
+  const handleAvatarChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setAvatarFile(file);
+      setAvatarPreview(URL.createObjectURL(file));
+    }
   };
 
   const handleCompleteProfile = async () => {
@@ -85,13 +79,12 @@ export default function CompleteProfile({ profile }) {
       setSaving(true);
       setError("");
 
+      // 1. Call main profile setup API
       const res = await fetchWithAuth(
         `${API}/auth/profile/complete/`,
         {
           method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             first_name: form.first_name.trim(),
             last_name: form.last_name.trim(),
@@ -105,11 +98,36 @@ export default function CompleteProfile({ profile }) {
       );
 
       const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Profile update failed");
 
-      if (!res.ok) {
-        throw new Error(data.message || "Profile update failed");
+      let updatedAvatar = initialData.avatar;
+
+      // 2. Conditionally call separate avatar update endpoint ONLY if an image file was provided
+      if (avatarFile) {
+        const formData = new FormData();
+        formData.append("avatar", avatarFile);
+
+        const avatarRes = await fetchWithAuth(
+          `${API}/auth/${slug}/avtar/update/`,
+          {
+            method: "PATCH",
+            body: formData,
+          },
+          dispatch,
+          accessToken,
+        );
+
+        const avatarData = await avatarRes.json();
+        if (avatarRes.ok && avatarData.avatar) {
+          updatedAvatar = avatarData.avatar;
+        } else {
+          throw new Error(
+            avatarData.message || "Failed to update avatar image",
+          );
+        }
       }
 
+      // 3. Sync Redux state with final user payload
       dispatch(
         setUser({
           ...user,
@@ -118,13 +136,12 @@ export default function CompleteProfile({ profile }) {
           bio: form.bio.trim(),
           linkedin_profile: form.linkedin_profile.trim(),
           portfolio_website: form.portfolio_website.trim(),
+          avatar: updatedAvatar,
           is_profile_completed: true,
         }),
       );
 
-      navigate(`/${user.username}`, {
-        replace: true,
-      });
+      navigate(`/${user.username}`, { replace: true });
     } catch (err) {
       setError(err.message);
     } finally {
@@ -133,310 +150,240 @@ export default function CompleteProfile({ profile }) {
   };
 
   return (
-    <div>
+    <div className="max-w-xl mx-auto py-4">
       {/* Header */}
-      <div className="mb-6">
-        <h2 className="text-base font-semibold text-[#c9d1d9]">
-          Set up your profile
-        </h2>
-
-        <p className="mt-1 text-sm text-[#8b949e]">
-          Complete your developer profile.
-        </p>
+      <div className="mb-5 flex items-center justify-between border-b border-[#30363d] pb-3">
+        <div>
+          <h2 className="text-base font-semibold tracking-tight text-[#e6edf3]">
+            Complete Your Profile
+          </h2>
+          <p className="text-xs text-[#8b949e]">
+            Configure your developer workspace visibility.
+          </p>
+        </div>
+        <span className="rounded-full bg-blue-500/10 px-2.5 py-1 text-xs font-medium text-blue-400 border border-blue-500/20">
+          Step 2 of 2
+        </span>
       </div>
 
-      <div className="rounded-xl border border-[#30363d] bg-[#161b22] p-6">
-        <div className="space-y-8">
-          {/* Names */}
-          <div className="grid gap-4 md:grid-cols-2">
-            <div>
-              <label className="mb-2 block text-sm font-medium text-[#c9d1d9]">
-                First name
-                <span className="ml-1 text-red-400">*</span>
-              </label>
-
-              <input
-                value={form.first_name}
-                onChange={(e) =>
-                  setForm((prev) => ({
-                    ...prev,
-                    first_name: e.target.value,
-                  }))
-                }
-                placeholder="First name"
-                className="
-                  w-full rounded-xl
-                  border border-[#30363d]
-                  bg-[#0d1117]
-                  px-4 py-3
-                  text-sm text-[#c9d1d9]
-                  outline-none
-                  focus:border-[#388bfd]
-                "
-              />
-            </div>
-
-            <div>
-              <label className="mb-2 block text-sm font-medium text-[#c9d1d9]">
-                Last name
-                <span className="ml-1 text-red-400">*</span>
-              </label>
-
-              <input
-                value={form.last_name}
-                onChange={(e) =>
-                  setForm((prev) => ({
-                    ...prev,
-                    last_name: e.target.value,
-                  }))
-                }
-                placeholder="Last name"
-                className="
-                  w-full rounded-xl
-                  border border-[#30363d]
-                  bg-[#0d1117]
-                  px-4 py-3
-                  text-sm text-[#c9d1d9]
-                  outline-none
-                  focus:border-[#388bfd]
-                "
-              />
-            </div>
-          </div>
-
-          {/* Bio */}
+      <div className="rounded-xl border border-[#30363d] bg-[#161b22] p-5 shadow-xl shadow-black/40 space-y-4">
+        {/* First & Last Name Grid */}
+        <div className="grid grid-cols-2 gap-3">
           <div>
-            <div className="mb-2 flex items-center justify-between">
-              <label className="text-sm font-medium text-[#c9d1d9]">
-                About you
-              </label>
-
-              <span className="text-xs text-[#8b949e]">
-                {form.bio.length}/60
-              </span>
-            </div>
-
-            <textarea
-              rows={3}
-              maxLength={60}
-              value={form.bio}
+            <label className="mb-1 block text-xs font-medium text-[#8b949e]">
+              First name <span className="text-red-400">*</span>
+            </label>
+            <input
+              value={form.first_name}
               onChange={(e) =>
-                setForm((prev) => ({
-                  ...prev,
-                  bio: e.target.value,
-                }))
+                setForm((prev) => ({ ...prev, first_name: e.target.value }))
               }
-              placeholder="Backend developer focused on scalable systems."
-              className="
-                w-full resize-none
-                rounded-xl
-                border border-[#30363d]
-                bg-[#0d1117]
-                px-4 py-3
-                text-sm text-[#c9d1d9]
-                outline-none
-                focus:border-[#388bfd]
-              "
+              placeholder="Iman"
+              className="w-full rounded-lg border border-[#30363d] bg-[#0d1117] px-3 py-2 text-xs text-[#c9d1d9] outline-none transition-all focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20"
             />
           </div>
-
-          {/* Developer Type */}
           <div>
-            <div className="flex items-center gap-2">
-              <Code2 size={16} className="text-[#8b949e]" />
-
-              <h3 className="text-sm font-medium text-[#c9d1d9]">
-                Developer type
-              </h3>
-            </div>
-
-            <p className="mt-1 text-xs text-[#8b949e]">Select up to 3.</p>
-
-            <div className="mt-4 flex flex-wrap gap-3">
-              {DEVELOPER_TYPES.map((type) => {
-                const selected = developerTypes.includes(type);
-
-                return (
-                  <button
-                    key={type}
-                    type="button"
-                    onClick={() => toggleDeveloperType(type)}
-                    className={`
-                        rounded-full
-                        border
-                        px-4 py-2
-                        text-sm
-                        font-medium
-                        transition-all
-                        ${
-                          selected
-                            ? "border-[#238636] bg-[#238636] text-white"
-                            : "border-[#30363d] bg-[#0d1117] text-[#8b949e] hover:border-[#388bfd]"
-                        }
-                      `}
-                  >
-                    {type}
-                  </button>
-                );
-              })}
-            </div>
+            <label className="mb-1 block text-xs font-medium text-[#8b949e]">
+              Last name <span className="text-red-400">*</span>
+            </label>
+            <input
+              value={form.last_name}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, last_name: e.target.value }))
+              }
+              placeholder="Datta"
+              className="w-full rounded-lg border border-[#30363d] bg-[#0d1117] px-3 py-2 text-xs text-[#c9d1d9] outline-none transition-all focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20"
+            />
           </div>
+        </div>
 
-          {/* Experience */}
-          <div>
-            <div className="flex items-center gap-2">
-              <Briefcase size={16} className="text-[#8b949e]" />
-
-              <h3 className="text-sm font-medium text-[#c9d1d9]">
-                Experience level
-              </h3>
-            </div>
-
-            <div className="mt-4 grid gap-3 md:grid-cols-2">
-              {LEVELS.map((item) => {
-                const selected = level === item.value;
-
-                return (
-                  <button
-                    key={item.value}
-                    type="button"
-                    onClick={() => setLevel(item.value)}
-                    className={`
-                      rounded-xl
-                      border
-                      p-4
-                      text-left
-                      transition-all
-                      ${
-                        selected
-                          ? "border-[#388bfd] bg-[#388bfd]/10 text-[#58a6ff]"
-                          : "border-[#30363d] bg-[#0d1117] text-[#8b949e]"
-                      }
-                    `}
-                  >
-                    {item.label}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Social Links */}
-          <div className="rounded-xl border border-[#30363d] bg-[#0d1117]">
-            <button
-              type="button"
-              onClick={() => setShowSocials((prev) => !prev)}
-              className="flex w-full items-center justify-between px-4 py-4"
+        {/* Bio */}
+        <div>
+          <div className="mb-1 flex items-center justify-between">
+            <label className="text-xs font-medium text-[#8b949e]">
+              Bio / Tagline
+            </label>
+            <span
+              className={`text-[10px] ${form.bio.length >= 60 ? "text-amber-400 font-semibold" : "text-[#484f58]"}`}
             >
-              <div>
-                <h3 className="text-left text-sm font-medium text-[#c9d1d9]">
-                  Social links
-                </h3>
+              {form.bio.length}/60
+            </span>
+          </div>
+          <textarea
+            rows={2}
+            maxLength={60}
+            value={form.bio}
+            onChange={(e) =>
+              setForm((prev) => ({ ...prev, bio: e.target.value }))
+            }
+            placeholder="Backend developer focused on scalable systems."
+            className="w-full resize-none rounded-lg border border-[#30363d] bg-[#0d1117] px-3 py-2 text-xs text-[#c9d1d9] outline-none transition-all focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20"
+          />
+        </div>
 
-                <p className="text-left text-xs text-[#8b949e]">Optional</p>
-              </div>
-
-              {showSocials ? (
-                <ChevronUp size={18} />
+        {/* Optional Avatar File Upload Input Field */}
+        <div>
+          <label className="mb-1 block text-xs font-medium text-[#8b949e]">
+            Profile Picture{" "}
+            <span className="text-[#484f58] font-normal">(Optional)</span>
+          </label>
+          <div className="flex items-center gap-3 rounded-lg border border-dashed border-[#30363d] bg-[#0d1117] p-3 hover:border-blue-500/50 transition-all">
+            <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full border border-[#30363d] bg-[#161b22] flex items-center justify-center text-[#8b949e]">
+              {avatarPreview ? (
+                <img
+                  src={avatarPreview}
+                  alt="Preview"
+                  className="h-full w-full object-cover"
+                />
               ) : (
-                <ChevronDown size={18} />
+                <User size={18} />
               )}
-            </button>
-
-            {showSocials && (
-              <div className="space-y-3 border-t border-[#30363d] p-4">
-                <input
-                  value={form.linkedin_profile}
-                  onChange={(e) =>
-                    setForm((prev) => ({
-                      ...prev,
-                      linkedin_profile: e.target.value,
-                    }))
-                  }
-                  placeholder="LinkedIn profile URL"
-                  className="
-                    w-full rounded-xl
-                    border border-[#30363d]
-                    bg-[#161b22]
-                    px-4 py-3
-                    text-sm text-[#c9d1d9]
-                    outline-none
-                    focus:border-[#388bfd]
-                  "
-                />
-
-                <input
-                  value={form.portfolio_website}
-                  onChange={(e) =>
-                    setForm((prev) => ({
-                      ...prev,
-                      portfolio_website: e.target.value,
-                    }))
-                  }
-                  placeholder="Portfolio website URL"
-                  className="
-                    w-full rounded-xl
-                    border border-[#30363d]
-                    bg-[#161b22]
-                    px-4 py-3
-                    text-sm text-[#c9d1d9]
-                    outline-none
-                    focus:border-[#388bfd]
-                  "
-                />
-              </div>
-            )}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-medium text-[#c9d1d9] truncate">
+                {avatarFile ? avatarFile.name : "Choose an image file"}
+              </p>
+              <p className="text-[10px] text-[#484f58]">
+                PNG, JPG, WEBP up to 5MB
+              </p>
+            </div>
+            <label className="cursor-pointer rounded-lg bg-[#21262d] border border-[#30363d] px-3 py-1.5 text-xs font-medium text-[#c9d1d9] hover:bg-[#30363d] transition-all">
+              Browse
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleAvatarChange}
+                className="hidden"
+              />
+            </label>
           </div>
+        </div>
 
-          {/* Avatar */}
-          <div>
-            <h3 className="mb-3 text-sm font-medium text-[#c9d1d9]">
-              Profile picture
+        {/* Developer Type Chips */}
+        <div>
+          <div className="flex items-center gap-1.5 mb-1.5">
+            <Code2 size={14} className="text-[#8b949e]" />
+            <h3 className="text-xs font-medium text-[#c9d1d9]">
+              Developer type{" "}
+              <span className="text-[#484f58] font-normal">(Max 3)</span>
             </h3>
-
-            <button
-              type="button"
-              className="
-                flex items-center gap-2
-                rounded-xl
-                border border-dashed border-[#30363d]
-                bg-[#0d1117]
-                px-4 py-3
-                text-sm text-[#8b949e]
-                hover:border-[#388bfd]
-              "
-            >
-              <Upload size={16} />
-              Upload avatar
-            </button>
           </div>
+          <div className="flex flex-wrap gap-1.5">
+            {DEVELOPER_TYPES.map((type) => {
+              const selected = developerTypes.includes(type);
+              return (
+                <button
+                  key={type}
+                  type="button"
+                  onClick={() => toggleDeveloperType(type)}
+                  className={`rounded-md border px-2.5 py-1 text-xs font-medium transition-all flex items-center gap-1 ${
+                    selected
+                      ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-400"
+                      : "border-[#30363d] bg-[#0d1117] text-[#8b949e] hover:border-[#388bfd]"
+                  }`}
+                >
+                  {selected && <Check size={12} />}
+                  {type}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Experience level */}
+        <div>
+          <div className="flex items-center gap-1.5 mb-1.5">
+            <Briefcase size={14} className="text-[#8b949e]" />
+            <h3 className="text-xs font-medium text-[#c9d1d9]">
+              Experience level
+            </h3>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            {LEVELS.map((item) => {
+              const selected = level === item.value;
+              return (
+                <button
+                  key={item.value}
+                  type="button"
+                  onClick={() => setLevel(item.value)}
+                  className={`rounded-lg border px-3 py-2 text-left text-xs font-medium transition-all ${
+                    selected
+                      ? "border-blue-500 bg-blue-500/10 text-blue-400 shadow-sm"
+                      : "border-[#30363d] bg-[#0d1117] text-[#8b949e] hover:border-[#388bfd]/50"
+                  }`}
+                >
+                  {item.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Compact Accordion for Social Links */}
+        <div className="rounded-lg border border-[#30363d] bg-[#0d1117]">
+          <button
+            type="button"
+            onClick={() => setShowSocials((prev) => !prev)}
+            className="flex w-full items-center justify-between px-3 py-2.5 text-left"
+          >
+            <div>
+              <span className="text-xs font-medium text-[#c9d1d9]">
+                Social links & Portfolio
+              </span>
+              <span className="ml-2 text-[10px] text-[#484f58]">Optional</span>
+            </div>
+            {showSocials ? (
+              <ChevronUp size={14} className="text-[#8b949e]" />
+            ) : (
+              <ChevronDown size={14} className="text-[#8b949e]" />
+            )}
+          </button>
+
+          {showSocials && (
+            <div className="space-y-2.5 border-t border-[#30363d] p-3">
+              <input
+                value={form.linkedin_profile}
+                onChange={(e) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    linkedin_profile: e.target.value,
+                  }))
+                }
+                placeholder="LinkedIn profile URL"
+                className="w-full rounded-lg border border-[#30363d] bg-[#161b22] px-3 py-2 text-xs text-[#c9d1d9] outline-none focus:border-blue-500"
+              />
+              <input
+                value={form.portfolio_website}
+                onChange={(e) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    portfolio_website: e.target.value,
+                  }))
+                }
+                placeholder="Portfolio website URL"
+                className="w-full rounded-lg border border-[#30363d] bg-[#161b22] px-3 py-2 text-xs text-[#c9d1d9] outline-none focus:border-blue-500"
+              />
+            </div>
+          )}
         </div>
       </div>
 
-      {error && <p className="mt-3 text-xs text-red-400">{error}</p>}
+      {error && (
+        <p className="mt-2 text-xs text-red-400 text-center">{error}</p>
+      )}
 
-      <div className="mt-6">
+      {/* Action Footer */}
+      <div className="mt-4 flex justify-end">
         <button
           onClick={handleCompleteProfile}
           disabled={saving || !form.first_name.trim() || !form.last_name.trim()}
-          className="
-            flex w-full items-center
-            justify-center gap-2
-            rounded-lg bg-[#238636]
-            py-3 text-sm font-semibold
-            text-white
-            hover:bg-[#2ea043]
-            disabled:cursor-not-allowed
-            disabled:opacity-50
-            transition-colors
-          "
+          className="flex items-center justify-center gap-2 rounded-lg bg-emerald-600 px-5 py-2.5 text-xs font-semibold text-white hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50 transition-all shadow-lg shadow-emerald-900/20"
         >
           {saving ? (
-            <Loader2 size={16} className="animate-spin" />
+            <Loader2 size={14} className="animate-spin" />
           ) : (
             <>
-              Finish setup
-              <ArrowRight size={16} />
+              Complete Setup <ArrowRight size={14} />
             </>
           )}
         </button>

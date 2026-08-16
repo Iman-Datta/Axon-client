@@ -27,6 +27,19 @@ function StatChip({ icon: Icon, label, tone = "muted" }) {
 
 function Avatar({ type, details }) {
   if (type === "organization") {
+    // If organization has an uploaded avatar/logo link, display it
+    if (details?.avatar) {
+      return (
+        <img
+          src={details.avatar}
+          alt={details.name}
+          className="h-16 w-16 shrink-0 rounded-xl object-cover ring-1 ring-[#30363d]"
+          referrerPolicy="no-referrer"
+        />
+      );
+    }
+
+    // Fallback initials generator if no avatar exists
     const initials = (details?.name || "?")
       .split(" ")
       .map((w) => w[0])
@@ -46,7 +59,8 @@ function Avatar({ type, details }) {
       <img
         src={details.avatar}
         alt={details.username}
-        className="h-16 w-16 shrink-0 rounded-full object-cover ring-1 ring-[#30363d]"
+        className="h-28 w-28 shrink-0 rounded-full object-cover ring-1 ring-[#30363d]"
+        referrerPolicy="no-referrer"
       />
     );
   }

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useOutletContext, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { Loader2, Check, AlertCircle } from "lucide-react";
+import { Loader2, Check, AlertCircle, User } from "lucide-react";
 
 import { fetchWithAuth } from "../../../utils/fetchWithAuth";
 
@@ -30,10 +30,6 @@ function SectionHeading({ children }) {
   );
 }
 
-// Per-type config: what's editable, where it saves, and how the
-// read-only info + form fields are laid out. Keeping this in one object
-// is what lets a single component drive both /settings/profile and
-// /settings/general instead of maintaining two near-identical pages.
 function useConfig(type, details, slug) {
   const isOrg = type === "organization";
 
@@ -63,7 +59,6 @@ function useConfig(type, details, slug) {
     editableFields: [
       "first_name",
       "last_name",
-      "avatar",
       "bio",
       "location",
       "linkedin_profile",
@@ -72,7 +67,6 @@ function useConfig(type, details, slug) {
     buildForm: (source) => ({
       first_name: source?.first_name || "",
       last_name: source?.last_name || "",
-      avatar: source?.avatar || "",
       bio: source?.bio || "",
       location: source?.location || "",
       linkedin_profile: source?.linkedin_profile || "",
@@ -98,19 +92,37 @@ function GeneralSettings() {
 
   const [savedForm, setSavedForm] = useState(config.buildForm(details));
   const [form, setForm] = useState(config.buildForm(details));
+
+  // Avatar states
+  const [avatarFile, setAvatarFile] = useState(null);
+  const [avatarPreview, setAvatarPreview] = useState(details?.avatar || "");
+
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
 
-  const isDirty = JSON.stringify(form) !== JSON.stringify(savedForm);
+  const isFormDirty = JSON.stringify(form) !== JSON.stringify(savedForm);
+  const isAvatarDirty = avatarFile !== null;
+  const isDirty = isFormDirty || isAvatarDirty;
 
   const handleChange = (field) => (e) => {
     setSuccess(false);
     setForm((prev) => ({ ...prev, [field]: e.target.value }));
   };
 
+  const handleAvatarChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setAvatarFile(file);
+      setAvatarPreview(URL.createObjectURL(file));
+      setSuccess(false);
+    }
+  };
+
   const handleReset = () => {
     setForm(savedForm);
+    setAvatarFile(null);
+    setAvatarPreview(details?.avatar || "");
     setError(null);
     setSuccess(false);
   };
@@ -122,35 +134,73 @@ function GeneralSettings() {
     setSuccess(false);
 
     try {
-      const payload = config.editableFields.reduce((acc, field) => {
-        acc[field] = form[field];
-        return acc;
-      }, {});
+      let updatedData = { ...details };
 
-      const response = await fetchWithAuth(
-        config.url,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        },
-        dispatch,
-        accessToken,
-      );
+      // 1. Call General text update API only if text fields changed
+      if (isFormDirty) {
+        const payload = config.editableFields.reduce((acc, field) => {
+          acc[field] = form[field];
+          return acc;
+        }, {});
 
-      const data = await response.json();
+        const response = await fetchWithAuth(
+          config.url,
+          {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          },
+          dispatch,
+          accessToken,
+        );
 
-      if (!response.ok || !data.success) {
-        const message = data?.errors
-          ? Object.values(data.errors).flat().join(" ")
-          : `Couldn't update ${isOrg ? "organization" : "profile"}. Try again.`;
-        throw new Error(message);
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+          const message = data?.errors
+            ? Object.values(data.errors).flat().join(" ")
+            : `Couldn't update ${isOrg ? "organization" : "profile"}. Try again.`;
+          throw new Error(message);
+        }
+
+        updatedData = { ...updatedData, ...data[config.responseKey] };
       }
 
-      const updated = { ...details, ...data[config.responseKey] };
-      setSavedForm(config.buildForm(updated));
-      setForm(config.buildForm(updated));
-      onUpdate?.(updated);
+      // 2. Conditionally call separate avatar update endpoint ONLY if a new file was chosen
+      if (avatarFile) {
+        const formData = new FormData();
+        formData.append("avatar", avatarFile);
+
+        // Uses slug for org or fallback parameter context safely
+        const targetSlug = slug || details?.username;
+        const avatarUrl = `${API}/auth/${targetSlug}/avtar/update/`;
+
+        const avatarResponse = await fetchWithAuth(
+          avatarUrl,
+          {
+            method: "PATCH",
+            body: formData,
+          },
+          dispatch,
+          accessToken,
+        );
+
+        const avatarData = await avatarResponse.json();
+
+        if (!avatarResponse.ok || !avatarData.success) {
+          throw new Error(
+            avatarData.message || "Failed to update avatar image.",
+          );
+        }
+
+        updatedData = { ...updatedData, avatar: avatarData.avatar };
+      }
+
+      setSavedForm(config.buildForm(updatedData));
+      setForm(config.buildForm(updatedData));
+      setAvatarFile(null);
+      setAvatarPreview(updatedData.avatar || "");
+      onUpdate?.(updatedData);
       setSuccess(true);
     } catch (err) {
       setError(err.message || "Something went wrong. Try again.");
@@ -182,7 +232,42 @@ function GeneralSettings() {
 
       {isOrg ? (
         <div className="mt-8 space-y-5">
-          <SectionHeading>About</SectionHeading>
+          <SectionHeading>Avatar</SectionHeading>
+          <div className="flex items-center gap-4 rounded-lg border border-[#30363d] bg-[#0d1117] p-4">
+            <div className="h-14 w-14 shrink-0 overflow-hidden rounded-md border border-[#30363d] bg-[#161b22] flex items-center justify-center text-[#8b949e]">
+              {avatarPreview ? (
+                <img
+                  src={avatarPreview}
+                  alt="Org Avatar"
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <User size={24} />
+              )}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-medium text-[#c9d1d9] truncate">
+                {avatarFile ? avatarFile.name : "Organization logo"}
+              </p>
+              <p className="text-[11px] text-[#6e7681]">
+                PNG, JPG, WEBP up to 5MB
+              </p>
+            </div>
+            <label className="cursor-pointer rounded-md bg-[#21262d] border border-[#30363d] px-3 py-1.5 text-xs font-medium text-[#c9d1d9] hover:bg-[#30363d] transition-colors">
+              Upload
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleAvatarChange}
+                disabled={isSaving}
+                className="hidden"
+              />
+            </label>
+          </div>
+
+          <div className="pt-4">
+            <SectionHeading>About</SectionHeading>
+          </div>
 
           <Field label="Organization name">
             <input
@@ -209,6 +294,41 @@ function GeneralSettings() {
       ) : (
         <div className="mt-8 space-y-8">
           <div className="space-y-5">
+            <SectionHeading>Avatar</SectionHeading>
+            <div className="flex items-center gap-4 rounded-lg border border-[#30363d] bg-[#0d1117] p-4">
+              <div className="h-14 w-14 shrink-0 overflow-hidden rounded-full border border-[#30363d] bg-[#161b22] flex items-center justify-center text-[#8b949e]">
+                {avatarPreview ? (
+                  <img
+                    src={avatarPreview}
+                    alt="Avatar preview"
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <User size={24} />
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-medium text-[#c9d1d9] truncate">
+                  {avatarFile ? avatarFile.name : "Profile picture"}
+                </p>
+                <p className="text-[11px] text-[#6e7681]">
+                  PNG, JPG, WEBP up to 5MB
+                </p>
+              </div>
+              <label className="cursor-pointer rounded-md bg-[#21262d] border border-[#30363d] px-3 py-1.5 text-xs font-medium text-[#c9d1d9] hover:bg-[#30363d] transition-colors">
+                Upload
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleAvatarChange}
+                  disabled={isSaving}
+                  className="hidden"
+                />
+              </label>
+            </div>
+          </div>
+
+          <div className="space-y-5 border-t border-[#21262d] pt-8">
             <SectionHeading>Identity</SectionHeading>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -232,20 +352,6 @@ function GeneralSettings() {
                 />
               </Field>
             </div>
-
-            <Field
-              label="Avatar URL"
-              hint="Paste a link to an image hosted elsewhere."
-            >
-              <input
-                type="url"
-                value={form.avatar}
-                onChange={handleChange("avatar")}
-                placeholder="https://..."
-                disabled={isSaving}
-                className={inputClass}
-              />
-            </Field>
           </div>
 
           <div className="space-y-5 border-t border-[#21262d] pt-8">

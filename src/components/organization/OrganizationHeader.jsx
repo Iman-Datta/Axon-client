@@ -6,9 +6,18 @@ function OrganizationHeader({ organization }) {
   return (
     <div className="border-b border-[#30363d] pb-5 mt-4">
       <div className="flex items-start gap-4">
-        {/* Organization Avatar */}
-        <div className="w-20 h-20 rounded-xl bg-[#21262d] flex items-center justify-center shrink-0">
-          <Building2 size={36} className="text-[#8b949e]" />
+        {/* Organization Avatar / Logo - Increased size to w-24 h-24 */}
+        <div className="w-24 h-24 rounded-xl bg-[#21262d] border border-[#30363d] flex items-center justify-center shrink-0 overflow-hidden shadow-md">
+          {organization.avatar ? (
+            <img
+              src={organization.avatar}
+              alt={organization.name}
+              className="h-full w-full object-cover"
+              referrerPolicy="no-referrer"
+            />
+          ) : (
+            <Building2 size={42} className="text-[#8b949e]" />
+          )}
         </div>
 
         {/* Organization Info */}
