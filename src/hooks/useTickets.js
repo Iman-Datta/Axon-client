@@ -10,6 +10,7 @@ function useTickets(workspaceSlug, projectSlug, filters = {}) {
 
   const [tickets, setTickets] = useState([]);
   const [count, setCount] = useState(0);
+  const [can_edit, setCan_edit] = useState(false);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -31,6 +32,7 @@ function useTickets(workspaceSlug, projectSlug, filters = {}) {
 
       setTickets(data.tickets);
       setCount(data.count);
+      setCan_edit(data.can_edit);
     } catch (error) {
       setError(error.message || "Failed to fetch tickets.");
     } finally {
@@ -56,6 +58,7 @@ function useTickets(workspaceSlug, projectSlug, filters = {}) {
     tickets,
     setTickets,
     count,
+    can_edit,
     loading,
     error,
     refetch,

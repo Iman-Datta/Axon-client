@@ -1,6 +1,6 @@
 import { Ticket as TicketIcon, Plus } from "lucide-react";
 
-function TicketHeader({ onCreateTicket, count }) {
+function TicketHeader({ onCreateTicket, count, can_edit }) {
   return (
     <div className="border-b mb-2 border-[#21262d] pt-4">
       <div className="flex items-start justify-between gap-6 pb-2">
@@ -30,13 +30,16 @@ function TicketHeader({ onCreateTicket, count }) {
           </div>
         </div>
 
-        <button
-          onClick={onCreateTicket}
-          className="flex shrink-0 items-center gap-2 rounded-lg bg-[#238636] px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-[#2ea043] active:bg-[#238636]"
-        >
-          <Plus className="h-4 w-4" strokeWidth={2.25} />
-          New ticket
-        </button>
+        {/* Conditionally render the button only if can_edit is true */}
+        {can_edit && (
+          <button
+            onClick={onCreateTicket}
+            className="flex shrink-0 items-center gap-2 rounded-lg bg-[#238636] px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-[#2ea043] active:bg-[#238636]"
+          >
+            <Plus className="h-4 w-4" strokeWidth={2.25} />
+            New ticket
+          </button>
+        )}
       </div>
     </div>
   );

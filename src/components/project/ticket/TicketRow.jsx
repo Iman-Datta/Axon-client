@@ -34,7 +34,7 @@ const KANBAN_ICONS = {
   DEFAULT: CircleDot,
 };
 
-function TicketRow({ ticket, onEdit, onDelete, onSelect }) {
+function TicketRow({ ticket, can_edit, onEdit, onDelete, onSelect }) {
   const [open, setOpen] = useState(false);
   const [menuPos, setMenuPos] = useState({ top: 0, left: 0 });
   const [copied, setCopied] = useState(false);
@@ -250,63 +250,68 @@ function TicketRow({ ticket, onEdit, onDelete, onSelect }) {
         </span>
       </td>
 
+      {/* Conditionally render actions column or button based on can_edit */}
       <td className="whitespace-nowrap px-3.5 py-3 text-right">
-        <button
-          ref={buttonRef}
-          onClick={(e) => {
-            e.stopPropagation();
-            open ? setOpen(false) : openMenu();
-          }}
-          className={`rounded-md p-1.5 text-[#8b949e] transition-all duration-150 hover:bg-[#21262d] hover:text-[#e6edf3] ${
-            open
-              ? "bg-[#21262d] text-[#e6edf3]"
-              : "opacity-0 group-hover:opacity-100"
-          }`}
-        >
-          <MoreHorizontal className="h-4 w-4" />
-        </button>
-
-        {open &&
-          createPortal(
-            <div
-              ref={menuRef}
-              style={{
-                top: menuPos.top,
-                left: menuPos.left,
-                width: MENU_WIDTH,
+        {can_edit && (
+          <>
+            <button
+              ref={buttonRef}
+              onClick={(e) => {
+                e.stopPropagation();
+                open ? setOpen(false) : openMenu();
               }}
-              className="animate-in fade-in zoom-in-95 fixed z-[100] origin-top-right overflow-hidden rounded-xl border border-[#30363d] bg-[#161b22] py-1 shadow-2xl"
+              className={`rounded-md p-1.5 text-[#8b949e] transition-all duration-150 hover:bg-[#21262d] hover:text-[#e6edf3] ${
+                open
+                  ? "bg-[#21262d] text-[#e6edf3]"
+                  : "opacity-0 group-hover:opacity-100"
+              }`}
             >
-              <button
-                className="flex w-full items-center gap-3 px-3.5 py-2.5 text-left text-sm text-[#c9d1d9] transition hover:bg-[#21262d]"
-                onClick={() => {
-                  setOpen(false);
-                  onEdit?.(ticket);
-                }}
-              >
-                <span className="flex h-6 w-6 items-center justify-center rounded-md">
-                  <Pencil className="h-3.5 w-3.5" />
-                </span>
-                Edit ticket
-              </button>
+              <MoreHorizontal className="h-4 w-4" />
+            </button>
 
-              <div className="mx-2 my-1 border-t border-[#30363d]" />
+            {open &&
+              createPortal(
+                <div
+                  ref={menuRef}
+                  style={{
+                    top: menuPos.top,
+                    left: menuPos.left,
+                    width: MENU_WIDTH,
+                  }}
+                  className="animate-in fade-in zoom-in-95 fixed z-[100] origin-top-right overflow-hidden rounded-xl border border-[#30363d] bg-[#161b22] py-1 shadow-2xl"
+                >
+                  <button
+                    className="flex w-full items-center gap-3 px-3.5 py-2.5 text-left text-sm text-[#c9d1d9] transition hover:bg-[#21262d]"
+                    onClick={() => {
+                      setOpen(false);
+                      onEdit?.(ticket);
+                    }}
+                  >
+                    <span className="flex h-6 w-6 items-center justify-center rounded-md">
+                      <Pencil className="h-3.5 w-3.5" />
+                    </span>
+                    Edit ticket
+                  </button>
 
-              <button
-                className="flex w-full items-center gap-3 px-3.5 py-2.5 text-left text-sm text-red-400 transition hover:bg-red-500/10"
-                onClick={() => {
-                  setOpen(false);
-                  onDelete?.(ticket);
-                }}
-              >
-                <span className="flex h-6 w-6 items-center justify-center rounded-md bg-red-500/10 text-red-400">
-                  <Trash2 className="h-3.5 w-3.5" />
-                </span>
-                Delete ticket
-              </button>
-            </div>,
-            document.body,
-          )}
+                  <div className="mx-2 my-1 border-t border-[#30363d]" />
+
+                  <button
+                    className="flex w-full items-center gap-3 px-3.5 py-2.5 text-left text-sm text-red-400 transition hover:bg-red-500/10"
+                    onClick={() => {
+                      setOpen(false);
+                      onDelete?.(ticket);
+                    }}
+                  >
+                    <span className="flex h-6 w-6 items-center justify-center rounded-md bg-red-500/10 text-red-400">
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </span>
+                    Delete ticket
+                  </button>
+                </div>,
+                document.body,
+              )}
+          </>
+        )}
       </td>
     </tr>
   );

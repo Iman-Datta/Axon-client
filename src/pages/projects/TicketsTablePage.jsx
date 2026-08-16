@@ -48,7 +48,7 @@ function TicketsTablePage() {
     searchParams.get("filter") === "assigned",
   );
 
-  const { tickets, count, loading, error, refetch } = useTickets(
+  const { tickets, count, can_edit, loading, error, refetch } = useTickets(
     slug,
     project_slug,
   );
@@ -77,7 +77,6 @@ function TicketsTablePage() {
     setDrawerOpen(true);
   };
 
-  // --- AUTO-OPEN DRAWER IF "openTicket" QUERY PARAM EXISTS ---
   useEffect(() => {
     const ticketIdToOpen = searchParams.get("openTicket");
     if (ticketIdToOpen && localTickets.length > 0) {
@@ -86,13 +85,11 @@ function TicketsTablePage() {
       );
       if (targetTicket) {
         handleRowSelect(targetTicket);
-        // Clean up search params so reloading doesn't keep triggering it
         searchParams.delete("openTicket");
         setSearchParams(searchParams);
       }
     }
   }, [localTickets, searchParams, setSearchParams]);
-  // -----------------------------------------------------------
 
   const filteredAndSortedTickets = useMemo(() => {
     let result = [...localTickets];
@@ -274,7 +271,11 @@ function TicketsTablePage() {
 
   return (
     <div className="mt-18 px-2">
-      <TicketHeader onCreateTicket={openCreateModal} count={count} />
+      <TicketHeader
+        onCreateTicket={openCreateModal}
+        count={count}
+        can_edit={can_edit}
+      />
 
       <div className="mb-5 mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#30363d] bg-[#161b22] p-3 shadow-sm">
         {/* Left Side: Search Bar */}
@@ -383,6 +384,7 @@ function TicketsTablePage() {
       ) : (
         <TicketTable
           tickets={filteredAndSortedTickets}
+          can_edit={can_edit}
           onEdit={openEditModal}
           onDelete={openDeleteConfirm}
           onSelect={handleRowSelect}
