@@ -30,7 +30,7 @@ function EpicPage() {
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [deleteError, setDeleteError] = useState("");
 
-  const { epics, count, loading, error, refetch } = useEpics(
+  const { epics, count, can_edit, loading, error, refetch } = useEpics(
     slug,
     project_slug,
   );
@@ -149,10 +149,15 @@ function EpicPage() {
 
   return (
     <div className="mt-22 space-y-3 px-2">
-      <EpicHeader count={count} onCreateEpic={openCreateModal} />
+      <EpicHeader
+        count={count}
+        can_edit={can_edit}
+        onCreateEpic={openCreateModal}
+      />
 
       <EpicGrid
         epics={epics}
+        can_edit={can_edit}
         onEdit={openEditModal}
         onDelete={openDeleteConfirm}
       />

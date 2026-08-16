@@ -1,6 +1,6 @@
 import { Plus, Layers } from "lucide-react";
 
-function EpicHeader({ onCreateEpic, count }) {
+function EpicHeader({ onCreateEpic, count, can_edit }) {
   return (
     <div className="flex items-center justify-between gap-4 border-b border-[#21262d] pb-4">
       <div className="flex items-center gap-3">
@@ -22,14 +22,15 @@ function EpicHeader({ onCreateEpic, count }) {
           </p>
         </div>
       </div>
-
-      <button
-        onClick={onCreateEpic}
-        className="inline-flex items-center gap-1.5 rounded-md bg-[#238636] px-3.5 py-2 text-xs font-medium text-white transition-colors hover:bg-[#2ea043]"
-      >
-        <Plus size={15} />
-        New Epic
-      </button>
+      {can_edit && (
+        <button
+          onClick={onCreateEpic}
+          className="inline-flex items-center gap-1.5 rounded-md bg-[#238636] px-3.5 py-2 text-xs font-medium text-white transition-colors hover:bg-[#2ea043]"
+        >
+          <Plus size={15} />
+          New Epic
+        </button>
+      )}
     </div>
   );
 }

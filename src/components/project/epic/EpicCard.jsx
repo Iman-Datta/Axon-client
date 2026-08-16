@@ -1,4 +1,3 @@
-// components/project/epic/EpicCard.jsx
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -13,7 +12,7 @@ import {
   Trash2,
 } from "lucide-react";
 
-function EpicCard({ epic, onClick, active, onEdit, onDelete }) {
+function EpicCard({ epic, can_edit, onClick, active, onEdit, onDelete }) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const createdDate = new Date(epic.created_at).toLocaleDateString("en-IN", {
@@ -55,60 +54,66 @@ function EpicCard({ epic, onClick, active, onEdit, onDelete }) {
       />
 
       <div className="absolute right-3 top-3 flex items-center gap-1">
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            setMenuOpen((v) => !v);
-          }}
-          className="rounded-md p-1.5 text-[#8b949e] opacity-0 transition-all duration-200 hover:bg-[#21262d] group-hover:opacity-100"
-        >
-          <MoreHorizontal size={16} />
-        </button>
+        {/* Conditionally render the options trigger and menu based on can_edit */}
+        {can_edit && (
+          <>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setMenuOpen((v) => !v);
+              }}
+              className="rounded-md p-1.5 text-[#8b949e] opacity-0 transition-all duration-200 hover:bg-[#21262d] group-hover:opacity-100"
+            >
+              <MoreHorizontal size={16} />
+            </button>
+
+            {menuOpen && (
+              <div
+                onClick={(e) => e.stopPropagation()}
+                className="absolute right-0 top-10 z-50 w-52 overflow-hidden rounded-xl border border-[#30363d] bg-[#161b22] shadow-2xl animate-in fade-in zoom-in-95"
+              >
+                <button
+                  className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-[#c9d1d9] transition hover:bg-[#21262d]"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onEdit(epic);
+                    setMenuOpen(false);
+                  }}
+                >
+                  <Pencil size={15} />
+                  Edit Epic
+                </button>
+
+                <button className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-[#c9d1d9] transition hover:bg-[#21262d]">
+                  <Copy size={15} />
+                  Duplicate
+                </button>
+
+                <button className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-[#c9d1d9] transition hover:bg-[#21262d]">
+                  <Archive size={15} />
+                  Archive
+                </button>
+
+                <div className="mx-2 my-1 border-t border-[#30363d]" />
+
+                <button
+                  className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-red-400 transition hover:bg-red-500/10"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete(epic);
+                    setMenuOpen(false);
+                  }}
+                >
+                  <Trash2 size={15} />
+                  Delete Epic
+                </button>
+              </div>
+            )}
+          </>
+        )}
 
         <ChevronRight className="h-4 w-4 text-[#6e7681] opacity-0 transition-all duration-200 group-hover:translate-x-1 group-hover:opacity-100" />
       </div>
-      {menuOpen && (
-        <div
-          onClick={(e) => e.stopPropagation()}
-          className="absolute right-0 top-10 z-50 w-52 overflow-hidden rounded-xl border border-[#30363d] bg-[#161b22] shadow-2xl animate-in fade-in zoom-in-95"
-        >
-          <button
-            className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-[#c9d1d9] transition hover:bg-[#21262d]"
-            onClick={(e) => {
-              e.stopPropagation();
-              onEdit(epic);
-              setMenuOpen(false);
-            }}
-          >
-            <Pencil size={15} />
-            Edit Epic
-          </button>
-
-          <button className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-[#c9d1d9] transition hover:bg-[#21262d]">
-            <Copy size={15} />
-            Duplicate
-          </button>
-
-          <button className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-[#c9d1d9] transition hover:bg-[#21262d]">
-            <Archive size={15} />
-            Archive
-          </button>
-
-          <div className="mx-2 my-1 border-t border-[#30363d]" />
-
-          <button
-            className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-red-400 transition hover:bg-red-500/10"
-            onClick={(e) => {
-              e.stopPropagation();
-              onDelete(epic);
-              setMenuOpen(false);
-            }}
-          >
-            <Trash2 size={15} />
-            Delete Epic
-          </button>
-        </div>
-      )}
 
       <div className="p-4 pl-5">
         {/* Header */}

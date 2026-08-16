@@ -21,7 +21,7 @@ export const getMyEpics = async (
     throw new Error("Failed to fetch Epics.");
   }
 
-  return { epics: data.epics, count: data.count };
+  return { epics: data.epics, count: data.count, can_edit: data.can_edit };
 };
 
 export const createEpic = async (

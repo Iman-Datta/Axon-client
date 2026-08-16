@@ -10,6 +10,7 @@ function useEpics(workspaceSlug, projectSlug) {
 
   const [epics, setEpics] = useState([]);
   const [count, setCount] = useState(0);
+  const [can_edit, setCan_edit] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -27,6 +28,7 @@ function useEpics(workspaceSlug, projectSlug) {
 
       setEpics(data.epics);
       setCount(data.count);
+      setCan_edit(data.can_edit);
     } catch (error) {
       setError(error.message);
     } finally {
@@ -47,6 +49,7 @@ function useEpics(workspaceSlug, projectSlug) {
   return {
     epics,
     count,
+    can_edit,
     loading,
     error,
     refetch: fetchEpics,
