@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 
 import { createProject } from "../../services/projectService";
 
@@ -11,7 +12,6 @@ function CreateProject() {
   const currentWorkspace = useSelector(
     (state) => state.workspace.currentWorkspace,
   );
-
 
   const accessToken = useSelector((state) => state.auth.accessToken);
 
@@ -46,7 +46,7 @@ function CreateProject() {
       setError("");
 
       const workspaceSlug = currentWorkspace?.slug || user.username;
-   
+
       const data = await createProject(
         workspaceSlug,
         formData,
@@ -75,15 +75,24 @@ function CreateProject() {
   };
 
   return (
-    <div className="min-h-screen flex justify-center pt-25 px-6">
+    <div className="min-h-screen flex justify-center pt-22 px-6">
       <div className="w-full max-w-xl">
-        <h1 className="text-center text-3xl font-bold mb-10">
+        <button
+          type="button"
+          onClick={() => navigate(-1)}
+          className="mb-6 inline-flex items-center gap-1.5 text-sm text-[#8b949e] hover:text-white transition-colors"
+        >
+          <ArrowLeft className="size-4" />
+          Back
+        </button>
+
+        <h1 className="text-center text-2xl font-bold mb-8">
           Create a new project
         </h1>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="text-lg font-semibold">
+            <label className="text-base font-semibold">
               Project name
               <span className="text-red-500"> *</span>
             </label>
@@ -93,24 +102,24 @@ function CreateProject() {
               name="name"
               value={formData.name}
               onChange={handleChange}
-              className="mt-3 w-full rounded-md border border-[#30363d] bg-[#0d1117] px-3 py-2.5 outline-none focus:border-[#58a6ff]"
+              className="mt-2.5 w-full rounded-md border border-[#30363d] bg-[#0d1117] px-3 py-2 outline-none focus:border-[#58a6ff]"
             />
 
-            <p className="mt-2 text-sm text-[#8b949e]">
+            <p className="mt-1.5 text-sm text-[#8b949e]">
               URL: {window.location.origin}/{user.username}/
               {formData.name.toLowerCase().replaceAll(" ", "-")}
             </p>
           </div>
 
           <div>
-            <label className="text-lg font-semibold">Description</label>
+            <label className="text-base font-semibold">Description</label>
 
             <textarea
               rows={4}
               name="description"
               value={formData.description}
               onChange={handleChange}
-              className="mt-3 w-full rounded-md border border-[#30363d] bg-[#0d1117] px-3 py-2.5 outline-none focus:border-[#58a6ff] resize-none"
+              className="mt-2.5 w-full rounded-md border border-[#30363d] bg-[#0d1117] px-3 py-2 outline-none focus:border-[#58a6ff] resize-none"
             />
           </div>
 
@@ -118,7 +127,7 @@ function CreateProject() {
 
           <button
             disabled={!formData.name || loading}
-            className="w-full py-3 rounded-md font-medium bg-[#238636] hover:bg-[#2ea043] disabled:bg-[#1f3d28] disabled:cursor-not-allowed transition-colors"
+            className="w-full py-2.5 rounded-md font-medium bg-[#238636] hover:bg-[#2ea043] disabled:bg-[#1f3d28] disabled:cursor-not-allowed transition-colors"
           >
             {loading ? "Creating..." : "Create project"}
           </button>

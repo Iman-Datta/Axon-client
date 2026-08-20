@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 
 import { createOrganization } from "../../services/organizationService";
 
@@ -51,16 +52,25 @@ function CreateOrganization() {
   };
 
   return (
-    <div className="min-h-screen flex justify-center pt-25 px-6">
+    <div className="min-h-screen flex justify-center pt-22 px-6">
       <div className="w-full max-w-xl">
-        <h1 className="text-center text-3xl font-bold mb-10">
+        <button
+          type="button"
+          onClick={() => navigate(-1)}
+          className="mb-6 inline-flex items-center gap-1.5 text-sm text-[#8b949e] hover:text-white transition-colors"
+        >
+          <ArrowLeft className="size-4" />
+          Back
+        </button>
+
+        <h1 className="text-center text-2xl font-bold mb-8">
           Set up your organization
         </h1>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-5">
           {/* Organization Name */}
           <div>
-            <label className="text-lg font-semibold">
+            <label className="text-base font-semibold">
               Organization name
               <span className="text-red-500"> *</span>
             </label>
@@ -71,20 +81,20 @@ function CreateOrganization() {
               value={formData.name}
               onChange={handleChange}
               className="
-                mt-3
+                mt-2.5
                 w-full
                 rounded-md
                 border
                 border-[#30363d]
                 bg-[#0d1117]
                 px-3
-                py-2.5
+                py-2
                 outline-none
                 focus:border-[#58a6ff]
               "
             />
 
-            <p className="mt-2 text-sm text-[#8b949e]">
+            <p className="mt-1.5 text-sm text-[#8b949e]">
               Your URL will be: https://axon.imandatta.com/
               {formData.name.toLowerCase().replaceAll(" ", "-")}
             </p>
@@ -92,7 +102,7 @@ function CreateOrganization() {
 
           {/* Description */}
           <div>
-            <label className="text-lg font-semibold">Description</label>
+            <label className="text-base font-semibold">Description</label>
 
             <textarea
               rows={4}
@@ -100,14 +110,14 @@ function CreateOrganization() {
               value={formData.description}
               onChange={handleChange}
               className="
-                mt-3
+                mt-2.5
                 w-full
                 rounded-md
                 border
                 border-[#30363d]
                 bg-[#0d1117]
                 px-3
-                py-2.5
+                py-2
                 outline-none
                 focus:border-[#58a6ff]
                 resize-none
@@ -117,11 +127,11 @@ function CreateOrganization() {
 
           {/* Radio Buttons */}
           <div>
-            <h2 className="text-xl font-semibold mb-4">
+            <h2 className="text-lg font-semibold mb-3.5">
               This organization belongs to:
             </h2>
 
-            <div className="space-y-5">
+            <div className="space-y-4">
               <label className="flex gap-3 cursor-pointer">
                 <input
                   type="radio"
@@ -131,7 +141,9 @@ function CreateOrganization() {
                 />
 
                 <div>
-                  <h3 className="font-semibold text-lg">My personal account</h3>
+                  <h3 className="font-semibold text-base">
+                    My personal account
+                  </h3>
 
                   <p className="text-sm text-[#8b949e]">
                     i.e. {user.username} ({user.first_name} {user.last_name})
@@ -148,7 +160,7 @@ function CreateOrganization() {
                 />
 
                 <div>
-                  <h3 className="font-semibold text-lg">
+                  <h3 className="font-semibold text-base">
                     A business or institution
                   </h3>
 
@@ -169,7 +181,7 @@ function CreateOrganization() {
               className="mt-1"
             />
 
-            <p className="text-base">I accept the Terms of Service.</p>
+            <p className="text-sm">I accept the Terms of Service.</p>
           </label>
 
           {/* Button */}
@@ -177,7 +189,7 @@ function CreateOrganization() {
             disabled={!accepted || !belongsTo || !formData.name || loading}
             className="
               w-full
-              py-3
+              py-2.5
               rounded-md
               font-medium
               bg-[#238636]
