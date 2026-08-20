@@ -37,7 +37,7 @@ function EpicCard({ epic, can_edit, onClick, active, onEdit, onDelete }) {
   return (
     <div
       onClick={() => onClick(epic)}
-      className={`group relative cursor-pointer overflow-visible rounded-xl border bg-[#161b22]
+      className={`group relative cursor-pointer overflow-hidden rounded-xl border bg-[#161b22]
           transition-all duration-300 ease-out
           active:scale-[0.99]
           hover:-translate-y-1
@@ -49,7 +49,7 @@ function EpicCard({ epic, can_edit, onClick, active, onEdit, onDelete }) {
           }`}
     >
       <div
-        className="absolute left-0 top-0 bottom-0 w-[3px] rounded-r-full"
+        className="absolute bottom-0 left-0 top-0 w-1 rounded-l-xl"
         style={{ backgroundColor: epic.color }}
       />
 
