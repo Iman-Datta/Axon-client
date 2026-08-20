@@ -4,8 +4,6 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
 
-import AxonLogo from "../../components/shared/AxonLogo";
-
 import { setUser } from "../../redux/slices/authSlice";
 import { fetchWithAuth } from "../../utils/fetchWithAuth";
 
@@ -106,7 +104,11 @@ function EmailCallback() {
           transition={{ duration: 0.4, delay: 0.1 }}
           className="flex justify-center mb-6"
         >
-          <AxonLogo />
+          <img
+            src="/Logo.png"
+            alt="Axon Logo"
+            className="h-8 w-8 object-contain"
+          />
         </motion.div>
 
         <div className="relative mx-auto w-16 h-16 mb-6">

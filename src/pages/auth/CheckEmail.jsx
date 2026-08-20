@@ -1,6 +1,5 @@
 import { MailCheck } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
-import AxonLogo from "../../components/shared/AxonLogo";
 
 function CheckEmail() {
   const navigate = useNavigate();
@@ -26,7 +25,11 @@ function CheckEmail() {
       >
         {/* LOGO */}
         <div className="flex justify-center mb-6">
-          <AxonLogo />
+          <img
+            src="/Logo.png"
+            alt="Axon Logo"
+            className="h-8 w-8 object-contain"
+          />
         </div>
 
         <div

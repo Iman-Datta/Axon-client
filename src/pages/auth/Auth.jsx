@@ -6,7 +6,6 @@ import { useDispatch, useSelector } from "react-redux";
 import Login from "../../components/auth/Login";
 import Register from "../../components/auth/Register";
 import ForgotPassword from "../../components/auth/Forgotpassword";
-import AxonLogo from "../../components/shared/AxonLogo";
 import { setAccessToken, setUser } from "../../redux/slices/authSlice";
 
 const API = import.meta.env.VITE_API_URL;
@@ -113,7 +112,11 @@ function Auth() {
           <div className="space-y-10">
             {/* LOGO */}
             <div className="flex items-center gap-3">
-              <AxonLogo />
+              <img
+                src="/Logo.png"
+                alt="Axon Logo"
+                className="h-8 w-8 object-contain"
+              />
               <div>
                 <h1 className="text-lg font-semibold text-[#c9d1d9]">Axon</h1>
                 <p className="text-xs text-[#8b949e]">
