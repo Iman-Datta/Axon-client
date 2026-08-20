@@ -11,6 +11,52 @@ import useEpics from "../../hooks/useEpics";
 
 import { createEpic, updateEpic, deleteEpic } from "../../services/epicService";
 
+// Skeleton Component matching EpicCard layout
+function EpicSkeletonGrid() {
+  return (
+    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      {[1, 2, 3, 4, 5, 6].map((item) => (
+        <div
+          key={item}
+          className="relative overflow-hidden rounded-xl border border-[#30363d] bg-[#161b22] p-4 pl-5 shadow-sm"
+        >
+          {/* Accent strip skeleton */}
+          <div className="absolute bottom-0 left-0 top-0 w-1 bg-[#21262d]" />
+
+          {/* Header Title Skeleton */}
+          <div className="flex items-center justify-between pr-4">
+            <div className="h-5 w-1/2 animate-pulse rounded bg-[#21262d]" />
+          </div>
+
+          {/* Description Lines Skeleton */}
+          <div className="mt-3 space-y-2">
+            <div className="h-3 w-full animate-pulse rounded bg-[#21262d]" />
+            <div className="h-3 w-3/4 animate-pulse rounded bg-[#21262d]" />
+          </div>
+
+          {/* Progress Bar Skeleton */}
+          <div className="mt-4 space-y-2">
+            <div className="flex justify-between">
+              <div className="h-3 w-20 animate-pulse rounded bg-[#21262d]" />
+              <div className="h-3 w-8 animate-pulse rounded bg-[#21262d]" />
+            </div>
+            <div className="h-1.5 w-full animate-pulse rounded-full bg-[#21262d]" />
+          </div>
+
+          {/* Footer Skeleton */}
+          <div className="mt-4 flex items-center justify-between border-t border-[#21262d] pt-3">
+            <div className="flex items-center gap-2">
+              <div className="h-6 w-6 animate-pulse rounded-full bg-[#21262d]" />
+              <div className="h-3 w-16 animate-pulse rounded bg-[#21262d]" />
+            </div>
+            <div className="h-3 w-20 animate-pulse rounded bg-[#21262d]" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function EpicPage() {
   const { slug, project_slug } = useParams();
 
@@ -139,12 +185,8 @@ function EpicPage() {
     }
   };
 
-  if (loading) {
-    return <h1>Loading...</h1>;
-  }
-
   if (error) {
-    return <h1>{error}</h1>;
+    return <h1 className="mt-22 px-4 text-red-500">{error}</h1>;
   }
 
   return (
@@ -155,12 +197,16 @@ function EpicPage() {
         onCreateEpic={openCreateModal}
       />
 
-      <EpicGrid
-        epics={epics}
-        can_edit={can_edit}
-        onEdit={openEditModal}
-        onDelete={openDeleteConfirm}
-      />
+      {loading ? (
+        <EpicSkeletonGrid />
+      ) : (
+        <EpicGrid
+          epics={epics}
+          can_edit={can_edit}
+          onEdit={openEditModal}
+          onDelete={openDeleteConfirm}
+        />
+      )}
 
       {modalOpen && (
         <EpicFormModal
