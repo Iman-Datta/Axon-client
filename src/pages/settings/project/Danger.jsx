@@ -108,7 +108,9 @@ function Danger() {
   return (
     <div className="max-w-2xl">
       <div>
-        <h1 className="text-base font-semibold text-[#e6edf3]">Danger Zone</h1>
+        <h1 className="text-base font-semibold text-[#e6edf3]">
+          Manage & Delete
+        </h1>
         <p className="mt-1 text-sm text-[#8b949e]">
           {isOwner
             ? "These actions are irreversible. Review carefully before continuing."

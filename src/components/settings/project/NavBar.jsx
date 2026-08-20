@@ -11,7 +11,7 @@ function NavBar({ type = "project" }) {
       </h2>
 
       <nav className="w-full border-b border-[#21262d] pt-2">
-        <div className="flex items-center gap-2 overflow-x-auto pb-2">
+        <div className="flex items-center gap-2 overflow-x-auto py-2 px-2">
           {items.map(({ name, icon: Icon, path, danger }) => (
             <NavLink
               key={path}

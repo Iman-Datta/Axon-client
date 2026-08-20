@@ -14,12 +14,22 @@ export const personalItems = [
   { label: "Account", path: "account", icon: UserCog },
   { label: "Security", path: "security", icon: Shield },
   { label: "Connections", path: "connections", icon: Link2 },
-  { label: "Danger Zone", path: "danger", icon: TriangleAlert, isDanger: true },
+  {
+    label: "Manage & Delete",
+    path: "danger",
+    icon: TriangleAlert,
+    isDanger: true,
+  },
 ];
 
 export const organizationItems = [
   { label: "General", path: "", icon: Settings },
   { label: "Permissions", path: "permissions", icon: ShieldCheck },
   { label: "Integrations", path: "integrations", icon: Plug },
-  { label: "Danger Zone", path: "danger", icon: TriangleAlert, isDanger: true },
+  {
+    label: "Manage & Delete",
+    path: "danger",
+    icon: TriangleAlert,
+    isDanger: true,
+  },
 ];

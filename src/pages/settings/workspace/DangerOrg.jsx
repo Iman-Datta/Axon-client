@@ -137,7 +137,9 @@ function DangerOrg() {
   return (
     <div className="max-w-2xl">
       <div>
-        <h1 className="text-base font-semibold text-[#e6edf3]">Danger Zone</h1>
+        <h1 className="text-base font-semibold text-[#e6edf3]">
+          Manage & Delete
+        </h1>
         <p className="mt-1 text-sm text-[#8b949e]">
           {isOrg
             ? isOwner
@@ -231,8 +233,8 @@ function DangerOrg() {
             {showComingSoon && (
               <div className="flex items-center gap-2 rounded-md border border-[#30363d] bg-[#161b22] px-3.5 py-3 text-sm text-[#8b949e]">
                 <Clock size={15} className="shrink-0 text-[#8b949e]" />
-                Account deletion isn't available yet: this is coming in a
-                future update.
+                Account deletion isn't available yet: this is coming in a future
+                update.
               </div>
             )}
           </>
