@@ -51,7 +51,7 @@ function CreateOrganization() {
   };
 
   return (
-    <div className="min-h-screen flex justify-center pt-20 px-6">
+    <div className="min-h-screen flex justify-center pt-25 px-6">
       <div className="w-full max-w-xl">
         <h1 className="text-center text-3xl font-bold mb-10">
           Set up your organization
@@ -85,7 +85,7 @@ function CreateOrganization() {
             />
 
             <p className="mt-2 text-sm text-[#8b949e]">
-              Your URL will be: https://axon.dev/
+              Your URL will be: https://axon.imandatta.com/
               {formData.name.toLowerCase().replaceAll(" ", "-")}
             </p>
           </div>

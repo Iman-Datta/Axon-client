@@ -13,8 +13,6 @@ import { fetchWithAuth } from "../../../utils/fetchWithAuth";
 
 const API = import.meta.env.VITE_API_URL;
 
-// Single row inside the workspace dropdown — shared by the personal
-// account and every organization, so both stay pixel-identical.
 function WorkspaceRow({ workspace, isSelected, onSelect }) {
   const Icon = workspace.type === "organization" ? Building2 : User;
 

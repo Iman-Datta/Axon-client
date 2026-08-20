@@ -75,7 +75,7 @@ function CreateProject() {
   };
 
   return (
-    <div className="min-h-screen flex justify-center pt-20 px-6">
+    <div className="min-h-screen flex justify-center pt-25 px-6">
       <div className="w-full max-w-xl">
         <h1 className="text-center text-3xl font-bold mb-10">
           Create a new project
