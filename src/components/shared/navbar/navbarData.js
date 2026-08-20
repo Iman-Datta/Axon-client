@@ -8,7 +8,14 @@ import {
   ListChecks,
 } from "lucide-react";
 
-export const publicNav = ["Features", "Pricing", "About"];
+export const publicNav = [
+  { name: "Home", path: "#top" },
+  { name: "Manual vs Git-Aware", path: "#comparison" },
+  { name: "For Developers", path: "#developers" },
+  { name: "Collaboration", path: "#collaboration" },
+  { name: "Organizations", path: "#organizations" },
+  { name: "Architecture", path: "#architecture" },
+];
 
 export const getPrivateNav = (workspaceSlug, workspaceType) => {
   const nav = [
@@ -23,7 +30,6 @@ export const getPrivateNav = (workspaceSlug, workspaceType) => {
       icon: FolderGit2,
     },
   ];
-
   if (workspaceType === "organization") {
     nav.push({
       name: "People",
@@ -34,12 +40,12 @@ export const getPrivateNav = (workspaceSlug, workspaceType) => {
   if (workspaceType === "personal") {
     nav.push(
       {
-        name: "organizations",
+        name: "Organizations",
         path: `/${workspaceSlug}/organizations`,
         icon: Building2,
       },
       {
-        name: "My work",
+        name: "My Work",
         path: `/${workspaceSlug}/my-work`,
         icon: ListChecks,
       },

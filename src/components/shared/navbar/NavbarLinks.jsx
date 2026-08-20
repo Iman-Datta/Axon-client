@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import { publicNav, getPrivateNav } from "./navbarData";
 import { isNavItemActive } from "./navbarUtils";
 
-function NavbarLinks({ user }) {
+function NavbarLinks({ user, isRootLanding }) {
   const location = useLocation();
 
   const currentWorkspace = useSelector(
@@ -12,20 +12,21 @@ function NavbarLinks({ user }) {
   );
 
   const workspaceSlug = currentWorkspace?.slug || user?.username;
-
   const workspaceType = currentWorkspace?.type || "personal";
 
-  const privateNav = getPrivateNav(workspaceSlug, workspaceType, 2, 3, 5);
+  const privateNav = getPrivateNav(workspaceSlug, workspaceType);
+
+  // Show public navigation if user is logged out OR if they are currently on the root "/" route
+  const showPublicNav = !user || isRootLanding;
 
   return (
     <nav
       key={`${workspaceSlug}-${workspaceType}`}
       className="hidden md:flex items-center gap-8 ml-16"
     >
-      {user
+      {!showPublicNav
         ? privateNav.map((item) => {
             const Icon = item.icon;
-
             const active = isNavItemActive(location.pathname, item);
 
             return (
@@ -39,7 +40,6 @@ function NavbarLinks({ user }) {
                 }`}
               >
                 <Icon size={15} strokeWidth={2} />
-
                 <span>{item.name}</span>
 
                 {item.count > 0 && (
@@ -52,11 +52,11 @@ function NavbarLinks({ user }) {
           })
         : publicNav.map((item) => (
             <a
-              key={item}
-              href={`#${item.toLowerCase()}`}
+              key={item.name}
+              href={item.path}
               className="text-[13px] text-[#8b949e] hover:text-[#c9d1d9] transition"
             >
-              {item}
+              {item.name}
             </a>
           ))}
     </nav>
