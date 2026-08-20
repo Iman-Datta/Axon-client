@@ -85,6 +85,16 @@ const columns = ["todo", "dev", "review", "done"];
 
 const COLUMN_BODY_HEIGHT = 200;
 
+const GRID_BG_STYLE = {
+  backgroundImage:
+    "linear-gradient(to right, rgba(255,255,255,0.09) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.09) 1px, transparent 1px)",
+  backgroundSize: "40px 40px",
+  maskImage:
+    "radial-gradient(ellipse 75% 65% at 50% 0%, black 30%, transparent 90%)",
+  WebkitMaskImage:
+    "radial-gradient(ellipse 75% 65% at 50% 0%, black 30%, transparent 90%)",
+};
+
 export function Hero() {
   const [step, setStep] = useState(0);
 
@@ -104,14 +114,17 @@ export function Hero() {
 
   return (
     <section className="relative overflow-hidden border-b border-border">
-      <div className="pointer-events-none absolute inset-0 grid-bg opacity-70" />
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={GRID_BG_STYLE}
+      />
       <div className="relative mx-auto grid max-w-6xl gap-10 px-5 py-16 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:items-center lg:py-20">
         <div>
           <div className="mb-5 flex items-center gap-2.5">
             <img
               src="/Logo.png"
               alt="Axon"
-              className="h-9 w-9 rounded-md object-contain"
+              className="h-10 w-10 rounded-md object-contain"
             />
             <span className="font-mono text-base font-semibold tracking-tight text-foreground">
               Axon
