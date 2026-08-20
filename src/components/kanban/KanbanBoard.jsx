@@ -38,7 +38,44 @@ const dropAnimationConfig = {
   }),
 };
 
-const KanbanBoard = ({ tickets, setTickets }) => {
+// Skeleton Loader component matching GitHub Dark theme
+function KanbanBoardSkeleton() {
+  return (
+    <div className="flex h-full items-stretch gap-2 pt-3">
+      {COLUMN_ORDER.map((column) => (
+        <div
+          key={column}
+          className="flex w-80 min-w-[320px] flex-col rounded-xl border border-[#30363d] bg-[#161b22] p-3"
+        >
+          {/* Column Header Skeleton */}
+          <div className="mb-4 flex items-center justify-between border-b border-[#30363d] pb-2">
+            <div className="h-4 w-24 animate-pulse rounded bg-[#21262d]" />
+            <div className="h-5 w-6 animate-pulse rounded-full bg-[#21262d]" />
+          </div>
+
+          {/* Ticket Skeletons */}
+          <div className="space-y-3">
+            {[1, 2, 3].map((item) => (
+              <div
+                key={item}
+                className="rounded-lg border border-[#30363d] bg-[#0d1117] p-3.5 space-y-3"
+              >
+                <div className="h-4 w-3/4 animate-pulse rounded bg-[#21262d]" />
+                <div className="h-3 w-1/2 animate-pulse rounded bg-[#21262d]" />
+                <div className="flex items-center justify-between pt-2">
+                  <div className="h-6 w-6 animate-pulse rounded-full bg-[#21262d]" />
+                  <div className="h-3 w-12 animate-pulse rounded bg-[#21262d]" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+const KanbanBoard = ({ tickets, setTickets, loading }) => {
   const [activeTicket, setActiveTicket] = useState(null);
   const [placeholder, setPlaceholder] = useState(null);
 
@@ -81,7 +118,6 @@ const KanbanBoard = ({ tickets, setTickets }) => {
     setTimeout(() => setActiveTicketId(null), 300);
   };
 
-  // Local update function to prevent table/board glitches
   const handleTicketUpdatedLocally = (updatedTicket) => {
     setTickets((prev) =>
       prev.map((t) => (t.id === updatedTicket?.id ? updatedTicket : t)),
@@ -91,7 +127,6 @@ const KanbanBoard = ({ tickets, setTickets }) => {
     }
   };
 
-  // Edit Modal Handlers
   const openEditModal = (ticket) => {
     setSelectedTicket(ticket);
     setSubmitError("");
@@ -143,7 +178,6 @@ const KanbanBoard = ({ tickets, setTickets }) => {
 
       closeModal();
 
-      // Refresh board and drawer
       if (savedTicket) {
         handleTicketUpdatedLocally(savedTicket.ticket || savedTicket);
       }
@@ -157,7 +191,6 @@ const KanbanBoard = ({ tickets, setTickets }) => {
     }
   };
 
-  // Delete Modal Handlers
   const openDeleteConfirm = (ticket) => {
     setDeleteError("");
     setDeleteTarget(ticket);
@@ -196,6 +229,14 @@ const KanbanBoard = ({ tickets, setTickets }) => {
       setDeleteLoading(false);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="h-full w-full overflow-x-auto overflow-y-hidden">
+        <KanbanBoardSkeleton />
+      </div>
+    );
+  }
 
   const columns = {
     TODO: [],
@@ -391,7 +432,6 @@ const KanbanBoard = ({ tickets, setTickets }) => {
         </DragOverlay>
       </div>
 
-      {/* Ticket Drawer */}
       <TicketDrawer
         open={drawerOpen}
         ticket={drawerTicket}
@@ -403,7 +443,6 @@ const KanbanBoard = ({ tickets, setTickets }) => {
         onTicketUpdated={handleTicketUpdatedLocally}
       />
 
-      {/* Edit Modal */}
       {modalOpen && (
         <TicketFormModal
           mode="edit"
@@ -417,7 +456,6 @@ const KanbanBoard = ({ tickets, setTickets }) => {
         />
       )}
 
-      {/* Delete Confirmation Modal */}
       {deleteTarget && (
         <ConfirmDeleteTicketModal
           ticket={deleteTarget}

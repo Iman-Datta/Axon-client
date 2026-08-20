@@ -17,7 +17,6 @@ const Dashboard = () => {
     },
   );
 
-  // Filter tickets dynamically based on title or ticket number
   const filteredTickets = useMemo(() => {
     if (!searchTerm.trim()) return tickets;
     const query = searchTerm.toLowerCase();
@@ -27,10 +26,6 @@ const Dashboard = () => {
         ticket.ticket_number?.toLowerCase().includes(query),
     );
   }, [tickets, searchTerm]);
-
-  if (loading) {
-    return <div className="mt-18 p-6">Loading...</div>;
-  }
 
   if (error) {
     return <div className="mt-18 p-6 text-red-500">{error}</div>;
@@ -43,7 +38,11 @@ const Dashboard = () => {
       </div>
 
       <div className="min-h-0 flex-1">
-        <KanbanBoard tickets={filteredTickets} setTickets={setTickets} />
+        <KanbanBoard
+          tickets={filteredTickets}
+          setTickets={setTickets}
+          loading={loading}
+        />
       </div>
     </div>
   );
