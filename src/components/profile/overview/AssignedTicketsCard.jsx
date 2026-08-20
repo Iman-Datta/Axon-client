@@ -20,9 +20,9 @@ function AssignedTicketsCard({ tickets = [], username }) {
           <button
             type="button"
             onClick={() => navigate(`/${username}/my-work`)}
-            className="group flex items-center gap-1.5 text-xs font-semibold text-[#58a6ff] transition-colors hover:text-white"
+            className="group flex cursor-pointer items-center gap-1.5 text-xs font-semibold text-[#58a6ff] transition-colors hover:text-white"
           >
-            View all tickets
+            All assigned tickets
             <ArrowRight
               size={13}
               className="transition-transform duration-200 group-hover:translate-x-0.5"
@@ -50,7 +50,6 @@ function AssignedTicketsCard({ tickets = [], username }) {
                 )
               }
             />
-            
           ))}
         </div>
       )}
