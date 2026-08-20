@@ -3,6 +3,7 @@ import { TbGitBranch } from "react-icons/tb";
 import { HiOutlineFolder, HiOutlineTicket } from "react-icons/hi2";
 import { BsViewStacked } from "react-icons/bs";
 import { FiUsers } from "react-icons/fi";
+import { SectionHeading } from "./primitives";
 
 const left = [
   { label: "Branches", icon: TbGitBranch, note: "feature/ticket-104" },
@@ -21,6 +22,7 @@ export function DevelopersSection() {
   return (
     <section className="border-b border-border bg-card/30">
       <div className="mx-auto max-w-6xl px-5 py-16">
+        <SectionHeading label="Developer First"/>
         <h2 className="max-w-xl text-2xl font-semibold leading-snug tracking-tight sm:text-[28px]">
           Not just project management.
           <br />
