@@ -68,7 +68,38 @@ function PriorityFlag({ priority }) {
   );
 }
 
-function ProjectOverviewFeed({ assignedTickets = [], onTicketClick }) {
+// Dedicated Skeleton Loader matching ticket item layout
+function FeedSkeleton() {
+  return (
+    <div className="space-y-2.5">
+      {[1, 2, 3, 4].map((item) => (
+        <div
+          key={item}
+          className="flex items-center justify-between gap-4 rounded-xl border border-[#21262d] bg-[#0d1117]/50 px-4 py-3.5"
+        >
+          {/* Left Side Skeleton */}
+          <div className="flex items-center gap-3.5">
+            <div className="h-4 w-16 animate-pulse rounded bg-[#21262d]" />
+            <div className="h-4 w-48 animate-pulse rounded bg-[#21262d]" />
+          </div>
+
+          {/* Right Side Skeleton */}
+          <div className="flex items-center gap-3">
+            <div className="h-4 w-12 animate-pulse rounded bg-[#21262d]" />
+            <div className="h-6 w-16 animate-pulse rounded-full bg-[#21262d]" />
+            <div className="h-7 w-7 animate-pulse rounded-md bg-[#21262d]" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ProjectOverviewFeed({
+  assignedTickets = [],
+  loading = false,
+  onTicketClick,
+}) {
   const navigate = useNavigate();
   const { slug, project_slug } = useParams();
 
@@ -92,27 +123,29 @@ function ProjectOverviewFeed({ assignedTickets = [], onTicketClick }) {
           <h3 className="text-xs font-bold uppercase tracking-wider text-[#c9d1d9]">
             Assigned to You
           </h3>
-          <span className="inline-flex items-center rounded-full bg-[#21262d] px-2.5 py-0.5 text-xs font-semibold text-[#8b949e] border border-[#30363d]">
-            {assignedTickets.length}
+          <span className="inline-flex items-center rounded-full border border-[#30363d] bg-[#21262d] px-2.5 py-0.5 text-xs font-semibold text-[#8b949e]">
+            {loading ? "..." : assignedTickets.length}
           </span>
         </div>
 
         <button
           type="button"
           onClick={handleViewAll}
-          className="group corsor flex items-center gap-1.5 text-xs font-semibold text-[#58a6ff] transition-colors hover:text-white cursor-pointer"
+          className="group flex cursor-pointer items-center gap-1.5 text-xs font-semibold text-[#58a6ff] transition-colors hover:text-white"
         >
           All assigned tickets
           <ArrowUpRight
             size={13}
-            className="transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+            className="transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
           />
         </button>
       </div>
 
       {/* Content Area */}
       <div className="p-5">
-        {assignedTickets.length === 0 ? (
+        {loading ? (
+          <FeedSkeleton />
+        ) : assignedTickets.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 text-center">
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-[#30363d] bg-[#21262d] text-[#3fb950] shadow-inner">
               <CheckCircle2 size={22} />

@@ -114,10 +114,13 @@ function OverviewPage() {
     <div className="min-h-screen bg-[#0d1117] pt-16">
       {activeProject && <Header project={activeProject} />}
 
-      <div className="mx-auto max-w-7xl px-6 pt-8 pb-16">
+      <div className="mx-auto max-w-7xl px-6 pb-16 pt-8">
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
           <div className="lg:col-span-8">
-            <ProjectOverviewFeed assignedTickets={assignedTickets} />
+            <ProjectOverviewFeed
+              assignedTickets={assignedTickets}
+              loading={status === "loading"}
+            />
           </div>
 
           <div className="lg:col-span-4">
