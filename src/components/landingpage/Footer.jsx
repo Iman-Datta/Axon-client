@@ -11,14 +11,17 @@ const navigationColumns = [
       { label: "For Developers", href: "#developers" },
       { label: "Collaboration", href: "#collaboration" },
       { label: "Organizations", href: "#organizations" },
-      { label: "Architecture", href: "#architecture" },
+      { label: "System Overview", href: "#architecture" },
     ],
   },
   {
     title: "Connect",
     links: [
       { label: "Get Started", href: "#get-started" },
-      { label: "Source Code", href: "https://github.com/Iman-Datta" },
+      {
+        label: "Source Code",
+        href: "https://github.com/Iman-Datta/Axon-Server",
+      },
       {
         label: "LinkedIn",
         href: "https://www.linkedin.com/in/iman-datta-161615307/",

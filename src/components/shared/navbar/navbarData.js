@@ -14,7 +14,7 @@ export const publicNav = [
   { name: "For Developers", path: "#developers" },
   { name: "Collaboration", path: "#collaboration" },
   { name: "Organizations", path: "#organizations" },
-  { name: "Architecture", path: "#architecture" },
+  { name: "System Overview", path: "#architecture" },
 ];
 
 export const getPrivateNav = (workspaceSlug, workspaceType) => {

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { ChevronDown, Check, Building2, User, Plus } from "lucide-react";
 
@@ -40,7 +40,11 @@ function WorkspaceRow({ workspace, isSelected, onSelect }) {
         </span>
         <div className="min-w-0">
           <p
-            className={`truncate text-xs ${isSelected ? "font-semibold text-white" : "font-medium text-[#e6edf3]"}`}
+            className={`truncate text-xs ${
+              isSelected
+                ? "font-semibold text-white"
+                : "font-medium text-[#e6edf3]"
+            }`}
           >
             {workspace.name}
           </p>
@@ -59,6 +63,7 @@ function WorkspaceRow({ workspace, isSelected, onSelect }) {
 function Navbar() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const { user, isAuthLoading, accessToken } = useSelector(
     (state) => state.auth,
@@ -71,6 +76,8 @@ function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
   const triggerRef = useRef(null);
+
+  const isRootLanding = location.pathname === "/";
 
   useEffect(() => {
     if (!user || !accessToken) return;
@@ -95,7 +102,6 @@ function Navbar() {
     fetchWorkspaces();
   }, [user, accessToken, dispatch]);
 
-  // Close on outside click and on Escape
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -159,6 +165,7 @@ function Navbar() {
           <div className="flex items-center">
             <NavbarLogo />
 
+            {/* Always visible when user is logged in */}
             {user && (
               <div
                 className="relative ml-3.5 flex items-center border-l border-[#30363d]/80 pl-3.5"
@@ -196,7 +203,9 @@ function Navbar() {
                   <ChevronDown
                     size={13}
                     strokeWidth={2.5}
-                    className={`text-[#8b949e] transition-transform duration-200 ${isOpen ? "rotate-180 text-white" : ""}`}
+                    className={`text-[#8b949e] transition-transform duration-200 ${
+                      isOpen ? "rotate-180 text-white" : ""
+                    }`}
                   />
                 </button>
 
@@ -254,7 +263,11 @@ function Navbar() {
               </div>
             )}
 
-            <NavbarLinks user={user} currentWorkspace={currentWorkspace} />
+            <NavbarLinks
+              user={user}
+              currentWorkspace={currentWorkspace}
+              isRootLanding={isRootLanding}
+            />
           </div>
 
           <div>

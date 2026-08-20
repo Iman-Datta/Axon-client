@@ -188,7 +188,7 @@ export function ArchitectureSection() {
       <div className="mx-auto max-w-6xl px-5">
         <div className="max-w-2xl">
           <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-primary">
-            Architecture
+            System Overview
           </span>
           <h2 className="mt-3 text-2xl font-semibold tracking-tight text-foreground sm:text-[28px]">
             Not just UI and API calls. A system, end to end.
