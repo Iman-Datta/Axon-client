@@ -1,10 +1,10 @@
 import { Layers, ArrowRight } from "lucide-react";
 
 const SEGMENT_DEFS = [
-  { key: "todo", label: "Todo", color: "#6e7681" }, // Muted slate gray for backlog/todo
-  { key: "development", label: "In Progress", color: "#2f81f7" }, // Vibrant professional blue for active work
-  { key: "review", label: "Review", color: "#d29922" }, // Refined amber/gold for code review
-  { key: "done", label: "Done", color: "#2ea043" }, // Crisp success green for completed items
+  { key: "todo", label: "Todo", color: "#6e7681" },
+  { key: "development", label: "In Progress", color: "#2f81f7" },
+  { key: "review", label: "Review", color: "#d29922" },
+  { key: "done", label: "Done", color: "#2ea043" },
 ];
 
 const SIZE = 112;
@@ -12,9 +12,52 @@ const STROKE_WIDTH = 14;
 const RADIUS = (SIZE - STROKE_WIDTH) / 2;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
+function TicketProgressSkeleton() {
+  return (
+    <div className="animate-pulse">
+      <div className="mt-5 flex items-center gap-6">
+        {/* Donut Skeleton */}
+        <div className="relative shrink-0 flex items-center justify-center">
+          <div className="h-[112px] w-[112px] rounded-full border-[14px] border-[#21262d]" />
+          <div className="absolute flex flex-col items-center justify-center gap-1">
+            <div className="h-5 w-10 rounded bg-[#21262d]" />
+            <div className="h-2 w-8 rounded bg-[#21262d]" />
+          </div>
+        </div>
+
+        {/* Legend Skeleton */}
+        <div className="flex-1 space-y-3">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="h-2 w-2 rounded-sm bg-[#21262d]" />
+                <div className="h-3 w-16 rounded bg-[#21262d]" />
+              </div>
+              <div className="h-3 w-10 rounded bg-[#21262d]" />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Footer Metrics Skeleton */}
+      <div className="mt-5 grid grid-cols-2 gap-2 border-t border-[#21262d] pt-3">
+        <div className="flex flex-col items-center gap-1">
+          <div className="h-2.5 w-14 rounded bg-[#21262d]" />
+          <div className="h-5 w-8 rounded bg-[#21262d]" />
+        </div>
+        <div className="flex flex-col items-center gap-1 border-l border-[#21262d]">
+          <div className="h-2.5 w-14 rounded bg-[#21262d]" />
+          <div className="h-5 w-8 rounded bg-[#21262d]" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function TicketProgressCard({
   metrics = {},
   ticketOverview = {},
+  loading = false,
   onViewAllTickets,
 }) {
   const totalTickets = metrics.total_tickets ?? 0;
@@ -24,7 +67,6 @@ function TicketProgressCard({
   const completionRate =
     totalTickets > 0 ? Math.round((completedTickets / totalTickets) * 100) : 0;
 
-  // Build the donut chart directly from ticket_overview (todo / development / review / done)
   const segments = SEGMENT_DEFS.map((def) => ({
     ...def,
     value: ticketOverview[def.key] || 0,
@@ -48,21 +90,23 @@ function TicketProgressCard({
         <button
           type="button"
           onClick={onViewAllTickets}
-          className="flex items-center gap-1 text-xs font-medium text-[#58a6ff] hover:text-white cursor-pointer"
+          disabled={loading}
+          className="flex cursor-pointer items-center gap-1 text-xs font-medium text-[#58a6ff] hover:text-white disabled:opacity-50"
         >
-          View all ({totalTickets})
+          View all ({loading ? "..." : totalTickets})
           <ArrowRight size={12} />
         </button>
       </div>
 
-      {chartTotal === 0 ? (
+      {loading ? (
+        <TicketProgressSkeleton />
+      ) : chartTotal === 0 ? (
         <p className="mt-6 py-6 text-center text-xs text-[#8b949e]">
           No tickets created yet.
         </p>
       ) : (
         <>
           <div className="mt-5 flex items-center gap-6">
-            {/* SVG donut chart — one arc per pipeline stage */}
             <div
               className="relative shrink-0"
               style={{ width: SIZE, height: SIZE }}
@@ -121,7 +165,6 @@ function TicketProgressCard({
               </div>
             </div>
 
-            {/* Legend with per-stage count and share */}
             <div className="flex-1 space-y-2.5">
               {segments.map((segment) => {
                 const percent =
