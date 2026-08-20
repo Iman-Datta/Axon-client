@@ -100,9 +100,9 @@ function ProjectOverviewFeed({ assignedTickets = [], onTicketClick }) {
         <button
           type="button"
           onClick={handleViewAll}
-          className="group flex items-center gap-1.5 text-xs font-semibold text-[#58a6ff] transition-colors hover:text-white"
+          className="group corsor flex items-center gap-1.5 text-xs font-semibold text-[#58a6ff] transition-colors hover:text-white cursor-pointer"
         >
-          View all tickets
+          All assigned tickets
           <ArrowUpRight
             size={13}
             className="transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
@@ -155,7 +155,10 @@ function ProjectOverviewFeed({ assignedTickets = [], onTicketClick }) {
                 {/* Right side: Priority, Status & Open action */}
                 <div className="flex shrink-0 items-center gap-3">
                   <PriorityFlag priority={ticket.priority} />
-                  <StatusBadge column={ticket.kanban_column} status={ticket.status} />
+                  <StatusBadge
+                    column={ticket.kanban_column}
+                    status={ticket.status}
+                  />
 
                   <button
                     type="button"

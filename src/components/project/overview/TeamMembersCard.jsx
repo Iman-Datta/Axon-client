@@ -35,7 +35,7 @@ function TeamMembersCard({ members = [], onViewAllMembers }) {
         <button
           type="button"
           onClick={onViewAllMembers}
-          className="flex items-center gap-1 text-xs font-medium text-[#58a6ff] hover:underline"
+          className="flex items-center gap-1 text-xs font-medium text-[#58a6ff] hover:text-white cursor-pointer"
         >
           View all ({members.length})
           <ArrowRight size={12} />

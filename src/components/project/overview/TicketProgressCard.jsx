@@ -48,7 +48,7 @@ function TicketProgressCard({
         <button
           type="button"
           onClick={onViewAllTickets}
-          className="flex items-center gap-1 text-xs font-medium text-[#58a6ff] hover:underline"
+          className="flex items-center gap-1 text-xs font-medium text-[#58a6ff] hover:text-white cursor-pointer"
         >
           View all ({totalTickets})
           <ArrowRight size={12} />
