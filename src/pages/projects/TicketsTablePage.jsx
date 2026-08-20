@@ -20,6 +20,40 @@ import {
   assignTicket,
 } from "../../services/ticketService";
 
+// Table Skeleton loader matching GitHub Dark UI
+function TableSkeleton() {
+  return (
+    <div className="overflow-hidden rounded-xl border border-[#30363d] bg-[#161b22]">
+      {/* Table Header Skeleton */}
+      <div className="flex items-center border-b border-[#30363d] bg-[#0d1117] px-4 py-3">
+        <div className="h-4 w-24 animate-pulse rounded bg-[#21262d]" />
+        <div className="ml-auto flex gap-6">
+          <div className="h-4 w-16 animate-pulse rounded bg-[#21262d]" />
+          <div className="h-4 w-20 animate-pulse rounded bg-[#21262d]" />
+          <div className="h-4 w-16 animate-pulse rounded bg-[#21262d]" />
+        </div>
+      </div>
+
+      {/* Table Rows Skeletons */}
+      <div className="divide-y divide-[#30363d]">
+        {[1, 2, 3, 4, 5].map((item) => (
+          <div key={item} className="flex items-center justify-between p-4">
+            <div className="flex items-center gap-3">
+              <div className="h-4 w-16 animate-pulse rounded bg-[#21262d]" />
+              <div className="h-4 w-64 animate-pulse rounded bg-[#21262d]" />
+            </div>
+            <div className="flex items-center gap-6">
+              <div className="h-5 w-16 animate-pulse rounded-full bg-[#21262d]" />
+              <div className="h-4 w-20 animate-pulse rounded bg-[#21262d]" />
+              <div className="h-6 w-6 animate-pulse rounded-full bg-[#21262d]" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function TicketsTablePage() {
   const { slug, project_slug } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -63,12 +97,10 @@ function TicketsTablePage() {
   const members = [];
 
   const [localTickets, setLocalTickets] = useState([]);
-  const [hasFetchedOnce, setHasFetchedOnce] = useState(false);
 
   useEffect(() => {
     if (tickets) {
       setLocalTickets(tickets);
-      setHasFetchedOnce(true);
     }
   }, [tickets]);
 
@@ -261,10 +293,6 @@ function TicketsTablePage() {
     }
   };
 
-  if (loading && !hasFetchedOnce) {
-    return <h1 className="mt-18 px-4 text-[#8b949e]">Loading tickets...</h1>;
-  }
-
   if (error) {
     return <h1 className="mt-18 px-4 text-red-500">{error}</h1>;
   }
@@ -372,7 +400,9 @@ function TicketsTablePage() {
         </div>
       </div>
 
-      {filteredAndSortedTickets.length === 0 ? (
+      {loading ? (
+        <TableSkeleton />
+      ) : filteredAndSortedTickets.length === 0 ? (
         <div className="rounded-2xl border border-[#30363d] bg-[#161b22] p-10 text-center">
           <h2 className="text-lg font-semibold text-[#e6edf3]">
             No matching tickets found
