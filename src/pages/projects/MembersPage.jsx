@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from "react";
-
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -8,6 +7,49 @@ import EmptyState from "../../components/shared/resource/EmptyState";
 import MembersTable from "../../components/project/members/MembersTable";
 import AddMemberModal from "../../components/project/members/AddMemberModal";
 import MembersHeader from "../../components/project/members/MembersHeader";
+
+// Skeleton table loader matching MembersTable UI layout
+function MembersTableSkeleton() {
+  return (
+    <div className="mt-4 overflow-hidden rounded-xl border border-[#30363d] bg-[#161b22]">
+      {/* Table Header Skeleton */}
+      <div className="flex items-center justify-between border-b border-[#21262d] bg-[#0d1117] px-6 py-3.5">
+        <div className="h-4 w-24 animate-pulse rounded bg-[#21262d]" />
+        <div className="h-4 w-32 animate-pulse rounded bg-[#21262d]" />
+        <div className="h-4 w-20 animate-pulse rounded bg-[#21262d]" />
+        <div className="h-4 w-16 animate-pulse rounded bg-[#21262d]" />
+      </div>
+
+      {/* Table Rows Skeleton */}
+      <div className="divide-y divide-[#21262d]">
+        {[1, 2, 3, 4, 5].map((item) => (
+          <div
+            key={item}
+            className="flex items-center justify-between px-6 py-4"
+          >
+            {/* User Info (Avatar + Name) */}
+            <div className="flex items-center gap-3">
+              <div className="h-9 w-9 animate-pulse rounded-full bg-[#21262d]" />
+              <div className="space-y-1.5">
+                <div className="h-4 w-32 animate-pulse rounded bg-[#21262d]" />
+                <div className="h-3 w-20 animate-pulse rounded bg-[#21262d]" />
+              </div>
+            </div>
+
+            {/* Email / Username */}
+            <div className="h-4 w-36 animate-pulse rounded bg-[#21262d]" />
+
+            {/* Role Badge */}
+            <div className="h-6 w-20 animate-pulse rounded-full bg-[#21262d]" />
+
+            {/* Actions */}
+            <div className="h-8 w-8 animate-pulse rounded-lg bg-[#21262d]" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 function MembersPage() {
   const [members, setMembers] = useState([]);
@@ -27,11 +69,11 @@ function MembersPage() {
     try {
       const data = await listMember(slug, project_slug, dispatch, accessToken);
 
-      setMembers(data.members);
-      setCan_edit(data.can_edit);
+      setMembers(data.members || []);
+      setCan_edit(data.can_edit || false);
       setError(null);
-    } catch (error) {
-      setError(error);
+    } catch (err) {
+      setError(err);
     } finally {
       setLoading(false);
     }
@@ -52,9 +94,9 @@ function MembersPage() {
 
       setInviteOpen(false);
       return true;
-    } catch (error) {
+    } catch (err) {
       setAddMemberError(
-        error.message || error.detail || error.error || "Failed to add member.",
+        err.message || err.detail || err.error || "Failed to add member.",
       );
       return false;
     } finally {
@@ -62,53 +104,56 @@ function MembersPage() {
     }
   };
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  const filteredMembers = members.filter((member) => {
+    const query = search.toLowerCase();
 
-  if (members.length === 0) {
+    const firstName = member.first_name || "";
+    const lastName = member.last_name || "";
+    const username = member.username || "";
+    const githubUsername = member.github_username || "";
+
     return (
-      <EmptyState
-        title="No members found"
-        description="Invite members to start collaborating."
-      />
+      firstName.toLowerCase().includes(query) ||
+      lastName.toLowerCase().includes(query) ||
+      username.toLowerCase().includes(query) ||
+      githubUsername.toLowerCase().includes(query)
     );
-  }
+  });
 
   if (error) {
     return (
-      <div className="text-red-400">
+      <div className="mt-21 px-2 text-sm font-medium text-red-400">
         {error.message || "Something went wrong."}
       </div>
     );
   }
 
-  const filteredMembers = members.filter((member) => {
-    const query = search.toLowerCase();
-
-    return (
-      member.first_name.toLowerCase().includes(query) ||
-      member.last_name.toLowerCase().includes(query) ||
-      member.username.toLowerCase().includes(query) ||
-      member.github_username?.toLowerCase().includes(query)
-    );
-  });
-
   return (
     <div className="mt-21 px-2">
       <MembersHeader
-        count={members.length}
+        count={loading ? 0 : members.length}
         can_edit={can_edit}
         search={search}
         setSearch={setSearch}
         onAddMember={() => setInviteOpen(true)}
       />
 
-      <MembersTable
-        members={filteredMembers}
-        can_edit={can_edit}
-        refetch={loadMembers}
-      />
+      {loading ? (
+        <MembersTableSkeleton />
+      ) : members.length === 0 ? (
+        <div className="mt-6">
+          <EmptyState
+            title="No members found"
+            description="Invite members to start collaborating."
+          />
+        </div>
+      ) : (
+        <MembersTable
+          members={filteredMembers}
+          can_edit={can_edit}
+          refetch={loadMembers}
+        />
+      )}
 
       <AddMemberModal
         open={inviteOpen}
