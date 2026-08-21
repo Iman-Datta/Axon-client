@@ -3,7 +3,6 @@ import { X, ChevronDown } from "lucide-react";
 import { useParams } from "react-router-dom";
 import StoryPointStepper from "./StoryPointStepper";
 import MemberSelect from "./ticketmodalform/MemberSelect";
-import EstimatedHoursInput from "./ticketmodalform/EstimatedHoursInput";
 
 function TicketFormModal({
   mode = "create",
@@ -81,7 +80,7 @@ function TicketFormModal({
     onSubmit(payload);
   };
 
- // Reusable styling classes optimized for a compact, professional UI
+  // Reusable styling classes optimized for a compact, professional UI
   const inputClass =
     "mt-1.5 w-full rounded-lg border border-[#30363d] bg-[#0d1117] px-3 py-2 text-[13px] text-[#e6edf3] placeholder:text-[#6e7681] outline-none transition-all focus:border-[#58a6ff] focus:ring-2 focus:ring-[#58a6ff]/20";
   const selectClass = `${inputClass} appearance-none pr-9`;
@@ -406,19 +405,6 @@ function TicketFormModal({
                   </div>
 
                   <div>
-                    <label className={labelClass}>Estimated Hours</label>
-                    <EstimatedHoursInput
-                      value={formData.estimated_hours}
-                      onChange={(val) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          estimated_hours: val,
-                        }))
-                      }
-                    />
-                  </div>
-
-                  <div>
                     <label className={labelClass}>Due Date</label>
                     <input
                       type="date"
@@ -462,8 +448,8 @@ function TicketFormModal({
                   ? "Saving..."
                   : "Creating..."
                 : isEdit
-                ? "Save Changes"
-                : "Create Ticket"}
+                  ? "Save Changes"
+                  : "Create Ticket"}
             </button>
           </div>
         </form>

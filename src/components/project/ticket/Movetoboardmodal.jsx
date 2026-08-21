@@ -1,13 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import {
-  X,
-  ChevronDown,
-  Plus,
-  Minus,
-  Search,
-  Rocket,
-  ArrowLeft,
-} from "lucide-react";
+import { X, ChevronDown, Search, Rocket, ArrowLeft } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import StoryPointStepper from "./StoryPointStepper";
@@ -40,7 +32,6 @@ function MoveToBoardModal({
     assignee: ticket?.assignee?.id ? String(ticket.assignee.id) : "",
     priority: ticket?.priority || "MEDIUM",
     type: ticket?.type || "TASK",
-    estimated_hours: ticket?.estimated_hours ?? "",
     due_date: ticket?.due_date ? ticket.due_date.slice(0, 10) : "",
   });
 
@@ -60,27 +51,6 @@ function MoveToBoardModal({
 
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-  };
-
-  const handleEstimatedHoursStep = (delta) => {
-    setFormData((prev) => {
-      const current =
-        prev.estimated_hours === "" ? 0 : Number(prev.estimated_hours);
-      const next = Math.max(0, current + delta);
-      return { ...prev, estimated_hours: next === 0 ? "" : next };
-    });
-  };
-
-  const handleEstimatedHoursInput = (e) => {
-    const raw = e.target.value;
-    if (raw === "") {
-      setFormData((prev) => ({ ...prev, estimated_hours: "" }));
-      return;
-    }
-    const parsed = Math.max(0, Math.floor(Number(raw)));
-    if (!Number.isNaN(parsed)) {
-      setFormData((prev) => ({ ...prev, estimated_hours: parsed }));
-    }
   };
 
   // ---- assignee search (mandatory) ----
@@ -189,8 +159,6 @@ function MoveToBoardModal({
     assignee: formData.assignee ? Number(formData.assignee) : null,
     priority: formData.priority,
     type: formData.type,
-    estimated_hours:
-      formData.estimated_hours === "" ? null : Number(formData.estimated_hours),
     due_date: formData.due_date || null,
   });
 
@@ -203,11 +171,6 @@ function MoveToBoardModal({
       return setValidationError("Description is required.");
     if (!formData.epic) return setValidationError("Epic is required.");
     if (!formData.assignee) return setValidationError("Assignee is required.");
-    if (
-      formData.estimated_hours === "" ||
-      Number(formData.estimated_hours) <= 0
-    )
-      return setValidationError("Estimated hours is required.");
     if (!formData.due_date) return setValidationError("Due date is required.");
 
     setStep("confirm");
@@ -481,48 +444,6 @@ function MoveToBoardModal({
                     )}
                   </div>
                 </div>
-
-                <div>
-                  <label className={labelClass}>
-                    Estimated Hours <span className="text-red-400">*</span>
-                  </label>
-                  <div className="mt-2 flex items-stretch overflow-hidden rounded-xl border border-[#30363d] bg-[#0d1117] transition-all focus-within:border-[#58a6ff] focus-within:ring-2 focus-within:ring-[#58a6ff]/20">
-                    <button
-                      type="button"
-                      onClick={() => handleEstimatedHoursStep(-1)}
-                      disabled={
-                        formData.estimated_hours === "" ||
-                        Number(formData.estimated_hours) <= 0
-                      }
-                      className="flex w-10 shrink-0 items-center justify-center text-[#8b949e] transition-colors hover:bg-[#21262d] hover:text-[#e6edf3] disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent"
-                    >
-                      <Minus className="h-3.5 w-3.5" />
-                    </button>
-                    <input
-                      type="number"
-                      inputMode="numeric"
-                      step={1}
-                      min={1}
-                      name="estimated_hours"
-                      value={formData.estimated_hours}
-                      onChange={handleEstimatedHoursInput}
-                      onKeyDown={(e) => {
-                        if (e.key === "-" || e.key === "." || e.key === "e") {
-                          e.preventDefault();
-                        }
-                      }}
-                      placeholder="0"
-                      className="w-full border-x border-[#30363d] bg-transparent px-3 py-3 text-center text-sm text-[#e6edf3] outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => handleEstimatedHoursStep(1)}
-                      className="flex w-10 shrink-0 items-center justify-center text-[#8b949e] transition-colors hover:bg-[#21262d] hover:text-[#e6edf3]"
-                    >
-                      <Plus className="h-3.5 w-3.5" />
-                    </button>
-                  </div>
-                </div>
               </div>
 
               <div>
@@ -625,14 +546,7 @@ function MoveToBoardModal({
                       : "—"}
                   </p>
                 </div>
-                <div className="rounded-2xl border border-[#30363d] bg-[#0d1117] p-4">
-                  <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-[#6e7681]">
-                    Estimated Hours
-                  </p>
-                  <p className="text-sm text-[#e6edf3]">
-                    {formData.estimated_hours}h
-                  </p>
-                </div>
+
                 <div className="col-span-2 rounded-2xl border border-[#30363d] bg-[#0d1117] p-4">
                   <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-[#6e7681]">
                     Due Date

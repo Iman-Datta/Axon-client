@@ -6,13 +6,7 @@ import {
   ArrowUpRight,
   Building2,
   User,
-  Layers,
   ListChecks,
-  Flag,
-  Bug,
-  Sparkles,
-  Wrench,
-  CalendarClock,
   AlertTriangle,
 } from "lucide-react";
 import { fetchWithAuth } from "../../utils/fetchWithAuth";
@@ -20,57 +14,16 @@ import ProfileLayout from "../layout/ProfileLayout";
 
 const API = import.meta.env.VITE_API_URL;
 
-const STATUS_CONFIG = {
-  DONE: {
-    label: "Done",
-    dot: "bg-emerald-400",
-    text: "text-emerald-400",
-    border: "border-emerald-500/20",
-    bg: "bg-emerald-500/10",
-  },
-  IN_PROGRESS: {
-    label: "In Progress",
-    dot: "bg-sky-400",
-    text: "text-sky-400",
-    border: "border-sky-500/20",
-    bg: "bg-sky-500/10",
-  },
-  REVIEW: {
-    label: "Review",
-    dot: "bg-amber-400",
-    text: "text-amber-400",
-    border: "border-amber-500/20",
-    bg: "bg-amber-500/10",
-  },
-  DEFAULT: {
-    label: "To Do",
-    dot: "bg-slate-400",
-    text: "text-slate-400",
-    border: "border-slate-500/20",
-    bg: "bg-slate-500/10",
-  },
+const STATUS_LABELS = {
+  DONE: "Done",
+  IN_PROGRESS: "In Progress",
+  REVIEW: "Review",
+  DEFAULT: "To Do",
 };
-const getStatusConfig = (key) => STATUS_CONFIG[key] ?? STATUS_CONFIG.DEFAULT;
 
-const PRIORITY_CONFIG = {
-  HIGH: { label: "High", color: "#f87171" }, // Softened red
-  MEDIUM: { label: "Medium", color: "#fbbf24" }, // Softened amber
-  LOW: { label: "Low", color: "#94a3b8" }, // Muted slate
-};
-const getPriorityConfig = (key) => PRIORITY_CONFIG[key] ?? PRIORITY_CONFIG.LOW;
-
-const TYPE_CONFIG = {
-  BUG: { label: "Bug", icon: Bug, color: "#f87171" },
-  FEATURE: { label: "Feature", icon: Sparkles, color: "#60a5fa" },
-  DEFAULT: { label: "Task", icon: Wrench, color: "#94a3b8" },
-};
-const getTypeConfig = (key) => TYPE_CONFIG[key] ?? TYPE_CONFIG.DEFAULT;
-
-const formatDueDate = (dateString) =>
-  new Date(dateString).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-  });
+function formatStatus(status) {
+  return STATUS_LABELS[status] || STATUS_LABELS.DEFAULT;
+}
 
 function groupTicketsByProject(tickets) {
   const groups = tickets.reduce((acc, ticket) => {
@@ -91,118 +44,28 @@ function groupTicketsByProject(tickets) {
   return Object.values(groups);
 }
 
-function StatusBadge({ column, status }) {
-  const config = getStatusConfig(column || status);
-  return (
-    <span
-      className={`inline-flex items-center gap-1.5 rounded-full border ${config.border} ${config.bg} px-2 py-0.5 text-[10.5px] font-medium ${config.text}`}
-    >
-      <span className={`h-1.5 w-1.5 rounded-full ${config.dot}`} />
-      {config.label}
-    </span>
-  );
-}
-
-function TypeIcon({ type }) {
-  const config = getTypeConfig(type);
-  const Icon = config.icon;
-  return (
-    <span
-      className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-[#30363d] bg-[#161b22]"
-      title={config.label}
-    >
-      <Icon size={12} style={{ color: config.color }} />
-    </span>
-  );
-}
-
-function PriorityFlag({ priority }) {
-  const config = getPriorityConfig(priority);
-  return (
-    <span
-      className="inline-flex items-center gap-1 text-[10.5px] font-medium"
-      style={{ color: config.color }}
-      title={`${config.label} priority`}
-    >
-      <Flag size={11} fill={config.color} stroke="none" />
-      {config.label}
-    </span>
-  );
-}
-
-function EpicTag({ name, color }) {
-  if (!name) return null;
-  return (
-    <span
-      className="inline-flex items-center rounded-md border px-1.5 py-0.5 text-[10px] font-medium"
-      style={{
-        borderColor: `${color}30`,
-        backgroundColor: `${color}10`,
-        color,
-      }}
-    >
-      {name}
-    </span>
-  );
-}
-
-function DueDateChip({ dueDate, isDone }) {
-  if (!dueDate) return null;
-  const due = new Date(dueDate);
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const isOverdue = !isDone && due < today;
-
-  return (
-    <span
-      className={`inline-flex items-center gap-1 text-[10.5px] font-medium ${isOverdue ? "text-rose-400" : "text-slate-400"}`}
-    >
-      <CalendarClock size={11} />
-      {isOverdue ? "Overdue" : formatDueDate(dueDate)}
-    </span>
-  );
-}
-
 function WorkTicketRow({ ticket, onOpen }) {
-  const isDone = ticket.status === "DONE";
-
   return (
     <div
       role="button"
       tabIndex={0}
       onClick={onOpen}
       onKeyDown={(e) => e.key === "Enter" && onOpen()}
-      className="group flex cursor-pointer flex-col gap-2.5 rounded-lg border border-[#21262d] bg-[#0d1117]/60 p-3 transition-all hover:border-sky-500/30 hover:bg-[#161b22]/80 sm:flex-row sm:items-center sm:justify-between"
+      className="group flex cursor-pointer items-center justify-between gap-4 rounded-md border border-[#21262d] bg-[#0d1117] px-3.5 py-2.5 transition-colors hover:border-[#30363d] hover:bg-[#161b22]"
     >
-      <div className="flex min-w-0 items-start gap-2.5">
-        <TypeIcon type={ticket.type} />
-        <div className="min-w-0 space-y-1.5">
-          <div className="flex items-center gap-2">
-            <span className="shrink-0 font-mono text-[11px] font-semibold text-sky-400">
-              {ticket.ticket_number}
-            </span>
-            <p className="truncate text-[13px] font-medium text-slate-200 transition-colors group-hover:text-white">
-              {ticket.title}
-            </p>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <StatusBadge column={ticket.kanban_column} status={ticket.status} />
-            <PriorityFlag priority={ticket.priority} />
-            <EpicTag name={ticket.epic_name} color={ticket.epic_color} />
-          </div>
-        </div>
+      <div className="flex min-w-0 items-center gap-3">
+        <span className="shrink-0 font-mono text-xs font-semibold text-slate-400">
+          {ticket.ticket_number}
+        </span>
+        <p className="truncate text-xs font-medium text-slate-200 transition-colors group-hover:text-white">
+          {ticket.title}
+        </p>
       </div>
 
-      <div className="flex items-center justify-between gap-3 border-t border-[#21262d] pt-2 sm:justify-end sm:border-0 sm:pt-0">
-        <div className="flex items-center gap-3">
-          {ticket.story_points && (
-            <span className="inline-flex items-center gap-1 text-[10.5px] text-slate-400">
-              <Layers size={11} /> {ticket.story_points} SP
-            </span>
-          )}
-          <DueDateChip dueDate={ticket.due_date} isDone={isDone} />
-        </div>
-
+      <div className="flex shrink-0 items-center gap-4">
+        <span className="rounded border border-[#30363d] bg-[#161b22] px-2 py-0.5 text-[11px] font-medium text-slate-400">
+          {formatStatus(ticket.status || ticket.kanban_column)}
+        </span>
         <button
           type="button"
           onClick={(e) => {
@@ -211,9 +74,9 @@ function WorkTicketRow({ ticket, onOpen }) {
           }}
           aria-label="Open ticket"
           title="Open ticket"
-          className="inline-flex items-center justify-center rounded-md border border-[#30363d] bg-[#161b22] p-1.5 text-slate-400 transition-all hover:border-sky-500 hover:bg-sky-500/10 hover:text-sky-300"
+          className="text-slate-500 transition-colors hover:text-slate-200"
         >
-          <ArrowUpRight size={13} />
+          <ArrowUpRight size={14} />
         </button>
       </div>
     </div>
@@ -222,15 +85,16 @@ function WorkTicketRow({ ticket, onOpen }) {
 
 function ProjectGroup({ group, onOpenProject, onOpenTicket }) {
   return (
-    <div className="overflow-hidden rounded-xl border border-[#30363d] bg-[#161b22]/90 shadow-sm">
-      <div className="flex items-center justify-between border-b border-[#21262d] bg-[#0d1117]/80 px-4 py-2.5">
-        <div className="flex min-w-0 items-center gap-2.5">
+    <div className="overflow-hidden rounded-lg border border-[#30363d] bg-[#161b22]">
+      <div className="flex items-center justify-between border-b border-[#21262d] bg-[#0d1117] px-4 py-2.5">
+        <div className="flex min-w-0 items-center gap-2">
           <span
-            className={`inline-flex shrink-0 items-center gap-1 rounded-md border px-1.5 py-0.5 text-[10px] font-semibold ${
+            className="inline-flex shrink-0 items-center gap-1 rounded border border-[#30363d] bg-[#161b22] px-1.5 py-0.5 text-[10px] font-medium text-slate-400"
+            title={
               group.is_organization
-                ? "border-amber-500/20 bg-amber-500/10 text-amber-300/90"
-                : "border-emerald-500/20 bg-emerald-500/10 text-emerald-300/90"
-            }`}
+                ? "Organization Workspace"
+                : "Personal Workspace"
+            }
           >
             {group.is_organization ? (
               <Building2 size={10} />
@@ -239,10 +103,11 @@ function ProjectGroup({ group, onOpenProject, onOpenTicket }) {
             )}
             {group.workspace_name}
           </span>
-          <h3 className="truncate text-[13px] font-semibold text-slate-100">
+          <span className="text-slate-600">/</span>
+          <h3 className="truncate text-xs font-semibold text-slate-200">
             {group.project_name}
           </h3>
-          <span className="shrink-0 rounded-full bg-[#21262d] px-2 py-0.2 text-[10px] font-medium text-slate-400 border border-[#30363d]">
+          <span className="shrink-0 rounded bg-[#21262d] px-1.5 py-0.2 text-[10px] font-medium text-slate-400">
             {group.items.length}
           </span>
         </div>
@@ -250,14 +115,14 @@ function ProjectGroup({ group, onOpenProject, onOpenTicket }) {
         <button
           type="button"
           onClick={onOpenProject}
-          className="inline-flex shrink-0 items-center gap-1 text-[11px] font-medium text-sky-400 transition-colors hover:text-sky-300"
+          className="inline-flex shrink-0 items-center gap-1 text-[11px] font-medium text-slate-400 transition-colors hover:text-slate-200"
         >
           Project board
           <ArrowUpRight size={12} />
         </button>
       </div>
 
-      <div className="space-y-1.5 p-3">
+      <div className="space-y-1.5 p-2.5">
         {group.items.map((ticket) => (
           <WorkTicketRow
             key={ticket.id}
@@ -275,46 +140,28 @@ function SummaryBar({ open, completed }) {
   const rate = total > 0 ? Math.round((completed / total) * 100) : 0;
 
   return (
-    <div className="flex flex-col gap-4 border-b border-[#21262d] pb-5 sm:flex-row sm:items-center sm:justify-between">
-      <div>
-        <div className="flex items-center gap-2">
-          <ListChecks className="text-sky-400" size={18} />
-          <h1 className="text-base font-semibold text-slate-100">
-            My Work Hub
-          </h1>
-        </div>
-        <p className="mt-0.5 text-[11.5px] text-slate-400">
-          Every issue assigned to you, across personal and organization
-          projects.
-        </p>
+    <div className="flex flex-col gap-4 border-b border-[#21262d] pb-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex items-center gap-2">
+        <ListChecks className="text-slate-400" size={18} />
+        <h1 className="text-sm font-semibold text-slate-100">My Work</h1>
       </div>
 
-      <div className="flex items-center gap-5">
-        <div className="flex items-center gap-4 text-[11.5px]">
-          <span className="text-slate-400">
-            Open{" "}
-            <strong className="ml-1 font-semibold text-slate-200">
-              {open}
-            </strong>
-          </span>
-          <span className="text-slate-400">
-            Completed{" "}
-            <strong className="ml-1 font-semibold text-emerald-400">
-              {completed}
-            </strong>
-          </span>
+      <div className="flex items-center gap-6 text-xs text-slate-400">
+        <div>
+          Open: <strong className="font-semibold text-slate-200">{open}</strong>
         </div>
-
-        <div className="flex w-32 flex-col gap-1">
-          <div className="h-1.5 w-full overflow-hidden rounded-full bg-[#21262d]">
+        <div>
+          Completed:{" "}
+          <strong className="font-semibold text-slate-200">{completed}</strong>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="h-1.5 w-24 overflow-hidden rounded-full bg-[#21262d]">
             <div
-              className="h-full rounded-full bg-emerald-500 transition-all duration-500"
+              className="h-full rounded-full bg-slate-400"
               style={{ width: `${rate}%` }}
             />
           </div>
-          <span className="text-right text-[10px] font-medium text-slate-400">
-            {rate}% complete
-          </span>
+          <span className="text-[11px] font-medium">{rate}%</span>
         </div>
       </div>
     </div>
@@ -323,12 +170,12 @@ function SummaryBar({ open, completed }) {
 
 function EmptyWorkState() {
   return (
-    <div className="flex flex-col items-center justify-center rounded-xl border border-[#30363d] bg-[#161b22] py-16 text-center">
-      <CheckCircle2 size={28} className="text-emerald-400" />
-      <h3 className="mt-3 text-sm font-semibold text-slate-100">
+    <div className="flex flex-col items-center justify-center rounded-lg border border-[#30363d] bg-[#161b22] py-16 text-center">
+      <CheckCircle2 size={24} className="text-slate-500" />
+      <h3 className="mt-2 text-xs font-semibold text-slate-200">
         No assigned tasks found
       </h3>
-      <p className="mt-1 text-xs text-slate-400">
+      <p className="mt-1 text-[11px] text-slate-500">
         You have no active or completed tasks assigned across your workspaces.
       </p>
     </div>
@@ -338,17 +185,17 @@ function EmptyWorkState() {
 function LoadingState() {
   return (
     <div className="flex flex-col items-center justify-center gap-3 py-20">
-      <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#30363d] border-t-sky-400" />
-      <p className="text-sm text-slate-400">Loading your work dashboard...</p>
+      <div className="h-5 w-5 animate-spin rounded-full border-2 border-[#30363d] border-t-slate-400" />
+      <p className="text-xs text-slate-500">Loading your work dashboard...</p>
     </div>
   );
 }
 
 function ErrorState({ message }) {
   return (
-    <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-rose-500/20 bg-rose-500/5 py-20 text-center">
-      <AlertTriangle size={20} className="text-rose-400" />
-      <p className="text-sm font-medium text-rose-400">{message}</p>
+    <div className="flex flex-col items-center justify-center gap-2 rounded-lg border border-[#30363d] bg-[#161b22] py-16 text-center">
+      <AlertTriangle size={18} className="text-slate-400" />
+      <p className="text-xs font-medium text-slate-300">{message}</p>
     </div>
   );
 }
@@ -413,7 +260,7 @@ function MyWorkPage() {
 
   return (
     <ProfileLayout user={currentUser}>
-      <div className="space-y-6">
+      <div className="space-y-5">
         <SummaryBar
           open={summary.open || 0}
           completed={summary.completed || 0}
@@ -422,7 +269,7 @@ function MyWorkPage() {
         {tickets.length === 0 ? (
           <EmptyWorkState />
         ) : (
-          <div className="space-y-5">
+          <div className="space-y-4">
             {groups.map((group) => (
               <ProjectGroup
                 key={group.project_slug}
