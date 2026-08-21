@@ -7,8 +7,6 @@ import {
   Activity,
   Settings,
   Link2,
-  Rocket,
-  Command,
   Bell,
   ChartNoAxesCombined,
 } from "lucide-react";
@@ -52,18 +50,6 @@ export const toolItems = [
     icon: Link2,
     path: "integrations",
     soon: false,
-  },
-  {
-    name: "Development Feed",
-    icon: Rocket,
-    path: "feed",
-    soon: true,
-  },
-  {
-    name: "Command Palette",
-    icon: Command,
-    path: "command",
-    soon: true,
   },
   {
     name: "Notifications",
