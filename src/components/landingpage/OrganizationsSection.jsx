@@ -9,11 +9,11 @@ const levels = [
 ];
 
 const members = [
-  { name: "Ankita Rao", role: "Owner" },
-  { name: "Rahul Menon", role: "Lead" },
-  { name: "Iman Sheikh", role: "Developer" },
-  { name: "Devika N", role: "Developer" },
-  { name: "Sam Okafor", role: "Viewer" },
+  { name: "Iman Datta", role: "Owner" },
+  { name: "Payel Mandal", role: "Lead" },
+  { name: "Arpan Kumar Sahoo", role: "Developer" },
+  { name: "Ankita Sarkar", role: "Developer" },
+  { name: "Suraj Das", role: "Viewer" },
 ];
 
 const projects = [

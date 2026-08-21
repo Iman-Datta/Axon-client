@@ -14,7 +14,7 @@ const baseTickets = [
     title: "Authentication UI",
     status: "todo",
     priority: "medium",
-    assignee: "Ankita Rao",
+    assignee: "Ankita Sarkar",
     points: 3,
   },
   {
@@ -22,7 +22,7 @@ const baseTickets = [
     title: "Implement API authentication",
     status: "todo",
     priority: "high",
-    assignee: "Rahul Menon",
+    assignee: "Arpan Kumar Sahoo",
     points: 5,
   },
   {
@@ -30,7 +30,7 @@ const baseTickets = [
     title: "Dashboard improvements",
     status: "review",
     priority: "low",
-    assignee: "Iman Sheikh",
+    assignee: "Iman Datta",
     points: 2,
   },
   {
@@ -38,7 +38,7 @@ const baseTickets = [
     title: "Database setup",
     status: "done",
     priority: "medium",
-    assignee: "Devika N",
+    assignee: "Payel Mandal",
     points: 8,
   },
 ];

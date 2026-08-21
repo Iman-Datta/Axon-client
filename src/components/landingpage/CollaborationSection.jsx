@@ -3,10 +3,10 @@ import { cn } from "../../lib/utils";
 import { Avatar, ColumnHeader, SectionHeading } from "./primitives";
 
 const feed = [
-  { who: "Ankita", text: "moved #108 → Review", time: "just now" },
-  { who: "Rahul", text: "assigned #108 to Iman", time: "1m" },
-  { who: "Iman", text: "is viewing #108", time: "now", live: true },
-  { who: "Devika", text: "commented on #112", time: "4m" },
+  { who: "Iman", text: "moved #108 → Review", time: "just now" },
+  { who: "Payel", text: "assigned #108 to Iman", time: "1m" },
+  { who: "Ankita", text: "is viewing #108", time: "now", live: true },
+  { who: "Arpan", text: "commented on #112", time: "4m" },
 ];
 
 const board = [
@@ -42,7 +42,7 @@ export function CollaborationSection() {
               </p>
             </div>
             <div className="ml-auto flex -space-x-1.5">
-              {["Ankita Rao", "Rahul Menon", "Iman Sheikh", "Devika N"].map((n, i) => (
+              {["Iman Datta", "Payel Mandal", "Ankita Sarkar", "Arpan Kumar Shaoo"].map((n, i) => (
                 <Avatar key={n} name={n} index={i} size={24} ring />
               ))}
             </div>
