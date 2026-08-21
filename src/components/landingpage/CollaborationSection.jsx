@@ -42,7 +42,7 @@ export function CollaborationSection() {
               </p>
             </div>
             <div className="ml-auto flex -space-x-1.5">
-              {["Iman Datta", "Payel Mandal", "Ankita Sarkar", "Arpan Kumar Shaoo"].map((n, i) => (
+              {["Iman Datta", "Payel Mandal", "Ankita Sarkar", "Arpan Shaoo"].map((n, i) => (
                 <Avatar key={n} name={n} index={i} size={24} ring />
               ))}
             </div>

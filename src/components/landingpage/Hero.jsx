@@ -22,7 +22,7 @@ const baseTickets = [
     title: "Implement API authentication",
     status: "todo",
     priority: "high",
-    assignee: "Arpan Kumar Sahoo",
+    assignee: "Arpan Sahoo",
     points: 5,
   },
   {

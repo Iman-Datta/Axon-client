@@ -3,17 +3,29 @@ import { Building2, Folder, Users, KeyRound } from "lucide-react";
 
 const levels = [
   { label: "Organization", icon: Building2, value: "Acme Engineering" },
-  { label: "Projects", icon: Folder, value: "Website · Mobile App · Internal Tools" },
-  { label: "Project members", icon: Users, value: "9 people across 3 projects" },
-  { label: "Roles", icon: KeyRound, value: "Owner · Lead · Developer · Viewer" },
+  {
+    label: "Projects",
+    icon: Folder,
+    value: "Website · Mobile App · Internal Tools",
+  },
+  {
+    label: "Project members",
+    icon: Users,
+    value: "9 people across 3 projects",
+  },
+  {
+    label: "Roles",
+    icon: KeyRound,
+    value: "Owner · Lead · Developer · Viewer",
+  },
 ];
 
 const members = [
   { name: "Iman Datta", role: "Owner" },
   { name: "Payel Mandal", role: "Lead" },
-  { name: "Arpan Kumar Sahoo", role: "Developer" },
+  { name: "Arpan Sahoo", role: "Developer" },
   { name: "Ankita Sarkar", role: "Developer" },
-  { name: "Suraj Das", role: "Viewer" },
+  { name: "Deblina Mondal", role: "Viewer" },
 ];
 
 const projects = [
@@ -35,7 +47,10 @@ export function OrganizationsSection() {
             {levels.map((l, i) => {
               const Icon = l.icon;
               return (
-                <div key={l.label} className="relative flex gap-3 pb-5 last:pb-0">
+                <div
+                  key={l.label}
+                  className="relative flex gap-3 pb-5 last:pb-0"
+                >
                   {i < levels.length - 1 && (
                     <span className="absolute left-[15px] top-8 bottom-0 w-px bg-border" />
                   )}
