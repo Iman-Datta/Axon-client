@@ -18,23 +18,26 @@ import { fetchWithAuth } from "../../../utils/fetchWithAuth";
 
 const API = import.meta.env.VITE_API_URL;
 
-const VERB_STYLE = {
-  TICKET_CREATED: "bg-emerald-500/10",
-  TICKET_STATUS_CHANGED: "bg-amber-500/10",
-  TICKET_COLUMN_CHANGED: "bg-blue-500/10",
-  TICKET_ASSIGNED: "bg-sky-500/10",
-  TICKET_UNASSIGNED: "bg-[#161b22]",
-  TICKET_GITHUB_PUSH: "bg-purple-500/10",
-  TICKET_GITHUB_PR_OPENED: "bg-emerald-500/10",
-  TICKET_GITHUB_PR_MERGED: "bg-purple-500/10",
-  default: "bg-[#161b22]",
+// Icon badges keep a distinct color per event type — that's the "at a glance"
+// signal. Body text stays neutral gray/white; links are plain chips that only
+// pick up color on hover. Color is a signal, not a background fill.
+const VERB_ICON_COLOR = {
+  TICKET_CREATED: "text-emerald-400",
+  TICKET_STATUS_CHANGED: "text-amber-400",
+  TICKET_COLUMN_CHANGED: "text-blue-400",
+  TICKET_ASSIGNED: "text-sky-400",
+  TICKET_UNASSIGNED: "text-[#8b949e]",
+  TICKET_GITHUB_PUSH: "text-purple-400",
+  TICKET_GITHUB_PR_OPENED: "text-emerald-400",
+  TICKET_GITHUB_PR_MERGED: "text-purple-400",
+  default: "text-[#8b949e]",
 };
 
 const STATUS_COLORS = {
-  DONE: "bg-emerald-500/10 text-emerald-400 ring-emerald-500/30",
-  IN_PROGRESS: "bg-blue-500/10 text-blue-400 ring-blue-500/30",
-  BLOCKED: "bg-red-500/10 text-red-400 ring-red-500/30",
-  REVIEW: "bg-purple-500/10 text-purple-300 ring-purple-500/30",
+  DONE: "bg-emerald-500/10 text-emerald-400 ring-emerald-500/25",
+  IN_PROGRESS: "bg-blue-500/10 text-blue-400 ring-blue-500/25",
+  BLOCKED: "bg-red-500/10 text-red-400 ring-red-500/25",
+  REVIEW: "bg-purple-500/10 text-purple-300 ring-purple-500/25",
   OPEN: "bg-[#161b22] text-[#8b949e] ring-[#30363d]",
   TODO: "bg-[#161b22] text-[#8b949e] ring-[#30363d]",
   CANCELLED: "bg-[#161b22] text-[#6e7681] ring-[#30363d]",
@@ -146,11 +149,12 @@ export default function ActivityTicket({ ticketId }) {
     const actorName = actor
       ? `${actor.first_name} ${actor.last_name}`.trim() || actor.username
       : githubUsername || "System";
+    const iconColor = VERB_ICON_COLOR[verb] || VERB_ICON_COLOR.default;
 
     switch (verb) {
       case "TICKET_CREATED":
         return {
-          icon: <FaCirclePlus className="h-3 w-3 text-emerald-400" />,
+          icon: <FaCirclePlus className={`h-3 w-3 ${iconColor}`} />,
           avatar: <Avatar actor={actor} />,
           text: (
             <span>
@@ -164,7 +168,7 @@ export default function ActivityTicket({ ticketId }) {
 
       case "TICKET_STATUS_CHANGED":
         return {
-          icon: <FaClock className="h-3 w-3 text-amber-400" />,
+          icon: <FaClock className={`h-3 w-3 ${iconColor}`} />,
           avatar: <Avatar actor={actor} />,
           text: (
             <span>
@@ -183,7 +187,7 @@ export default function ActivityTicket({ ticketId }) {
 
       case "TICKET_COLUMN_CHANGED":
         return {
-          icon: <FaArrowRight className="h-3 w-3 text-blue-400" />,
+          icon: <FaArrowRight className={`h-3 w-3 ${iconColor}`} />,
           avatar: <Avatar actor={actor} githubUsername={githubUsername} />,
           text: (
             <span>
@@ -194,7 +198,7 @@ export default function ActivityTicket({ ticketId }) {
               <span className="inline-flex items-center gap-1.5 align-middle font-mono text-[11px]">
                 <span className="text-[#8b949e]">{metadata?.old_column}</span>
                 <FaArrowRight className="h-2.5 w-2.5 text-[#484f58]" />
-                <span className="text-[#58a6ff]">{metadata?.new_column}</span>
+                <span className="text-[#c9d1d9]">{metadata?.new_column}</span>
               </span>
               {metadata?.trigger === "github_branch_created" && (
                 <span className="ml-1.5 inline-flex items-center gap-1 text-[11px] text-[#6e7681]">
@@ -212,7 +216,7 @@ export default function ActivityTicket({ ticketId }) {
 
       case "TICKET_ASSIGNED":
         return {
-          icon: <FaUserPlus className="h-3 w-3 text-sky-400" />,
+          icon: <FaUserPlus className={`h-3 w-3 ${iconColor}`} />,
           avatar: <Avatar actor={actor} />,
           text: (
             <span>
@@ -220,7 +224,7 @@ export default function ActivityTicket({ ticketId }) {
                 {actorName}
               </strong>{" "}
               <span className="text-[#8b949e]">assigned this ticket to</span>{" "}
-              <strong className="font-medium text-sky-300">
+              <strong className="font-medium text-[#c9d1d9]">
                 {metadata?.assignee_name || "a user"}
               </strong>
             </span>
@@ -229,7 +233,7 @@ export default function ActivityTicket({ ticketId }) {
 
       case "TICKET_UNASSIGNED":
         return {
-          icon: <FaUserMinus className="h-3 w-3 text-[#8b949e]" />,
+          icon: <FaUserMinus className={`h-3 w-3 ${iconColor}`} />,
           avatar: <Avatar actor={actor} />,
           text: (
             <span>
@@ -247,7 +251,7 @@ export default function ActivityTicket({ ticketId }) {
             ? ` +${metadata.commit_count - 1} more`
             : "";
         return {
-          icon: <FaCodeCommit className="h-3 w-3 text-purple-400" />,
+          icon: <FaCodeCommit className={`h-3 w-3 ${iconColor}`} />,
           avatar: <Avatar githubUsername={githubUsername} />,
           text: (
             <span>
@@ -279,7 +283,7 @@ export default function ActivityTicket({ ticketId }) {
 
       case "TICKET_GITHUB_PR_OPENED":
         return {
-          icon: <FaCodePullRequest className="h-3 w-3 text-emerald-400" />,
+          icon: <FaCodePullRequest className={`h-3 w-3 ${iconColor}`} />,
           avatar: <Avatar githubUsername={githubUsername} />,
           text: (
             <span>
@@ -291,9 +295,9 @@ export default function ActivityTicket({ ticketId }) {
                 href={metadata?.pr_url}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-1 rounded bg-emerald-500/10 px-1.5 py-0.5 text-[#7ee2a8] ring-1 ring-emerald-500/20 transition-colors hover:text-emerald-300 hover:ring-emerald-500/40"
+                className="inline-flex items-center gap-1 rounded bg-[#161b22] px-1.5 py-0.5 text-[#c9d1d9] ring-1 ring-[#30363d] transition-colors hover:text-[#58a6ff] hover:ring-[#388bfd]/50"
               >
-                <span className="font-mono text-[11px]">
+                <span className="font-mono text-[11px] text-[#8b949e]">
                   #{metadata?.pr_number}
                 </span>
                 <span className="text-[11px]">{metadata?.pr_title}</span>
@@ -312,7 +316,7 @@ export default function ActivityTicket({ ticketId }) {
 
       case "TICKET_GITHUB_PR_MERGED":
         return {
-          icon: <FaGitAlt className="h-3 w-3 text-purple-400" />,
+          icon: <FaGitAlt className={`h-3 w-3 ${iconColor}`} />,
           avatar: (
             <Avatar githubUsername={metadata?.merged_by || githubUsername} />
           ),
@@ -326,9 +330,9 @@ export default function ActivityTicket({ ticketId }) {
                 href={metadata?.pr_url}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-1 rounded bg-purple-500/10 px-1.5 py-0.5 text-purple-300 ring-1 ring-purple-500/20 transition-colors hover:text-purple-200 hover:ring-purple-500/40"
+                className="inline-flex items-center gap-1 rounded bg-[#161b22] px-1.5 py-0.5 text-[#c9d1d9] ring-1 ring-[#30363d] transition-colors hover:text-[#58a6ff] hover:ring-[#388bfd]/50"
               >
-                <span className="font-mono text-[11px]">
+                <span className="font-mono text-[11px] text-[#8b949e]">
                   #{metadata?.pr_number}
                 </span>
                 <span className="text-[11px]">{metadata?.pr_title}</span>
@@ -347,7 +351,7 @@ export default function ActivityTicket({ ticketId }) {
 
       default:
         return {
-          icon: <LuActivity className="h-3 w-3 text-[#8b949e]" />,
+          icon: <LuActivity className={`h-3 w-3 ${iconColor}`} />,
           avatar: <Avatar actor={actor} githubUsername={githubUsername} />,
           text: (
             <span>
@@ -434,11 +438,7 @@ export default function ActivityTicket({ ticketId }) {
                 key={uniqueKey}
                 className="group relative flex items-start gap-3 rounded-lg px-1 py-2.5 text-xs transition-colors hover:bg-[#161b22]/60"
               >
-                <div
-                  className={`relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full ring-2 ring-[#0d1117] ${
-                    VERB_STYLE[item.verb] || VERB_STYLE.default
-                  }`}
-                >
+                <div className="relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#161b22] ring-2 ring-[#0d1117]">
                   {details.avatar}
                   <span className="absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-[#0d1117] ring-1 ring-[#30363d]">
                     {details.icon}
