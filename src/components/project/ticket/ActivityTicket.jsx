@@ -2,20 +2,18 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  GitCommit,
-  GitPullRequest,
-  GitMerge,
-  ArrowRight,
-  Clock,
-  PlusCircle,
-  ExternalLink,
-  Activity,
-  Loader2,
-  AlertCircle,
-  UserPlus,
-  UserMinus,
-  Github,
-} from "lucide-react";
+  FaCodeCommit,
+  FaGitAlt,
+  FaCodePullRequest,
+  FaGithub,
+  FaClock,
+  FaCirclePlus,
+  FaUserPlus,
+  FaUserMinus,
+  FaArrowRight,
+  FaArrowUpRightFromSquare,
+} from "react-icons/fa6";
+import { LuActivity, LuLoader, LuCircleAlert } from "react-icons/lu";
 import { fetchWithAuth } from "../../../utils/fetchWithAuth";
 
 const API = import.meta.env.VITE_API_URL;
@@ -54,7 +52,6 @@ function StatusPill({ value }) {
 }
 
 function Avatar({ actor, githubUsername, size = "h-6 w-6" }) {
-  // Real human actor with a Google/OAuth avatar
   if (actor?.avatar) {
     return (
       <img
@@ -65,7 +62,6 @@ function Avatar({ actor, githubUsername, size = "h-6 w-6" }) {
     );
   }
 
-  // GitHub webhook event with no internal actor — fall back to GitHub identity
   if (githubUsername) {
     return (
       <img
@@ -73,7 +69,9 @@ function Avatar({ actor, githubUsername, size = "h-6 w-6" }) {
         alt={githubUsername}
         onError={(e) => {
           e.currentTarget.style.display = "none";
-          e.currentTarget.nextSibling.style.display = "flex";
+          if (e.currentTarget.nextSibling) {
+            e.currentTarget.nextSibling.style.display = "flex";
+          }
         }}
         className={`${size} shrink-0 rounded-full ring-1 ring-[#30363d]`}
       />
@@ -90,6 +88,7 @@ function Avatar({ actor, githubUsername, size = "h-6 w-6" }) {
 }
 
 export default function ActivityTicket({ ticketId }) {
+  console.log(ticketId);
   const { slug, project_slug } = useParams();
   const dispatch = useDispatch();
   const accessToken = useSelector((state) => state.auth.accessToken);
@@ -116,7 +115,6 @@ export default function ActivityTicket({ ticketId }) {
 
         const data = await res.json();
 
-        // Handles both top-level DRF pagination or nested success/results structure
         let items = [];
         if (data?.results?.results && Array.isArray(data.results.results)) {
           items = data.results.results;
@@ -153,7 +151,7 @@ export default function ActivityTicket({ ticketId }) {
     switch (verb) {
       case "TICKET_CREATED":
         return {
-          icon: <PlusCircle className="h-3.5 w-3.5 text-emerald-400" />,
+          icon: <FaCirclePlus className="h-3 w-3 text-emerald-400" />,
           avatar: <Avatar actor={actor} />,
           text: (
             <span>
@@ -167,7 +165,7 @@ export default function ActivityTicket({ ticketId }) {
 
       case "TICKET_STATUS_CHANGED":
         return {
-          icon: <Clock className="h-3.5 w-3.5 text-amber-400" />,
+          icon: <FaClock className="h-3 w-3 text-amber-400" />,
           avatar: <Avatar actor={actor} />,
           text: (
             <span>
@@ -177,7 +175,7 @@ export default function ActivityTicket({ ticketId }) {
               <span className="text-[#8b949e]">changed status</span>{" "}
               <span className="inline-flex items-center gap-1.5 align-middle">
                 <StatusPill value={metadata?.old_status} />
-                <ArrowRight className="h-3 w-3 text-[#484f58]" />
+                <FaArrowRight className="h-2.5 w-2.5 text-[#484f58]" />
                 <StatusPill value={metadata?.new_status} />
               </span>
             </span>
@@ -186,7 +184,7 @@ export default function ActivityTicket({ ticketId }) {
 
       case "TICKET_COLUMN_CHANGED":
         return {
-          icon: <ArrowRight className="h-3.5 w-3.5 text-blue-400" />,
+          icon: <FaArrowRight className="h-3 w-3 text-blue-400" />,
           avatar: <Avatar actor={actor} githubUsername={githubUsername} />,
           text: (
             <span>
@@ -196,12 +194,12 @@ export default function ActivityTicket({ ticketId }) {
               <span className="text-[#8b949e]">moved ticket</span>{" "}
               <span className="inline-flex items-center gap-1.5 align-middle font-mono text-[11px]">
                 <span className="text-[#8b949e]">{metadata?.old_column}</span>
-                <ArrowRight className="h-3 w-3 text-[#484f58]" />
+                <FaArrowRight className="h-2.5 w-2.5 text-[#484f58]" />
                 <span className="text-[#58a6ff]">{metadata?.new_column}</span>
               </span>
               {metadata?.trigger === "github_branch_created" && (
                 <span className="ml-1.5 inline-flex items-center gap-1 text-[11px] text-[#6e7681]">
-                  <Github className="h-3 w-3" />
+                  <FaGithub className="h-3 w-3" />
                   branch{" "}
                   <span className="font-mono text-[#8b949e]">
                     {metadata?.branch_name}
@@ -215,7 +213,7 @@ export default function ActivityTicket({ ticketId }) {
 
       case "TICKET_ASSIGNED":
         return {
-          icon: <UserPlus className="h-3.5 w-3.5 text-sky-400" />,
+          icon: <FaUserPlus className="h-3 w-3 text-sky-400" />,
           avatar: <Avatar actor={actor} />,
           text: (
             <span>
@@ -232,7 +230,7 @@ export default function ActivityTicket({ ticketId }) {
 
       case "TICKET_UNASSIGNED":
         return {
-          icon: <UserMinus className="h-3.5 w-3.5 text-[#8b949e]" />,
+          icon: <FaUserMinus className="h-3 w-3 text-[#8b949e]" />,
           avatar: <Avatar actor={actor} />,
           text: (
             <span>
@@ -256,7 +254,7 @@ export default function ActivityTicket({ ticketId }) {
             ? ` +${metadata.commit_count - 1} more`
             : "";
         return {
-          icon: <GitCommit className="h-3.5 w-3.5 text-purple-400" />,
+          icon: <FaCodeCommit className="h-3 w-3 text-purple-400" />,
           avatar: <Avatar githubUsername={githubUsername} />,
           text: (
             <span>
@@ -288,7 +286,7 @@ export default function ActivityTicket({ ticketId }) {
 
       case "TICKET_GITHUB_PR_OPENED":
         return {
-          icon: <GitPullRequest className="h-3.5 w-3.5 text-emerald-400" />,
+          icon: <FaCodePullRequest className="h-3 w-3 text-emerald-400" />,
           avatar: <Avatar githubUsername={githubUsername} />,
           text: (
             <span>
@@ -306,12 +304,12 @@ export default function ActivityTicket({ ticketId }) {
                   #{metadata?.pr_number}
                 </span>
                 <span className="text-[11px]">{metadata?.pr_title}</span>
-                <ExternalLink className="h-3 w-3 opacity-70" />
+                <FaArrowUpRightFromSquare className="h-2.5 w-2.5 opacity-70" />
               </a>
               {metadata?.old_column && metadata?.new_column && (
                 <span className="ml-1.5 inline-flex items-center gap-1 align-middle font-mono text-[10px] text-[#6e7681]">
                   ({metadata.old_column}
-                  <ArrowRight className="h-2.5 w-2.5" />
+                  <FaArrowRight className="h-2 w-2" />
                   {metadata.new_column})
                 </span>
               )}
@@ -321,7 +319,7 @@ export default function ActivityTicket({ ticketId }) {
 
       case "TICKET_GITHUB_PR_MERGED":
         return {
-          icon: <GitMerge className="h-3.5 w-3.5 text-purple-400" />,
+          icon: <FaGitAlt className="h-3 w-3 text-purple-400" />,
           avatar: (
             <Avatar githubUsername={metadata?.merged_by || githubUsername} />
           ),
@@ -341,12 +339,12 @@ export default function ActivityTicket({ ticketId }) {
                   #{metadata?.pr_number}
                 </span>
                 <span className="text-[11px]">{metadata?.pr_title}</span>
-                <ExternalLink className="h-3 w-3 opacity-70" />
+                <FaArrowUpRightFromSquare className="h-2.5 w-2.5 opacity-70" />
               </a>
               {metadata?.old_column && metadata?.new_column && (
                 <span className="ml-1.5 inline-flex items-center gap-1 align-middle font-mono text-[10px] text-[#6e7681]">
                   ({metadata.old_column}
-                  <ArrowRight className="h-2.5 w-2.5" />
+                  <FaArrowRight className="h-2 w-2" />
                   {metadata.new_column})
                 </span>
               )}
@@ -356,7 +354,7 @@ export default function ActivityTicket({ ticketId }) {
 
       default:
         return {
-          icon: <Activity className="h-3.5 w-3.5 text-[#8b949e]" />,
+          icon: <LuActivity className="h-3 w-3 text-[#8b949e]" />,
           avatar: <Avatar actor={actor} githubUsername={githubUsername} />,
           text: (
             <span>
@@ -411,21 +409,21 @@ export default function ActivityTicket({ ticketId }) {
 
       {loading && (
         <div className="flex items-center justify-center gap-2 py-8 text-xs text-[#8b949e]">
-          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          <LuLoader className="h-3.5 w-3.5 animate-spin" />
           Loading activity log...
         </div>
       )}
 
       {error && (
         <div className="flex items-center justify-center gap-2 rounded-xl border border-red-500/20 bg-red-500/5 py-4 text-center text-xs text-red-400">
-          <AlertCircle className="h-3.5 w-3.5" />
+          <LuCircleAlert className="h-3.5 w-3.5" />
           {error}
         </div>
       )}
 
       {!loading && !error && activities.length === 0 && (
         <div className="flex flex-col items-center justify-center gap-1.5 rounded-xl border border-dashed border-[#30363d] bg-[#0d1117]/40 py-10 text-center">
-          <Activity className="h-5 w-5 text-[#30363d]" />
+          <LuActivity className="h-5 w-5 text-[#30363d]" />
           <span className="text-xs font-medium text-[#8b949e]">
             No activity logged yet
           </span>
