@@ -25,6 +25,7 @@ import {
   formatLabel,
 } from "./ticketBadgeConfig";
 import MoveToBoardModal from "./Movetoboardmodal";
+import ActivityTicket from "./ActivityTicket";
 import StatusActionDropdown from "./Statusactiondropdown";
 import { fetchWithAuth } from "../../../utils/fetchWithAuth";
 
@@ -454,19 +455,7 @@ function TicketDrawer({
                 </div>
               </div>
 
-              <div className="border-t border-[#21262d] pt-6">
-                <p className="mb-3 text-[11px] font-semibold uppercase tracking-wide text-[#6e7681]">
-                  Activities
-                </p>
-                <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-[#30363d] bg-[#0d1117]/40 py-8 text-center">
-                  <span className="text-sm font-medium text-[#8b949e]">
-                    Coming soon in next update
-                  </span>
-                  <span className="text-[12px] text-[#6e7681]">
-                    Activity history and comments will appear here.
-                  </span>
-                </div>
-              </div>
+              <ActivityTicket ticketId={currentTicket.id} />
             </div>
           </>
         )}
