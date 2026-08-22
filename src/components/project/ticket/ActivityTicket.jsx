@@ -88,7 +88,6 @@ function Avatar({ actor, githubUsername, size = "h-6 w-6" }) {
 }
 
 export default function ActivityTicket({ ticketId }) {
-  console.log(ticketId);
   const { slug, project_slug } = useParams();
   const dispatch = useDispatch();
   const accessToken = useSelector((state) => state.auth.accessToken);
@@ -222,7 +221,7 @@ export default function ActivityTicket({ ticketId }) {
               </strong>{" "}
               <span className="text-[#8b949e]">assigned this ticket to</span>{" "}
               <strong className="font-medium text-sky-300">
-                {metadata?.assignee_name || metadata?.new_assignee || "someone"}
+                {metadata?.assignee_name || "a user"}
               </strong>
             </span>
           ),
@@ -237,13 +236,7 @@ export default function ActivityTicket({ ticketId }) {
               <strong className="font-medium text-[#e6edf3]">
                 {actorName}
               </strong>{" "}
-              <span className="text-[#8b949e]">unassigned</span>{" "}
-              <strong className="font-medium text-[#c9d1d9]">
-                {metadata?.assignee_name ||
-                  metadata?.old_assignee ||
-                  "the assignee"}
-              </strong>{" "}
-              <span className="text-[#8b949e]">from this ticket</span>
+              <span className="text-[#8b949e]">unassigned this ticket</span>
             </span>
           ),
         };
@@ -432,11 +425,13 @@ export default function ActivityTicket({ ticketId }) {
 
       {!loading && !error && activities.length > 0 && (
         <div className="relative space-y-1 before:absolute before:left-[15px] before:top-3 before:bottom-3 before:w-px before:bg-gradient-to-b before:from-[#30363d] before:via-[#30363d] before:to-transparent">
-          {activities.map((item) => {
+          {activities.map((item, index) => {
             const details = renderActivityDetails(item);
+            const uniqueKey = item.id ? `${item.id}-${index}` : index;
+
             return (
               <div
-                key={item.id}
+                key={uniqueKey}
                 className="group relative flex items-start gap-3 rounded-lg px-1 py-2.5 text-xs transition-colors hover:bg-[#161b22]/60"
               >
                 <div
