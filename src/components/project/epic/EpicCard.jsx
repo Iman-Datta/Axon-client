@@ -7,8 +7,6 @@ import {
   ChevronRight,
   MoreHorizontal,
   Pencil,
-  Copy,
-  Archive,
   Trash2,
 } from "lucide-react";
 
@@ -82,16 +80,6 @@ function EpicCard({ epic, can_edit, onClick, active, onEdit, onDelete }) {
                 >
                   <Pencil size={15} />
                   Edit Epic
-                </button>
-
-                <button className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-[#c9d1d9] transition hover:bg-[#21262d]">
-                  <Copy size={15} />
-                  Duplicate
-                </button>
-
-                <button className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-[#c9d1d9] transition hover:bg-[#21262d]">
-                  <Archive size={15} />
-                  Archive
                 </button>
 
                 <div className="mx-2 my-1 border-t border-[#30363d]" />
