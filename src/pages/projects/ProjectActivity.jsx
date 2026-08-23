@@ -16,10 +16,14 @@ import {
   Users,
   Zap,
 } from "lucide-react";
-import { fetchWithAuth } from "../../utils/fetchWithAuth";
+import {fetchWithAuth} from "../../utils/fetchWithAuth"
 
 const API = import.meta.env.VITE_API_URL;
 
+// ---------------------------------------------------------------------------
+// Verb configuration — one source of truth for icon, color, category and
+// the human-readable line for every activity type this page understands.
+// ---------------------------------------------------------------------------
 const CHIP =
   "bg-[#161b22] text-[#c9d1d9] px-2 py-0.5 rounded text-xs font-mono ring-1 ring-[#30363d]";
 
@@ -30,7 +34,7 @@ const VERB_CONFIG = {
     category: "project",
     render: (m) => (
       <>
-        Created project <span className={CHIP}>{m?.project_name}</span>
+        created project <span className={CHIP}>{m?.project_name}</span>
       </>
     ),
   },
@@ -40,7 +44,7 @@ const VERB_CONFIG = {
     category: "members",
     render: (m) => (
       <>
-        Added a new member with role <span className={CHIP}>{m?.role}</span>
+        added a new member with role <span className={CHIP}>{m?.role}</span>
       </>
     ),
   },
@@ -50,7 +54,7 @@ const VERB_CONFIG = {
     category: "members",
     render: (m) => (
       <>
-        Removed a member{" "}
+        removed a member{" "}
         <span className="text-[#6e7681]">
           (role was <span className={CHIP}>{m?.role}</span>)
         </span>
@@ -63,8 +67,8 @@ const VERB_CONFIG = {
     category: "members",
     render: (m) => (
       <>
-        Changed member role from <span className={CHIP}>{m?.old_role}</span> to{" "}
-        <span className={CHIP}>{m?.new_role}</span>
+        changed member role from <span className={CHIP}>{m?.old_role}</span>{" "}
+        to <span className={CHIP}>{m?.new_role}</span>
       </>
     ),
   },
@@ -74,7 +78,7 @@ const VERB_CONFIG = {
     category: "epics",
     render: (m) => (
       <>
-        Created epic <span className={CHIP}>{m?.epic_title}</span>
+        created epic <span className={CHIP}>{m?.epic_title}</span>
       </>
     ),
   },
@@ -84,7 +88,7 @@ const VERB_CONFIG = {
     category: "epics",
     render: (m) => (
       <>
-        Deleted epic <span className={CHIP}>{m?.epic_title}</span>
+        deleted epic <span className={CHIP}>{m?.epic_title}</span>
       </>
     ),
   },
@@ -94,7 +98,8 @@ const VERB_CONFIG = {
     category: "github",
     render: (m) => (
       <>
-        Connected repository <span className={CHIP}>{m?.repo_full_name}</span>
+        connected repository{" "}
+        <span className={CHIP}>{m?.repo_full_name}</span>
       </>
     ),
   },
@@ -104,7 +109,7 @@ const VERB_CONFIG = {
     category: "github",
     render: (m) => (
       <>
-        Disconnected repository <span className={CHIP}>{m?.repo_name}</span>
+        disconnected repository <span className={CHIP}>{m?.repo_name}</span>
       </>
     ),
   },
@@ -112,7 +117,7 @@ const VERB_CONFIG = {
     icon: ActivityIcon,
     color: "text-[#8b949e]",
     category: "project",
-    render: (_m, verb) => <>Activity update: {verb?.replace(/_/g, " ")}</>,
+    render: (_m, verb) => <>triggered {verb?.replace(/_/g, " ").toLowerCase()}</>,
   },
 };
 
@@ -148,10 +153,7 @@ function Avatar({ actor }) {
 
 function actorName(actor) {
   if (!actor) return "System";
-  return (
-    `${actor.first_name || ""} ${actor.last_name || ""}`.trim() ||
-    actor.username
-  );
+  return `${actor.first_name || ""} ${actor.last_name || ""}`.trim() || actor.username;
 }
 
 const rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
@@ -165,11 +167,7 @@ function formatRelativeTime(dateStr) {
   if (abs < 3600) return rtf.format(Math.round(diffSec / 60), "minute");
   if (abs < 86400) return rtf.format(Math.round(diffSec / 3600), "hour");
   if (abs < 86400 * 30) return rtf.format(Math.round(diffSec / 86400), "day");
-  return date.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
 
 function formatFullDate(dateStr) {
@@ -182,8 +180,7 @@ function formatFullDate(dateStr) {
 function dayBucket(dateStr) {
   const d = new Date(dateStr);
   const now = new Date();
-  const startOf = (dt) =>
-    new Date(dt.getFullYear(), dt.getMonth(), dt.getDate());
+  const startOf = (dt) => new Date(dt.getFullYear(), dt.getMonth(), dt.getDate());
   const diffDays = Math.round((startOf(now) - startOf(d)) / 86400000);
   if (diffDays === 0) return "Today";
   if (diffDays === 1) return "Yesterday";
@@ -192,11 +189,11 @@ function dayBucket(dateStr) {
 
 function SkeletonRow() {
   return (
-    <div className="flex items-start gap-3 px-1 py-3">
-      <div className="h-8 w-8 shrink-0 animate-pulse rounded-full bg-[#161b22]" />
+    <div className="flex items-start gap-3 px-3 py-3.5">
+      <div className="h-7 w-7 shrink-0 animate-pulse rounded-full bg-[#21262d]" />
       <div className="flex-1 space-y-2 pt-1">
-        <div className="h-3 w-2/3 animate-pulse rounded bg-[#161b22]" />
-        <div className="h-2.5 w-1/4 animate-pulse rounded bg-[#161b22]" />
+        <div className="h-3 w-2/3 animate-pulse rounded bg-[#21262d]" />
+        <div className="h-2.5 w-1/5 animate-pulse rounded bg-[#21262d]" />
       </div>
     </div>
   );
@@ -285,20 +282,13 @@ export default function ProjectActivity() {
     filtered.forEach((item) => {
       map[dayBucket(item.created_at)].push(item);
     });
-    return order
-      .map((label) => ({ label, items: map[label] }))
-      .filter((g) => g.items.length > 0);
+    return order.map((label) => ({ label, items: map[label] })).filter((g) => g.items.length > 0);
   }, [filtered]);
 
   const metrics = useMemo(() => {
-    const contributors = new Set(
-      activities.filter((a) => a.actor).map((a) => a.actor.id),
-    );
+    const contributors = new Set(activities.filter((a) => a.actor).map((a) => a.actor.id));
     const githubEvents = activities
-      .filter(
-        (a) =>
-          a.verb === "GITHUB_CONNECTED" || a.verb === "GITHUB_DISCONNECTED",
-      )
+      .filter((a) => a.verb === "GITHUB_CONNECTED" || a.verb === "GITHUB_DISCONNECTED")
       .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
     const latestGithub = githubEvents[0];
 
@@ -308,196 +298,208 @@ export default function ProjectActivity() {
       integration: latestGithub
         ? {
             connected: latestGithub.verb === "GITHUB_CONNECTED",
-            name:
-              latestGithub.metadata?.repo_full_name ||
-              latestGithub.metadata?.repo_name,
+            name: latestGithub.metadata?.repo_full_name || latestGithub.metadata?.repo_name,
           }
         : null,
     };
   }, [activities]);
 
   return (
-    <div className="min-h-full bg-[#0d1117] px-6 py-6 text-[#c9d1d9] md:px-10">
-      {/* Header */}
-      <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="text-xl font-semibold text-[#e6edf3]">
-            Project Activity
-          </h1>
-          <p className="mt-1 text-sm text-[#8b949e]">
-            Audit log of events, team updates, integrations, and epics.
-          </p>
-        </div>
-        <span className="rounded-full bg-[#161b22] px-3 py-1 text-xs font-medium text-[#8b949e] ring-1 ring-[#30363d]">
-          {metrics.total} total events
-        </span>
-      </div>
-
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        {/* Main column */}
-        <div className="lg:col-span-2">
-          {/* Toolbar */}
-          <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex gap-1 rounded-lg bg-[#161b22] p-1 ring-1 ring-[#30363d]">
-              {TABS.map((t) => (
-                <button
-                  key={t.key}
-                  onClick={() => setTab(t.key)}
-                  className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
-                    tab === t.key
-                      ? "bg-[#1f6feb]/15 text-[#79c0ff] ring-1 ring-[#1f6feb]/40"
-                      : "text-[#8b949e] hover:text-[#c9d1d9]"
-                  }`}
-                >
-                  {t.label}
-                </button>
-              ))}
-            </div>
-
-            <div className="relative w-full sm:w-64">
-              <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#6e7681]" />
-              <input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search activity..."
-                className="w-full rounded-lg border border-[#30363d] bg-[#161b22] py-1.5 pl-8 pr-3 text-xs text-[#c9d1d9] placeholder-[#6e7681] outline-none transition-colors focus:border-[#1f6feb]/60"
-              />
-            </div>
-          </div>
-
-          {/* Loading */}
-          {loading && (
-            <div className="rounded-xl border border-[#21262d] bg-[#0d1117]">
-              {[...Array(5)].map((_, i) => (
-                <SkeletonRow key={i} />
-              ))}
-            </div>
-          )}
-
-          {/* Error */}
-          {error && !loading && (
-            <div className="flex items-center justify-center gap-2 rounded-xl border border-red-500/20 bg-red-500/5 py-6 text-center text-xs text-red-400">
-              <AlertCircle className="h-3.5 w-3.5" />
-              {error}
-            </div>
-          )}
-
-          {/* Empty */}
-          {!loading && !error && filtered.length === 0 && (
-            <div className="flex flex-col items-center justify-center gap-1.5 rounded-xl border border-dashed border-[#30363d] bg-[#0d1117]/40 py-12 text-center">
-              <ActivityIcon className="h-5 w-5 text-[#30363d]" />
-              <span className="text-xs font-medium text-[#8b949e]">
-                No matching activity
+    <div className="min-h-full bg-[#0d1117] text-[#c9d1d9] pt-22">
+      <div className="mx-auto max-w-7xl space-y-6 px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="flex flex-col gap-4 border-b border-[#21262d] pb-5 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <div className="flex items-center gap-2.5">
+              <h1 className="text-xl font-semibold tracking-tight text-[#e6edf3]">
+                Project Activity
+              </h1>
+              <span className="rounded-full border border-[#30363d] bg-[#161b22] px-2.5 py-0.5 text-xs font-medium text-[#8b949e]">
+                {metrics.total} events
               </span>
             </div>
-          )}
-
-          {/* Timeline */}
-          {!loading && !error && groups.length > 0 && (
-            <div className="space-y-6">
-              {groups.map((group) => (
-                <div key={group.label}>
-                  <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-[#6e7681]">
-                    {group.label}
-                  </p>
-                  <div className="relative space-y-1 pl-0.5 before:absolute before:left-[15px] before:top-3 before:bottom-3 before:w-px before:bg-gradient-to-b before:from-[#30363d] before:via-[#30363d] before:to-transparent">
-                    {group.items.map((item, idx) => {
-                      const config =
-                        VERB_CONFIG[item.verb] || VERB_CONFIG.default;
-                      const Icon = config.icon;
-                      const key = item.id ?? `${group.label}-${idx}`;
-                      return (
-                        <div
-                          key={key}
-                          className="group relative flex items-start gap-3 rounded-lg px-1 py-2.5 text-xs transition-colors hover:bg-[#161b22]/60"
-                        >
-                          <div className="relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#161b22] ring-2 ring-[#0d1117]">
-                            <Avatar actor={item.actor} />
-                            <span className="absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-[#0d1117] ring-1 ring-[#30363d]">
-                              <Icon className={`h-2.5 w-2.5 ${config.color}`} />
-                            </span>
-                          </div>
-                          <div className="flex-1 pt-1 leading-relaxed">
-                            <div>
-                              <strong className="font-medium text-[#e6edf3]">
-                                {actorName(item.actor)}
-                              </strong>{" "}
-                              <span className="text-[#8b949e]">
-                                {config.render(item.metadata, item.verb)}
-                              </span>
-                            </div>
-                            <span
-                              className="mt-0.5 block text-[10px] text-[#6e7681]"
-                              title={formatFullDate(item.created_at)}
-                            >
-                              {formatRelativeTime(item.created_at)}
-                            </span>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+            <p className="mt-1 text-xs text-[#8b949e]">
+              Audit log of member roles, integrations, and epic lifecycles.
+            </p>
+          </div>
         </div>
 
-        {/* Sidebar */}
-        <div className="space-y-4">
-          <div className="rounded-xl border border-[#21262d] bg-[#161b22]/40 p-4">
-            <p className="mb-3 text-[11px] font-semibold uppercase tracking-wide text-[#6e7681]">
-              Summary
-            </p>
-
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="flex items-center gap-2 text-xs text-[#8b949e]">
-                  <ActivityIcon className="h-3.5 w-3.5 text-[#79c0ff]" />
-                  Total events
-                </span>
-                <span className="text-sm font-semibold text-[#e6edf3]">
-                  {metrics.total}
-                </span>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <span className="flex items-center gap-2 text-xs text-[#8b949e]">
-                  <Users className="h-3.5 w-3.5 text-[#79c0ff]" />
-                  Active contributors
-                </span>
-                <span className="text-sm font-semibold text-[#e6edf3]">
-                  {metrics.contributors}
-                </span>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <span className="flex items-center gap-2 text-xs text-[#8b949e]">
-                  <Zap className="h-3.5 w-3.5 text-[#79c0ff]" />
-                  Integration
-                </span>
-                {metrics.integration ? (
-                  <span
-                    className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ring-1 ${
-                      metrics.integration.connected
-                        ? "bg-emerald-500/10 text-emerald-400 ring-emerald-500/25"
-                        : "bg-[#161b22] text-[#6e7681] ring-[#30363d]"
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+          {/* Main feed column */}
+          <div className="space-y-4 lg:col-span-2">
+            {/* Toolbar */}
+            <div className="flex flex-col gap-3 rounded-xl border border-[#30363d] bg-[#161b22]/50 p-2 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-1 overflow-x-auto">
+                {TABS.map((t) => (
+                  <button
+                    key={t.key}
+                    onClick={() => setTab(t.key)}
+                    className={`whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+                      tab === t.key
+                        ? "border border-[#1f6feb]/40 bg-[#1f6feb]/15 text-[#58a6ff]"
+                        : "border border-transparent text-[#8b949e] hover:bg-[#21262d]/60 hover:text-[#c9d1d9]"
                     }`}
                   >
-                    {metrics.integration.connected
-                      ? "Connected"
-                      : "Disconnected"}
-                  </span>
-                ) : (
-                  <span className="text-xs text-[#6e7681]">None</span>
-                )}
+                    {t.label}
+                  </button>
+                ))}
               </div>
 
-              {metrics.integration && (
-                <p className="truncate font-mono text-[10px] text-[#6e7681]">
-                  {metrics.integration.name}
+              <div className="relative w-full sm:w-60">
+                <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#6e7681]" />
+                <input
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Search activity..."
+                  className="w-full rounded-lg border border-[#30363d] bg-[#0d1117] py-1.5 pl-8 pr-3 text-xs text-[#c9d1d9] placeholder-[#6e7681] outline-none transition-colors focus:border-[#58a6ff]/60"
+                />
+              </div>
+            </div>
+
+            {/* Loading skeleton */}
+            {loading && (
+              <div className="divide-y divide-[#21262d] rounded-xl border border-[#30363d] bg-[#161b22]/30">
+                {[...Array(5)].map((_, i) => (
+                  <SkeletonRow key={i} />
+                ))}
+              </div>
+            )}
+
+            {/* Error banner */}
+            {error && !loading && (
+              <div className="flex items-center justify-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-xs font-medium text-red-400">
+                <AlertCircle className="h-4 w-4 shrink-0" />
+                {error}
+              </div>
+            )}
+
+            {/* Empty state */}
+            {!loading && !error && filtered.length === 0 && (
+              <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-[#30363d] bg-[#161b22]/20 py-16 text-center">
+                <div className="rounded-full bg-[#21262d] p-3">
+                  <ActivityIcon className="h-5 w-5 text-[#6e7681]" />
+                </div>
+                <p className="text-xs font-medium text-[#c9d1d9]">No activities found</p>
+                <p className="text-[11px] text-[#8b949e]">
+                  Try adjusting your search query or switching the active tab.
                 </p>
-              )}
+              </div>
+            )}
+
+            {/* Timeline */}
+            {!loading && !error && groups.length > 0 && (
+              <div className="rounded-xl border border-[#30363d] bg-[#161b22]/30 p-4">
+                <div className="space-y-6">
+                  {groups.map((group) => (
+                    <div key={group.label} className="space-y-2">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#6e7681]">
+                        {group.label}
+                      </span>
+
+                      <div className="relative space-y-1 pl-2 before:absolute before:bottom-2 before:left-[19px] before:top-2 before:w-px before:bg-[#30363d]">
+                        {group.items.map((item, idx) => {
+                          const config = VERB_CONFIG[item.verb] || VERB_CONFIG.default;
+                          const Icon = config.icon;
+                          const key = item.id ?? `${group.label}-${idx}`;
+
+                          return (
+                            <div
+                              key={key}
+                              className="group relative flex items-start gap-3 rounded-lg p-2 transition-colors hover:bg-[#21262d]/50"
+                            >
+                              <div className="relative z-10 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#161b22] ring-2 ring-[#0d1117]">
+                                <Avatar actor={item.actor} />
+                                <span className="absolute -bottom-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-[#0d1117] ring-1 ring-[#30363d]">
+                                  <Icon className={`h-2 w-2 ${config.color}`} />
+                                </span>
+                              </div>
+
+                              <div className="min-w-0 flex-1 pt-0.5">
+                                <p className="text-xs leading-snug text-[#8b949e]">
+                                  <span className="font-semibold text-[#e6edf3]">
+                                    {actorName(item.actor)}
+                                  </span>{" "}
+                                  {config.render(item.metadata, item.verb)}
+                                </p>
+                                <span
+                                  className="mt-1 block text-[10px] text-[#6e7681]"
+                                  title={formatFullDate(item.created_at)}
+                                >
+                                  {formatRelativeTime(item.created_at)}
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Sidebar column */}
+          <div className="space-y-4">
+            <div className="rounded-xl border border-[#30363d] bg-[#161b22]/40 p-4">
+              <h3 className="mb-4 text-xs font-semibold uppercase tracking-wider text-[#6e7681]">
+                Activity Insight
+              </h3>
+
+              <div className="space-y-3.5">
+                <div className="flex items-center justify-between border-b border-[#21262d] pb-2.5">
+                  <span className="flex items-center gap-2 text-xs text-[#8b949e]">
+                    <ActivityIcon className="h-3.5 w-3.5 text-[#58a6ff]" />
+                    Recorded events
+                  </span>
+                  <span className="text-xs font-semibold text-[#e6edf3]">
+                    {metrics.total}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between border-b border-[#21262d] pb-2.5">
+                  <span className="flex items-center gap-2 text-xs text-[#8b949e]">
+                    <Users className="h-3.5 w-3.5 text-[#58a6ff]" />
+                    Contributors
+                  </span>
+                  <span className="text-xs font-semibold text-[#e6edf3]">
+                    {metrics.contributors}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between pt-0.5">
+                  <span className="flex items-center gap-2 text-xs text-[#8b949e]">
+                    <Zap className="h-3.5 w-3.5 text-[#58a6ff]" />
+                    GitHub sync
+                  </span>
+                  {metrics.integration ? (
+                    <span
+                      className={`inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10px] font-medium ${
+                        metrics.integration.connected
+                          ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
+                          : "border-[#30363d] bg-[#21262d] text-[#6e7681]"
+                      }`}
+                    >
+                      <span
+                        className={`h-1.5 w-1.5 rounded-full ${
+                          metrics.integration.connected ? "bg-emerald-400" : "bg-[#6e7681]"
+                        }`}
+                      />
+                      {metrics.integration.connected ? "Active" : "Disabled"}
+                    </span>
+                  ) : (
+                    <span className="text-xs text-[#6e7681]">None</span>
+                  )}
+                </div>
+
+                {metrics.integration?.name && (
+                  <div className="mt-2 rounded-lg border border-[#21262d] bg-[#0d1117] p-2">
+                    <p className="truncate font-mono text-[10px] text-[#8b949e]">
+                      {metrics.integration.name}
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
