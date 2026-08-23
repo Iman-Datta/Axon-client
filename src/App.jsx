@@ -26,6 +26,7 @@ import EpicsPage from "./pages/projects/EpicsPage";
 import TicketsTablePage from "./pages/projects/TicketsTablePage";
 import IntegrationsPage from "./pages/projects/IntegrationsPage";
 import MembersPage from "./pages/projects/MembersPage";
+import Projectactivity from "./pages/projects/ProjectActivity";
 
 // Settings
 import ProjectSettings from "./pages/projects/ProjectSettings";
@@ -243,7 +244,7 @@ function App() {
             <Route path="labels" element={<LabelsSetting />} />
             <Route path="danger" element={<Danger />} />
           </Route>
-          <Route path="activity" element={<ComingSoonV2 />} />
+          <Route path="activity" element={<Projectactivity />} />
         </Route>
       </Routes>
     </div>
