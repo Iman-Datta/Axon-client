@@ -204,7 +204,6 @@ function IntegrationsPage() {
     return <div className="mt-18 p-6 text-red-500">{error}</div>;
   }
 
-  // Handle lack of access professionally
   if (status && status.access === false) {
     return (
       <div className="min-h-screen flex items-center justify-center p-6">
