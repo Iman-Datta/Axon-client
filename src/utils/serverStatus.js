@@ -21,3 +21,13 @@ export const handleResponseStatus = (response) => {
   }
   return response;
 };
+
+// src/utils/serverStatus.js  (add this function)
+export const checkServerReachable = async (apiBase) => {
+  try {
+    const res = await fetch(`${apiBase}/health/`, { method: "GET" });
+    return res.ok;
+  } catch {
+    return false;
+  }
+};
