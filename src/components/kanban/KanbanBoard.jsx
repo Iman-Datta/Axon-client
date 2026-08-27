@@ -119,9 +119,13 @@ const KanbanBoard = ({ tickets, setTickets, loading }) => {
   };
 
   const handleTicketUpdatedLocally = (updatedTicket) => {
-    setTickets((prev) =>
-      prev.map((t) => (t.id === updatedTicket?.id ? updatedTicket : t)),
-    );
+    setTickets((prev) => {
+      if (updatedTicket?.status && updatedTicket.status !== "OPEN") {
+        return prev.filter((t) => t.id !== updatedTicket.id);
+      }
+      return prev.map((t) => (t.id === updatedTicket?.id ? updatedTicket : t));
+    });
+
     if (activeTicketId && updatedTicket?.id === activeTicketId) {
       refetchDrawerTicket();
     }
