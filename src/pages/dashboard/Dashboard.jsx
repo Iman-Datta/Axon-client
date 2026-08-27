@@ -1,21 +1,26 @@
 import { useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
+import { useSelector } from "react-redux"; // <-- Import useSelector
 
 import useTickets from "../../hooks/useTickets";
+import useBoardWebSocket from "../../hooks/useBoardWebSocket"; // <-- Import hook
 import KanbanBoard from "../../components/kanban/KanbanBoard";
 import KanbanHeader from "../../components/kanban/KanbanHeader";
 
 const Dashboard = () => {
   const { slug, project_slug } = useParams();
+  console.log("WS Project Slug:", project_slug);
   const [searchTerm, setSearchTerm] = useState("");
+  const accessToken = useSelector((state) => state.auth.accessToken); // <-- Retrieve token
 
   const { tickets, setTickets, loading, error } = useTickets(
     slug,
     project_slug,
-    {
-      status: "OPEN",
-    },
+    { status: "OPEN" },
   );
+
+  // ⚡ Call WebSocket hook here to listen for real-time updates
+  useBoardWebSocket(project_slug, accessToken, setTickets);
 
   const filteredTickets = useMemo(() => {
     if (!searchTerm.trim()) return tickets;
