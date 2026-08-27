@@ -7,13 +7,14 @@ export const useBoardWebSocket = (projectSlug, accessToken, setTickets) => {
     if (!projectSlug || !accessToken) return;
 
     // 1. Grab env variable or fallback
-    const rawUrl = import.meta.env.VITE_WS_URL || "ws://127.0.0.1:8000";
+    const rawUrl = import.meta.env.VITE_WS_URL || "wss://axonapi.imandatta.com";
 
     // 2. Clean up any accidental double protocols or extra slashes
     const cleanBaseUrl = rawUrl.replace(/^wss?:\/\//, "").replace(/\/+$/, "");
 
-    // 3. Construct a single clean WebSocket URL
-    const wsUrl = `ws://${cleanBaseUrl}/ws/board/${projectSlug}/?token=${accessToken}`;
+    // 3. Dynamically pick wss: on HTTPS sites, fallback to ws: for local http dev
+    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+    const wsUrl = `${protocol}//${cleanBaseUrl}/ws/board/${projectSlug}/?token=${accessToken}`;
 
     const socket = new WebSocket(wsUrl);
     socketRef.current = socket;
