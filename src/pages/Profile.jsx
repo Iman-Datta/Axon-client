@@ -10,7 +10,6 @@ const API = import.meta.env.VITE_API_URL;
 
 function Profile() {
   const { slug } = useParams();
-
   const authUser = useSelector((state) => state.auth.user);
 
   const [profile, setProfile] = useState(null);
@@ -18,7 +17,6 @@ function Profile() {
   const [error, setError] = useState(null);
 
   const isOwnProfile = authUser?.username === slug;
-
   const displayProfile = isOwnProfile ? authUser : profile;
 
   useEffect(() => {
@@ -60,7 +58,7 @@ function Profile() {
 
   if (loading) {
     return (
-      <ProfileLayout user={authUser}>
+      <ProfileLayout user={authUser} isOwnProfile={isOwnProfile}>
         <div className="py-20 text-center text-[#8b949e]">
           Loading profile...
         </div>
@@ -85,12 +83,17 @@ function Profile() {
   }
 
   return (
-    <ProfileLayout user={displayProfile}>
-      {isOwnProfile && (
+    <ProfileLayout user={displayProfile} isOwnProfile={isOwnProfile}>
+      {isOwnProfile ? (
         <>
           <ProfileChecklist user={displayProfile} />
           <ProfileOverviewPage />
         </>
+      ) : (
+        /* Render public profile overview or component when viewing another user */
+        <div className="py-10 text-center text-[#8b949e]">
+          Public Profile View
+        </div>
       )}
     </ProfileLayout>
   );

@@ -9,16 +9,16 @@ function ProfileLayout({ user, children, isOwnProfile }) {
       <div className="max-w-7xl mx-auto px-6 pb-24">
         <div
           className={`grid grid-cols-1 gap-8 ${
-            isOwnProfile ? "lg:grid-cols-12" : "lg:grid-cols-1"
+            isOwnProfile ? "lg:grid-cols-12" : "lg:grid-cols-12"
           }`}
         >
-          <aside className={isOwnProfile ? "lg:col-span-3" : "max-w-md"}>
+          {/* SIDEBAR */}
+          <aside className="lg:col-span-3">
             <ProfileSidebar user={user} isOwnProfile={isOwnProfile} />
           </aside>
 
-          {isOwnProfile && (
-            <section className="lg:col-span-9 space-y-6">{children}</section>
-          )}
+          {/* MAIN CONTENT AREA */}
+          <section className="lg:col-span-9 space-y-6">{children}</section>
         </div>
       </div>
     </main>
