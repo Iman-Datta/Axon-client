@@ -86,8 +86,12 @@ function Profile() {
 
   return (
     <ProfileLayout user={displayProfile}>
-      <ProfileChecklist user={displayProfile} />
-      <ProfileOverviewPage />
+      {isOwnProfile && (
+        <>
+          <ProfileChecklist user={displayProfile} />
+          <ProfileOverviewPage />
+        </>
+      )}
     </ProfileLayout>
   );
 }

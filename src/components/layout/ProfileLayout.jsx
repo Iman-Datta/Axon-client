@@ -1,21 +1,24 @@
 import ProfileHeader from "../profile/ProfileHeader";
 import ProfileSidebar from "../profile/Profilesidebar";
 
-function ProfileLayout({ user, children }) {
-  
+function ProfileLayout({ user, children, isOwnProfile }) {
   return (
     <main className="min-h-screen bg-[#0d1117] text-[#c9d1d9]">
       <ProfileHeader user={user} />
 
       <div className="max-w-7xl mx-auto px-6 pb-24">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          <aside className="lg:col-span-3 order-2 lg:order-1">
-            <ProfileSidebar user={user} />
+        <div
+          className={`grid grid-cols-1 gap-8 ${
+            isOwnProfile ? "lg:grid-cols-12" : "lg:grid-cols-1"
+          }`}
+        >
+          <aside className={isOwnProfile ? "lg:col-span-3" : "max-w-md"}>
+            <ProfileSidebar user={user} isOwnProfile={isOwnProfile} />
           </aside>
 
-          <section className="lg:col-span-9 order-1 lg:order-2 space-y-6">
-            {children}
-          </section>
+          {isOwnProfile && (
+            <section className="lg:col-span-9 space-y-6">{children}</section>
+          )}
         </div>
       </div>
     </main>
