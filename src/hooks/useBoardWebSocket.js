@@ -6,13 +6,13 @@ export const useBoardWebSocket = (projectSlug, accessToken, setTickets) => {
   useEffect(() => {
     if (!projectSlug || !accessToken) return;
 
-    // 1. Grab env variable or fallback
+    // 1. Grab env variable or fallback to production backend domain
     const rawUrl = import.meta.env.VITE_WS_URL || "wss://axonapi.imandatta.com";
 
     // 2. Clean up any accidental double protocols or extra slashes
     const cleanBaseUrl = rawUrl.replace(/^wss?:\/\//, "").replace(/\/+$/, "");
 
-    // 3. Dynamically pick wss: on HTTPS sites, fallback to ws: for local http dev
+    // 3. FORCE wss: when page is loaded over HTTPS, otherwise fallback to ws: for local dev
     const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
     const wsUrl = `${protocol}//${cleanBaseUrl}/ws/board/${projectSlug}/?token=${accessToken}`;
 
@@ -20,7 +20,7 @@ export const useBoardWebSocket = (projectSlug, accessToken, setTickets) => {
     socketRef.current = socket;
 
     socket.onopen = () => {
-      console.log(`Connected to WebSocket board for ${projectSlug}`);
+      console.log(`Connected securely to WebSocket board for ${projectSlug}`);
     };
 
     socket.onmessage = (event) => {
