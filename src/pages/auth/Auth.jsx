@@ -8,7 +8,7 @@ import Register from "../../components/auth/Register";
 import ForgotPassword from "../../components/auth/Forgotpassword";
 import { setAccessToken, setUser } from "../../redux/slices/authSlice";
 
-const API = import.meta.env.VITE_API_URL;
+const API = import.meta.env.VITE_API_URL || "";
 
 function Auth() {
   const [view, setView] = useState("login");
@@ -26,32 +26,23 @@ function Auth() {
     try {
       const res = await fetch(`${API}/auth/login/`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({
-          identifier,
-          password,
-        }),
+        body: JSON.stringify({ identifier, password }),
       });
 
       const data = await res.json();
       if (!res.ok) {
         if (res.status === 403) {
-          navigate("/checkEmail", {
-            state: { identifier },
-          });
+          navigate("/checkEmail", { state: { identifier } });
           return;
         }
-
         throw new Error(data.message || "Login failed");
       }
       dispatch(setAccessToken(data.access_token));
       dispatch(setUser(data.user));
     } catch (err) {
       console.error(err);
-
       throw err;
     }
   };
@@ -60,9 +51,7 @@ function Auth() {
     try {
       const res = await fetch(`${API}/auth/register/`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({
           username: username.trim(),
@@ -75,20 +64,15 @@ function Auth() {
 
       if (!res.ok) {
         let errorMessage = "Registration failed";
-
         if (data.message) {
           errorMessage = data.message;
-        }
-
-        // DRF serializer error handling
-        else if (data.username) {
+        } else if (data.username) {
           errorMessage = data.username[0];
         } else if (data.email) {
           errorMessage = data.email[0];
         } else if (data.password) {
           errorMessage = data.password[0];
         }
-
         throw new Error(errorMessage);
       }
       navigate("/checkEmail", { state: { email } });
@@ -98,19 +82,56 @@ function Auth() {
     }
   };
 
+  // API Call: Request Password Reset OTP
+  const sendForgotPasswordOtp = async (email) => {
+    try {
+      const res = await fetch(`${API}/auth/forgot-password/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim().toLowerCase() }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to send OTP.");
+      }
+      return data;
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
+  };
+
+  // API Call: Verify OTP & Reset Password
+  const resetPassword = async (email, otp, newPassword) => {
+    try {
+      const res = await fetch(`${API}/auth/reset-password/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: email.trim().toLowerCase(),
+          otp: otp.trim(),
+          new_password: newPassword,
+        }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Reset failed.");
+      }
+      return data;
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-10 bg-[#0d1117]">
-      <div
-        className="
-          w-full max-w-4xl rounded-2xl overflow-hidden border border-[#30363d] shadow-2xl shadow-black/50 grid grid-cols-1 md:grid-cols-2"
-      >
+      <div className="w-full max-w-4xl rounded-2xl overflow-hidden border border-[#30363d] shadow-2xl shadow-black/50 grid grid-cols-1 md:grid-cols-2">
         {/* LEFT PANEL */}
-        <div
-          className="
-            hidden md:flex flex-col justify-center bg-[#0d1117] border-r border-[#30363d] px-10 py-12"
-        >
+        <div className="hidden md:flex flex-col justify-center bg-[#0d1117] border-r border-[#30363d] px-10 py-12">
           <div className="space-y-10">
-            {/* LOGO */}
             <div className="flex items-center gap-3">
               <img
                 src="/Logo.png"
@@ -125,7 +146,6 @@ function Auth() {
               </div>
             </div>
 
-            {/* TAGLINE */}
             <div className="space-y-3">
               <h2 className="text-4xl font-bold leading-tight text-[#c9d1d9]">
                 Build faster.
@@ -146,7 +166,6 @@ function Auth() {
 
         {/* RIGHT PANEL */}
         <div className="relative flex items-start justify-center p-7 md:p-10 bg-[#161b22]">
-          {/* CLOSE and go back to root*/}
           <button
             onClick={() => navigate("/")}
             className="absolute top-5 right-5 text-[#8b949e] hover:text-[#c9d1d9] transition z-10"
@@ -169,7 +188,11 @@ function Auth() {
               />
             )}
             {view === "forgot" && (
-              <ForgotPassword onBack={() => setView("login")} />
+              <ForgotPassword
+                onBack={() => setView("login")}
+                onSendOtp={sendForgotPasswordOtp}
+                onResetPassword={resetPassword}
+              />
             )}
           </div>
         </div>
