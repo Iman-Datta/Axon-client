@@ -7,6 +7,10 @@ import Login from "../../components/auth/Login";
 import Register from "../../components/auth/Register";
 import ForgotPassword from "../../components/auth/Forgotpassword";
 import { setAccessToken, setUser } from "../../redux/slices/authSlice";
+import {
+  handleFetchFailure,
+  handleResponseStatus,
+} from "../../utils/serverStatus";
 
 const API = import.meta.env.VITE_API_URL || "";
 
@@ -23,33 +27,35 @@ function Auth() {
   }, [user, navigate]);
 
   const loginUser = async (identifier, password) => {
+    let res;
     try {
-      const res = await fetch(`${API}/auth/login/`, {
+      res = await fetch(`${API}/auth/login/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({ identifier, password }),
       });
-
-      const data = await res.json();
-      if (!res.ok) {
-        if (res.status === 403) {
-          navigate("/checkEmail", { state: { identifier } });
-          return;
-        }
-        throw new Error(data.message || "Login failed");
-      }
-      dispatch(setAccessToken(data.access_token));
-      dispatch(setUser(data.user));
     } catch (err) {
-      console.error(err);
-      throw err;
+      handleFetchFailure(err);
     }
+    handleResponseStatus(res);
+
+    const data = await res.json();
+    if (!res.ok) {
+      if (res.status === 403) {
+        navigate("/checkEmail", { state: { identifier } });
+        return;
+      }
+      throw new Error(data.message || "Login failed");
+    }
+    dispatch(setAccessToken(data.access_token));
+    dispatch(setUser(data.user));
   };
 
   const registerUser = async (username, email, password) => {
+    let res;
     try {
-      const res = await fetch(`${API}/auth/register/`, {
+      res = await fetch(`${API}/auth/register/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -59,53 +65,53 @@ function Auth() {
           password,
         }),
       });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        let errorMessage = "Registration failed";
-        if (data.message) {
-          errorMessage = data.message;
-        } else if (data.username) {
-          errorMessage = data.username[0];
-        } else if (data.email) {
-          errorMessage = data.email[0];
-        } else if (data.password) {
-          errorMessage = data.password[0];
-        }
-        throw new Error(errorMessage);
-      }
-      navigate("/checkEmail", { state: { email } });
-    } catch (error) {
-      console.error(error);
-      throw error;
+    } catch (err) {
+      handleFetchFailure(err);
     }
+    handleResponseStatus(res);
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      let errorMessage = "Registration failed";
+      if (data.message) {
+        errorMessage = data.message;
+      } else if (data.username) {
+        errorMessage = data.username[0];
+      } else if (data.email) {
+        errorMessage = data.email[0];
+      } else if (data.password) {
+        errorMessage = data.password[0];
+      }
+      throw new Error(errorMessage);
+    }
+    navigate("/checkEmail", { state: { email } });
   };
 
-  // API Call: Request Password Reset OTP
   const sendForgotPasswordOtp = async (email) => {
+    let res;
     try {
-      const res = await fetch(`${API}/auth/forgot-password/`, {
+      res = await fetch(`${API}/auth/forgot-password/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: email.trim().toLowerCase() }),
       });
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.message || "Failed to send OTP.");
-      }
-      return data;
     } catch (err) {
-      console.error(err);
-      throw err;
+      handleFetchFailure(err);
     }
+    handleResponseStatus(res);
+
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.message || "Failed to send OTP.");
+    }
+    return data;
   };
 
-  // API Call: Verify OTP & Reset Password
   const resetPassword = async (email, otp, newPassword) => {
+    let res;
     try {
-      const res = await fetch(`${API}/auth/reset-password/`, {
+      res = await fetch(`${API}/auth/reset-password/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -114,16 +120,16 @@ function Auth() {
           new_password: newPassword,
         }),
       });
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.message || "Reset failed.");
-      }
-      return data;
     } catch (err) {
-      console.error(err);
-      throw err;
+      handleFetchFailure(err);
     }
+    handleResponseStatus(res);
+
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.message || "Reset failed.");
+    }
+    return data;
   };
 
   return (

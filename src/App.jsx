@@ -50,6 +50,10 @@ import ProjectLayout from "./components/layout/ProjectLayout";
 
 // Coming soon
 import ComingSoon from "./components/shared/ComingSoon";
+
+//Server error
+import ServerDownPage from "./pages/ServerDownPage";
+
 import ComingSoonV2 from "./components/shared/ComingSoonV2";
 
 import { setUser, setAuthLoading, clearUser } from "./redux/slices/authSlice";
@@ -119,6 +123,7 @@ function App() {
         <Route path="/auth" element={<AuthPage />} />
         <Route path="/checkEmail" element={<CheckEmail />} />
         <Route path="/callback" element={<EmailCallback />} />
+        <Route path="/server-error" element={<ServerDownPage />} />
 
         <Route
           path="/onboarding"
