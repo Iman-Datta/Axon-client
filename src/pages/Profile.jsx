@@ -90,7 +90,6 @@ function Profile() {
           <ProfileOverviewPage />
         </>
       ) : (
-        /* Render public profile overview or component when viewing another user */
         <div className="py-10 text-center text-[#8b949e]">
           Public Profile View
         </div>

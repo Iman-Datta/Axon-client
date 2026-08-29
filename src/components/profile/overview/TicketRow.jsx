@@ -2,6 +2,7 @@ import { ArrowUpRight, Layers } from "lucide-react";
 import StatusBadge from "./StatusBadge";
 
 function TicketRow({ ticket, onOpen }) {
+  console.log(ticket);
   return (
     <div className="group flex flex-col gap-3 rounded-xl border border-[#21262d] bg-[#0d1117]/50 p-4 transition-all duration-200 hover:border-[#388bfd]/50 hover:bg-[#0d1117] sm:flex-row sm:items-center sm:justify-between">
       <div className="flex min-w-0 items-start gap-3">

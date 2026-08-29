@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+// src/components/profile/MyWorkPage.jsx
+import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import {
@@ -8,6 +9,7 @@ import {
   User,
   ListChecks,
   AlertTriangle,
+  Ban,
 } from "lucide-react";
 import { fetchWithAuth } from "../../utils/fetchWithAuth";
 import ProfileLayout from "../layout/ProfileLayout";
@@ -24,6 +26,12 @@ const STATUS_LABELS = {
 function formatStatus(status) {
   return STATUS_LABELS[status] || STATUS_LABELS.DEFAULT;
 }
+
+const TABS = [
+  { key: "OPEN", label: "Open", icon: ListChecks },
+  { key: "DONE", label: "Done", icon: CheckCircle2 },
+  { key: "BLOCKED", label: "Blocked", icon: Ban },
+];
 
 function groupTicketsByProject(tickets) {
   const groups = tickets.reduce((acc, ticket) => {
@@ -64,7 +72,7 @@ function WorkTicketRow({ ticket, onOpen }) {
 
       <div className="flex shrink-0 items-center gap-4">
         <span className="rounded border border-[#30363d] bg-[#161b22] px-2 py-0.5 text-[11px] font-medium text-slate-400">
-          {formatStatus(ticket.status || ticket.kanban_column)}
+          {formatStatus(ticket.kanban_column)}
         </span>
         <button
           type="button"
@@ -171,16 +179,64 @@ function SummaryBar({ open, completed }) {
   );
 }
 
-function EmptyWorkState() {
+function TabBar({ activeTab, onChange, counts }) {
+  return (
+    <div className="flex items-center gap-1 border-b border-[#21262d]">
+      {TABS.map(({ key, label, icon: Icon }) => {
+        const isActive = activeTab === key;
+        return (
+          <button
+            key={key}
+            type="button"
+            onClick={() => onChange(key)}
+            className={`flex items-center gap-1.5 border-b-2 px-3 py-2 text-xs font-medium transition-colors ${
+              isActive
+                ? "border-sky-400 text-slate-100"
+                : "border-transparent text-slate-500 hover:text-slate-300"
+            }`}
+          >
+            <Icon size={13} />
+            {label}
+            <span
+              className={`ml-0.5 rounded px-1.5 py-0.5 text-[10px] font-semibold ${
+                isActive
+                  ? "bg-sky-400/10 text-sky-400"
+                  : "bg-[#21262d] text-slate-500"
+              }`}
+            >
+              {counts[key] || 0}
+            </span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+const EMPTY_TAB_COPY = {
+  OPEN: {
+    title: "No open tickets",
+    description: "You have no open tasks assigned right now.",
+  },
+  DONE: {
+    title: "No completed tickets yet",
+    description: "Finished tickets assigned to you will show up here.",
+  },
+  BLOCKED: {
+    title: "No blocked tickets",
+    description: "Nothing assigned to you is currently blocked.",
+  },
+};
+
+function EmptyWorkState({ tab }) {
+  const copy = EMPTY_TAB_COPY[tab] || EMPTY_TAB_COPY.OPEN;
   return (
     <div className="flex flex-col items-center justify-center rounded-lg border border-[#30363d] bg-[#161b22] py-16 text-center">
       <CheckCircle2 size={24} className="text-emerald-400" />
       <h3 className="mt-2 text-xs font-semibold text-slate-200">
-        No assigned tasks found
+        {copy.title}
       </h3>
-      <p className="mt-1 text-[11px] text-slate-400">
-        You have no active or completed tasks assigned across your workspaces.
-      </p>
+      <p className="mt-1 text-[11px] text-slate-400">{copy.description}</p>
     </div>
   );
 }
@@ -212,6 +268,7 @@ function MyWorkPage() {
   const [workData, setWorkData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [activeTab, setActiveTab] = useState("OPEN");
 
   useEffect(() => {
     let isMounted = true;
@@ -242,6 +299,28 @@ function MyWorkPage() {
     };
   }, [dispatch, accessToken]);
 
+  const tickets = workData?.tickets || [];
+  const summary = workData?.summary || {};
+
+  const counts = useMemo(
+    () => ({
+      OPEN: tickets.filter((t) => t.status === "OPEN").length,
+      DONE: tickets.filter((t) => t.status === "DONE").length,
+      BLOCKED: tickets.filter((t) => t.status === "BLOCKED").length,
+    }),
+    [tickets],
+  );
+
+  const filteredTickets = useMemo(
+    () => tickets.filter((t) => t.status === activeTab),
+    [tickets, activeTab],
+  );
+
+  const groups = useMemo(
+    () => groupTicketsByProject(filteredTickets),
+    [filteredTickets],
+  );
+
   if (loading) {
     return (
       <ProfileLayout user={currentUser}>
@@ -258,9 +337,6 @@ function MyWorkPage() {
     );
   }
 
-  const { tickets = [], summary = {} } = workData || {};
-  const groups = groupTicketsByProject(tickets);
-
   return (
     <ProfileLayout user={currentUser}>
       <div className="space-y-5">
@@ -269,8 +345,10 @@ function MyWorkPage() {
           completed={summary.completed || 0}
         />
 
-        {tickets.length === 0 ? (
-          <EmptyWorkState />
+        <TabBar activeTab={activeTab} onChange={setActiveTab} counts={counts} />
+
+        {filteredTickets.length === 0 ? (
+          <EmptyWorkState tab={activeTab} />
         ) : (
           <div className="space-y-4">
             {groups.map((group) => (

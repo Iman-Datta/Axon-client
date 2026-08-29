@@ -1,22 +1,25 @@
+// src/components/profile/overview/AssignedTicketsCard.jsx
 import { useNavigate } from "react-router-dom";
 import { ArrowRight, CheckCircle2, ListChecks } from "lucide-react";
 import SectionCard from "./SectionCard";
 import EmptyState from "./EmptyState";
 import TicketRow from "./TicketRow";
 
-const VISIBLE_LIMIT = 3;
+const VISIBLE_LIMIT = 4;
 
 function AssignedTicketsCard({ tickets = [], username }) {
   const navigate = useNavigate();
-  const visibleTickets = tickets.slice(0, VISIBLE_LIMIT);
+
+  const openTickets = tickets.filter((ticket) => ticket.status === "OPEN");
+  const visibleTickets = openTickets.slice(0, VISIBLE_LIMIT);
 
   return (
     <SectionCard
       icon={ListChecks}
       title="Assigned to You"
-      count={tickets.length}
+      count={openTickets.length}
       action={
-        tickets.length > VISIBLE_LIMIT && (
+        openTickets.length > VISIBLE_LIMIT && (
           <button
             type="button"
             onClick={() => navigate(`/${username}/my-work`)}
@@ -31,12 +34,12 @@ function AssignedTicketsCard({ tickets = [], username }) {
         )
       }
     >
-      {tickets.length === 0 ? (
+      {openTickets.length === 0 ? (
         <EmptyState
           icon={CheckCircle2}
           iconClassName="text-[#3fb950]"
           title="You're all caught up across projects!"
-          description="No issues are currently assigned to your profile."
+          description="No open issues are currently assigned to your profile."
         />
       ) : (
         <div className="space-y-3">
