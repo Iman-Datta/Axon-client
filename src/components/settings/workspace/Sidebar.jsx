@@ -1,3 +1,4 @@
+// src/components/Sidebar.jsx
 import { NavLink } from "react-router-dom";
 import { personalItems, organizationItems } from "./sidebarConfig";
 
@@ -15,6 +16,7 @@ const Sidebar = ({ type }) => {
       <NavLink
         key={item.path}
         to={item.path}
+        end /* <--- FIXED: Prevents parent routes (like /settings) from staying active on child routes */
         className={({ isActive }) =>
           `group relative flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium outline-none transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-[#58a6ff]/60 ${
             isActive
@@ -65,9 +67,6 @@ const Sidebar = ({ type }) => {
   };
 
   return (
-    // Sticky so the nav stays in view while a long settings page scrolls.
-    // top-6 leaves a little breathing room below the page header instead
-    // of pinning flush to the viewport edge.
     <aside className="w-full self-start md:sticky md:top-6">
       <div className="px-3">
         <h2 className="mb-3 text-[11px] font-semibold uppercase tracking-wider text-[#6e7681]">
